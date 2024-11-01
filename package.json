@@ -2,7 +2,7 @@
   "name": "ridebuddy",
   "version": "1.0.0",
   "description": "\"라이딩을 취미로 하는 사람들에게 정보를 제공하는 플랫폼\"",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
