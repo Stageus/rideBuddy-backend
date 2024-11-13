@@ -16,6 +16,9 @@ export default [
       'package-lock.json',
       'packaage.json',
     ],
+    rules: {
+      'no-unused-vars': 'off',
+    },
   },
   pluginJs.configs.recommended,
   eslintConfigPrettier,

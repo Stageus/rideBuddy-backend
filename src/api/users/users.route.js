@@ -7,3 +7,5 @@ import userProfile from './controller/userProfile.controller';
 router.use('/login', userAuth);
 router.use('/mail', userMail);
 router.use('/', userProfile);
+
+export { router };
