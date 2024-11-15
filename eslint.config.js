@@ -14,7 +14,10 @@ export default [
       'package-lock.json',
       'package.json',
     ],
-    rules: { 'no-unused-vars': 'off' },
+    rules: {
+      'no-unused-vars': 'off',
+      //'no-undef': 'off',
+    },
   },
   pluginJs.configs.recommended,
   eslintConfigPrettier,

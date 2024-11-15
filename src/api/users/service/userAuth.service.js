@@ -1,6 +1,11 @@
+/* eslint-disable no-unused-vars */
 import axios from 'axios';
+import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
+
+/*global process :true*/
+/*eslint no-undef: "error"*/
 
 // 네이버 로그인 화면 띄우기
 export const userNaverLogin = async (req, res, next) => {
@@ -10,7 +15,7 @@ export const userNaverLogin = async (req, res, next) => {
     `https://nid.naver.com/oauth2.0/authorize?` +
       `response_type=code` +
       `&client_id=${process.env.NAVER_CLIENT_ID}` +
-      `&state=${NAVER_STATE}` +
+      `&state=${NAVER_STATE}` + //인코딩 해야할수도 테스트해보기
       `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`
   );
 };
@@ -28,3 +33,4 @@ export const userNaverProfile = async (req, res, next) => {};
 // local jwt 생성 후 반환
 
 // local 액세스 토큰만료시 갱신 후 반환
+// 리프레이쉬 토큰 만료시
