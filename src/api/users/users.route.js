@@ -4,7 +4,7 @@ import {
   userNaverLogin,
   userNaverToken,
   userNaverProfile,
-} from './users.service';
+} from './users.service.js';
 
 //로컬 로그인
 router.post('/login/local');
@@ -20,4 +20,4 @@ router.post('/mail');
 router.get('/mail/check');
 router.delete('/my');
 
-export { router };
+export default router;

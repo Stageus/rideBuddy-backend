@@ -14,7 +14,7 @@ export const userNaverLogin = async (req, res, next) => {
   res.redirect(
     `https://nid.naver.com/oauth2.0/authorize?` +
       `response_type=code` +
-      `&client_id=${process.env.NAVER_CLIENT_ID}` +  
+      `&client_id=${process.env.NAVER_CLIENT_ID}` +
       `&state=${NAVER_STATE}` + //인코딩 해야할수도 테스트해보기
       `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`
   );
@@ -23,7 +23,7 @@ export const userNaverLogin = async (req, res, next) => {
 // 네이버 토큰발급 요청
 export const userNaverToken = async (req, res, next) => {
   const token = axios.get('');
-  const token1;
+  // const token1;
 };
 
 // 네이버 액세스토큰으로 식별자 얻기
