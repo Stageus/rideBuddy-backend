@@ -23,6 +23,7 @@ export const userNaverLogin = async (req, res, next) => {
 // 네이버 토큰발급 요청
 export const userNaverToken = async (req, res, next) => {
   const token = axios.get('');
+  // const token1;
 };
 
 // 네이버 액세스토큰으로 식별자 얻기
