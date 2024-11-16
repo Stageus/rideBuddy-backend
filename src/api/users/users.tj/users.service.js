@@ -1,37 +1,27 @@
-/* eslint-disable no-unused-vars */
-import axios from 'axios';
 import 'dotenv/config';
-import cookieParser from 'cookie-parser';
+import passport from 'passport';
 import jwt from 'jsonwebtoken';
 
-/*global process :true*/
-/*eslint no-undef: "error"*/
+// Google OAuth 인증 시작
+export const googleAuth = passport.authenticate('google', {
+  scope: ['profile', 'email'],
+});
 
-// 네이버 로그인 화면 띄우기
-export const userNaverLogin = async (req, res, next) => {
-  const NAVER_STATE = Math.random().toString(36).substring(2, 12);
+// Google OAuth 콜백 처리
+export const googleCallback = (req, res, next) => {
+  passport.authenticate('google', { session: false }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user)
+      return res.status(401).json({ message: 'Authentication failed' });
 
-  res.redirect(
-    `https://nid.naver.com/oauth2.0/authorize?` +
-      `response_type=code` +
-      `&client_id=${process.env.NAVER_CLIENT_ID}` +
-      `&state=${NAVER_STATE}` + //인코딩 해야할수도 테스트해보기
-      `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`
-  );
+    // JWT 생성
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    // 클라이언트에 JWT 반환
+    res.json({ message: 'Authentication successful', token });
+  })(req, res, next);
 };
-
-// 네이버 토큰발급 요청
-export const userNaverToken = async (req, res, next) => {
-  const token = axios.get('');
-  // const token1;
-};
-
-// 네이버 액세스토큰으로 식별자 얻기
-export const userNaverProfile = async (req, res, next) => {};
-
-// 네이버 식별자 데이터 베이스에 저장 or 확인
-
-// local jwt 생성 후 반환
-
-// local 액세스 토큰만료시 갱신 후 반환
-// 리프레이쉬 토큰 만료시
