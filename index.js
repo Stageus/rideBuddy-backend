@@ -17,9 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 app.use('/users', userRoute);
-// app.use('/info', infoRoute);
-// app.use('/weather', weatherRoute);
-// app.use('/mypages', mypagesRoute);
+app.use('/info', infoRoute);
+app.use('/weather', weatherRoute);
+app.use('/mypages', mypagesRoute);
 
 app.listen(process.env.PORT, () => {
   console.log('5000포트에서 웹서버 실행중');
