@@ -1,5 +1,5 @@
 import express from 'express';
-import { googleAuth, googleCallback } from './users.service.js';
+import { googleAuth, googleCallback, register } from './users.service.js';
 
 const router = express.Router();
 
@@ -15,10 +15,10 @@ router.get('/google/callback', googleCallback);
 // router.post('/login/google');
 // router.get('/fine-id');
 // router.put('/fine-pw');
-// router.get('/duplicate-id');
-// router.get('/duplicate-tell');
+router.get('/duplicate-id', duplicate_id);
+router.get('/duplicate-tell', duplicate_tell);
 // router.put('/tell');
-// router.post('/register');
+router.post('/register', register);
 // router.post('/mail');
 // router.get('/mail/check');
 // router.delete('/my');

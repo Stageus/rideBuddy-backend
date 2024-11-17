@@ -1,6 +1,6 @@
 import express from 'express';
 import 'dotenv/config';
-// import userRoute from './src/api/users/users.tj/users.route.js';
+import userRoute from './src/api/users/users.tj/users.route.js';
 // import infoRoute from './src/api/info/info.route';
 import weatherRoute from './src/api/weather/weather.route.js';
 // import mypagesRoute from './src/api/mypages/mypages.route';
@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 
-// app.use('/users', userRoute);
+app.use('/users', userRoute);
 // app.use('/info', infoRoute);
 app.use('/weather', weatherRoute);
 // app.use('/mypages', mypagesRoute);
