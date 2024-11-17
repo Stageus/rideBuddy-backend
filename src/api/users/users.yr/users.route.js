@@ -5,7 +5,7 @@ import {
   userNaverLogin,
   userNaverToken,
   userNaverProfile,
-} from '../users.service.js';
+} from './users.service.js';
 
 //로컬 로그인
 router.post('/login/local');
