@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import passport from 'passport';
+import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'; // 비밀번호 암호화를 위한 라이브러리
 import pool from '../../../config/mariadb.js'; // MariaDB 연결 설정

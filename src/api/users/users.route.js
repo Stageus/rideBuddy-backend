@@ -1,13 +1,20 @@
 import express from 'express';
+import { googleAuth, googleCallback } from './users.tj/users.service.js';
 import {
-  googleAuth,
-  googleCallback,
-  register,
-  duplicate_id,
-  duplicate_tell,
-} from './users.service.js';
+  userNaverLogin,
+  userNaverCallback,
+  userNaverProfile,
+} from './users.yr/users.service.js';
 
 const router = express.Router();
+
+//로컬 로그인
+router.post('/login/local');
+router.post('/login/naver', userNaverLogin);
+router.post('/login/naver/callback', userNaverCallback);
+router.get('/fine-id');
+router.put('/fine-pw');
+router.put('/tell');
 
 // Google OAuth 시작
 router.get('/google', googleAuth);
@@ -15,15 +22,8 @@ router.get('/google', googleAuth);
 // Google OAuth 콜백 처리
 router.get('/google/callback', googleCallback);
 
-//로컬 로그인
-router.post('/login/local');
-router.post('/login/naver', userNaverLogin);
-router.post('/login/google');
-router.get('/fine-id');
-router.put('/fine-pw');
 router.get('/duplicate-id');
 router.get('/duplicate-tell');
-router.put('/tell');
 router.post('/register');
 router.post('/mail');
 router.get('/mail/check');
