@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>로그인테스트</h1>
+    <!-- 로컬 -->
+    <div>
+        <label for="id">아이디</label>
+        <input type="text" id="id" name="id" required>
+    </div>
+    <div>
+        <label for="pw">비밀번호</label>
+        <input type="password" id="pw" name="pw" required>
+    </div>
+    <button onclick="requestLocal()">로그인</button>
+    <!-- 네이버-->
+    <input type="button" value='네이버 로그인' onclick="requestNaver()" >
+    <!-- 구글 -->
+    <button onclick="requestGoogle()">구글 로그인</button>
+    </div>
+    <!-- 파일 첨부 -->
+    <div>
+        <input type="file" name="file">
+        <button type="submit" onclick="requestFile()">올리기</button>
+    </div>
+
+<script>
+
+    const requestLocal = async() => {
+        const idValue = document.getElementById("id").value
+        const pwValue = document.getElementById("pw").value
+        
+        //fetch 말고 axios 
+        const resposne = await fetch("/",{
+            "method" : "POST",
+            "headers" : {
+                "Content-Type" : "application/json",
+            },
+            "body" : JSON.stringify({
+                "title" : titleValue,
+                "content" : contentValue
+            }) //json은 통신에 사용불가이므로 string으로 바꿔주는것. 
+        }) //fetch는 기본적으로 get 요청을 함. post인경우 매개변수가 필요
+        //  
+
+        if( response.status === 200) {
+            //페이지 이동 
+        }else if (response.status === 400){
+            const result = await response.json()
+            alert(result.message)
+        }
+        //const result  = await response.json() // 이게 res.status(200).send()// 빈 {} 오브젝트 지워주세요 쓰고 안쓰고의 차이가 커
+        // 보내주는 값이 없는데 json으로 바꿀수없으므로 에러가 남. 
+        // 그래서 api 명세서 정확하게 써줘야해. 
+    }
+
+    const requestNaver = async() =>{ 
+        const response = await fetch("/users/login/naver",{
+            method : "POST",
+        })
+        //const result = await response.json()
+    }
+
+    const requestEvent = () =>{
+        fetch("/articles/1/detail")//"http://localhost:8000/articles/1/detail"로컬호스트일때는 주소를 생략한다.
+
+            .then((response)=>{
+                //resposes는 바로 사용불가 왜냐면 통신시 json을 string으로 바꿔주기 때문에
+                //그래서 json으로 변환해야 사용할 수 있다. 
+                // const result = reponse.json()//.json이 비동기로 되어있음. 그래서 이렇게말구
+                return response.json()
+            })
+            .then((result)=>{ //result에는 josn이 들어가 있음. 
+                // 콜백과 처리구조는 비동기 ->비동기->비동기 이렇게 똑같지만 탭으로 계속 들어가는게아니라
+                //코드가 일자로 내려가서 가독성이 더 좋다. 
+                console.log(result)
+            })
+            //똑같은건데 then으로 처리한거, async라고 처리한거. 
+        console.log("hello")
+        // console.log(result)//비동기 처리 해줘야함. 안해주면 promise라고 나옴 
+        
+    }
+</script>
+</body>
+</html>

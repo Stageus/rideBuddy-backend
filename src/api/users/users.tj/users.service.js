@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import passport from 'passport';
+import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'; // 비밀번호 암호화를 위한 라이브러리
 import pool from '../../../config/mariadb.js'; // MariaDB 연결 설정
@@ -31,14 +32,16 @@ export const googleCallback = (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     // 1. 요청 본문(body)에서 데이터 추출
-    const { id, account_name, pw, mail } = req.body;
+
+    const { id, account_name, tell, pw, mail } = req.body;
+
 
     // 2. 입력값 검증
     if (!id || !pw || !account_name || !mail) {
       return res.status(400).json({ error: '모든 필드를 입력해주세요.' });
     }
     const [existingUsers] = await pool.execute(
-      'SELECT id, mail FROM accounts WHERE id = ? OR mail = ?',
+      'SELECT id, mail FROM account WHERE id = ? OR mail = ?',
       [id, mail]
     );
 
@@ -60,10 +63,10 @@ export const register = async (req, res, next) => {
 
     // 4. 데이터베이스에 사용자 저장
     const sql = `
-      INSERT INTO accounts (id, account_name , pw, mail) 
-      VALUES (?, ?, ?, ?)
+      INSERT INTO account (id, account_name ,tell, pw, mail) 
+      VALUES (?, ?, ?, ?,?)
     `;
-    await pool.execute(sql, [id, account_name, hashedPassword, mail]);
+    await pool.execute(sql, [id, account_name, tell, hashedPassword, mail]);
 
     // 5. 성공 응답
     res.status(201).json({ message: '회원가입이 완료되었습니다.' });
@@ -84,7 +87,7 @@ export const duplicate_id = async (req, res, next) => {
       return res.status(400).json({ error: '아이디를 입력해주세요.' });
     }
     const [existingUsers] = await pool.execute(
-      'SELECT id FROM accounts WHERE id = ?',
+      'SELECT id FROM account WHERE id = ?',
       [id]
     );
 
@@ -109,7 +112,7 @@ export const duplicate_tell = async (req, res, next) => {
 
     // 2. 데이터베이스에서 전화번호 중복 확인
     const [existingUsers] = await pool.execute(
-      'SELECT tell FROM accounts WHERE tell = ?',
+      'SELECT tell FROM account WHERE tell = ?',
       [tell]
     );
 
