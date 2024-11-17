@@ -32,7 +32,9 @@ export const googleCallback = (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     // 1. 요청 본문(body)에서 데이터 추출
+
     const { id, account_name, tell, pw, mail } = req.body;
+
 
     // 2. 입력값 검증
     if (!id || !pw || !account_name || !mail) {
