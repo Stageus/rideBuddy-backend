@@ -34,7 +34,7 @@
         const idValue = document.getElementById("id").value
         const pwValue = document.getElementById("pw").value
         
-        //fetch 말고 axios 
+        //fetch 
         const resposne = await fetch("/",{
             "method" : "POST",
             "headers" : {
@@ -62,27 +62,9 @@
         const response = await fetch("/users/login/naver",{
             method : "POST",
         })
-        //const result = await response.json()
-    }
 
-    const requestEvent = () =>{
-        fetch("/articles/1/detail")//"http://localhost:8000/articles/1/detail"로컬호스트일때는 주소를 생략한다.
-
-            .then((response)=>{
-                //resposes는 바로 사용불가 왜냐면 통신시 json을 string으로 바꿔주기 때문에
-                //그래서 json으로 변환해야 사용할 수 있다. 
-                // const result = reponse.json()//.json이 비동기로 되어있음. 그래서 이렇게말구
-                return response.json()
-            })
-            .then((result)=>{ //result에는 josn이 들어가 있음. 
-                // 콜백과 처리구조는 비동기 ->비동기->비동기 이렇게 똑같지만 탭으로 계속 들어가는게아니라
-                //코드가 일자로 내려가서 가독성이 더 좋다. 
-                console.log(result)
-            })
-            //똑같은건데 then으로 처리한거, async라고 처리한거. 
-        console.log("hello")
-        // console.log(result)//비동기 처리 해줘야함. 안해주면 promise라고 나옴 
-        
+        const naverLoginWindow = await response.text();
+        window.location.href = naverLoginWindow;
     }
 </script>
 </body>
