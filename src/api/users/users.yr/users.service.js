@@ -32,7 +32,13 @@ export const userNaverCallback = async (req, res, next) => {
   const response = await axios.get(tokenUrl);
 
   if (response.status == 200) {
-    await axios.post('http://localhost:5000/users/login/naver/profile');
+    await axios({
+      method: 'GET',
+      url: 'http://localhost:5000/users/login/naver/profile',
+      headers: {
+        access_token: `${response.data.access_token}`,
+      },
+    });
   }
 
   // res.set({
@@ -45,7 +51,16 @@ export const userNaverCallback = async (req, res, next) => {
 
 // 네이버 액세스토큰으로 식별자 얻기
 export const userNaverProfile = async (req, res, next) => {
-  console.log('가능?');
+  const identifierURL = `https://openapi.naver.com/v1/nid/me?`;
+
+  const personalInfo = await axios({
+    method: 'GET',
+    url: identifierURL,
+    headers: {
+      Authorization: `Bearer ${req.headers.access_token}`,
+    },
+  });
+  console.log(personalInfo);
 };
 
 // 네이버 식별자 데이터 베이스에 저장 or 확인

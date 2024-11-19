@@ -12,7 +12,7 @@ const router = express.Router();
 router.post('/login/local');
 router.post('/login/naver', userNaverLogin);
 router.get('/login/naver/callback', userNaverCallback);
-router.post('/login/naver/profile', userNaverProfile);
+router.get('/login/naver/profile', userNaverProfile);
 router.get('/fine-id');
 router.put('/fine-pw');
 router.put('/tell');
