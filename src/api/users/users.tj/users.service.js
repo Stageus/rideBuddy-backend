@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import passport from 'passport';
-import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'; // 비밀번호 암호화를 위한 라이브러리
 import pool from '../../../config/mariadb.js'; // MariaDB 연결 설정
@@ -34,7 +33,6 @@ export const register = async (req, res, next) => {
     // 1. 요청 본문(body)에서 데이터 추출
 
     const { id, account_name, tell, pw, mail } = req.body;
-
 
     // 2. 입력값 검증
     if (!id || !pw || !account_name || !mail) {
