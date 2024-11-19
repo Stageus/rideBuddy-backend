@@ -44,9 +44,7 @@ export const userNaverCallback = async (req, res, next) => {
 };
 
 // 네이버 액세스토큰으로 식별자 얻기
-export const userNaverProfile = async (req, res, next) => {
-  console.log('가능?');
-};
+export const userNaverProfile = async (req, res, next) => {};
 
 // 네이버 식별자 데이터 베이스에 저장 or 확인
 
