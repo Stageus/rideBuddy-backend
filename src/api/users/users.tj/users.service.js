@@ -2,7 +2,7 @@ import 'dotenv/config';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'; // 비밀번호 암호화를 위한 라이브러리
-import pool from '../../../config/mariadb.js'; // MariaDB 연결 설정
+import pool from '../../../config/mysql2.js'; // MariaDB 연결 설정
 
 // Google OAuth 인증 시작
 export const googleAuth = passport.authenticate('google', {

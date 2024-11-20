@@ -4,6 +4,7 @@ import {
   userNaverLogin,
   userNaverCallback,
   userNaverProfile,
+  userDBCheck,
 } from './users.yr/users.service.js';
 
 const router = express.Router();
@@ -13,6 +14,7 @@ router.post('/login/local');
 router.post('/login/naver', userNaverLogin);
 router.get('/login/naver/callback', userNaverCallback);
 router.get('/login/naver/profile', userNaverProfile);
+router.post('/login/oauth/user/check', userDBCheck);
 router.get('/fine-id');
 router.put('/fine-pw');
 router.put('/tell');

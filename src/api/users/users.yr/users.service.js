@@ -60,12 +60,36 @@ export const userNaverProfile = async (req, res, next) => {
       Authorization: `Bearer ${req.headers.access_token}`,
     },
   });
-  console.log(personalInfo);
+
+  const naverName = personalInfo.data.response.name;
+  const naverId = personalInfo.data.response.id;
+  if (naverName && naverId) {
+    await axios({
+      method: 'POST',
+      url: 'http://localhost:5000/users/login/oauth/user/check',
+      data: {
+        name: `${naverName}`,
+        id: `${naverId}`,
+      },
+    });
+  }
 };
 
 // 네이버 식별자 데이터 베이스에 저장 or 확인
+export const userDBCheck = async (req, res, next) => {
+  const userName = req.body.name;
+  const userId = req.body.id;
 
+  //회원정보db에 userId 있는지 확인
+  //없으면 insert 후 local jwt 생성으로 이동
+  //있으면 local jwt 생성으로 이동
+
+  //있으면 local jwt 생성
+};
 // local jwt 생성 후 반환
+export const makeJwt = async (req, res, next) => {};
 
 // local 액세스 토큰만료시 갱신 후 반환
+export const refreshJwt = async (req, res, next) => {};
+
 // 리프레이쉬 토큰 만료시
