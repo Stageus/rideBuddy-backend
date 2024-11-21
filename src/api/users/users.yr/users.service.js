@@ -10,7 +10,7 @@ export const createToken = async (req, res, next) => {
     {
       userName: req.name,
     },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET //
   );
 };
 
@@ -27,7 +27,7 @@ export const userNaverLogin = (req, res, next) => {
     `https://nid.naver.com/oauth2.0/authorize?` +
     `response_type=code` +
     `&client_id=${process.env.NAVER_CLIENT_ID}` +
-    `&state=${NAVER_STATE}` + //인코딩 해야할수도 테스트해보기
+    `&state=${NAVER_STATE}` +
     `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`;
 
   res.send(loginWindow);
@@ -49,13 +49,16 @@ export const userNaverCallback = async (req, res, next) => {
   const response = await axios.get(tokenUrl);
 
   if (response.status == 200) {
-    await axios({
-      method: 'GET',
-      url: 'http://localhost:5000/users/login/naver/profile',
-      headers: {
-        access_token: `${response.data.access_token}`,
-      },
-    });
+
+    // await axios({
+    //   method: 'GET',
+    //   url: 'http://localhost:5000/users/login/naver/profile',
+    //   headers: {
+    //     access_token: `${response.data.access_token}`,
+    //   },
+    // });
+    //api로 호출하지 말고 서버에서 호출.
+
   }
 
   // res.set({
@@ -81,14 +84,16 @@ export const userNaverProfile = async (req, res, next) => {
   const naverName = personalInfo.data.response.name;
   const naverId = personalInfo.data.response.id;
   if (naverName && naverId) {
-    await axios({
-      method: 'POST',
-      url: 'http://localhost:5000/users/login/oauth/user/check',
-      data: {
-        name: `${naverName}`,
-        id: `${naverId}`,
-      },
-    });
+
+    // await axios({
+    //   method: 'POST',
+    //   url: 'http://localhost:5000/users/login/oauth/user/check',
+    //   data: {
+    //     name: `${naverName}`,
+    //     id: `${naverId}`,
+    //   },
+    // });
+
   }
 };
 
