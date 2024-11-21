@@ -1,9 +1,16 @@
 import express from 'express';
-import { googleAuth, googleCallback } from './users.tj/users.service.js';
+import {
+  googleAuth,
+  googleCallback,
+  register,
+  duplicate_id,
+  duplicate_tell,
+} from './users.tj/users.service.js';
 import {
   userNaverLogin,
   userNaverCallback,
   userNaverProfile,
+  userDBCheck,
 } from './users.yr/users.service.js';
 
 const router = express.Router();
@@ -12,7 +19,8 @@ const router = express.Router();
 router.post('/login/local');
 router.post('/login/naver', userNaverLogin);
 router.get('/login/naver/callback', userNaverCallback);
-router.post('/login/naver/profile', userNaverProfile);
+router.get('/login/naver/profile', userNaverProfile);
+router.post('/login/oauth/user/check', userDBCheck);
 router.get('/fine-id');
 router.put('/fine-pw');
 router.put('/tell');
@@ -23,9 +31,9 @@ router.get('/google', googleAuth);
 // Google OAuth 콜백 처리
 router.get('/google/callback', googleCallback);
 
-router.get('/duplicate-id');
-router.get('/duplicate-tell');
-router.post('/register');
+router.get('/duplicate-id', duplicate_id);
+router.get('/duplicate-tell', duplicate_tell);
+router.post('/register', register);
 router.post('/mail');
 router.get('/mail/check');
 router.delete('/my');

@@ -1,6 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import pool from './mariadb.js'; // MariaDB 연결
+import pool from './mysql2.js'; // MariaDB 연결
 
 passport.use(
   new GoogleStrategy(
