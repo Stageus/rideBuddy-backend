@@ -1,6 +1,23 @@
 import axios from 'axios';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
+import pool from '../../../config/mysql2.js';
+import { checkNaverId, insertNaverId } from './users.repository.js';
+
+// local jwt 생성 후 반환
+export const createToken = async (req, res, next) => {
+  const acessToken = jwt.sign(
+    {
+      userName: req.name,
+    },
+    process.env.JWT_SECRET
+  );
+};
+
+// local 액세스 토큰만료시 갱신 후 반환
+export const renewAccessToken = async (req, res, next) => {};
+
+// 리프레이쉬 토큰 만료시
 
 // 네이버 로그인 화면 띄우기
 export const userNaverLogin = (req, res, next) => {
@@ -80,16 +97,18 @@ export const userDBCheck = async (req, res, next) => {
   const userName = req.body.name;
   const userId = req.body.id;
 
+  const [results, fields] = await pool.execute(checkNaverId, [userId]);
+
+  if (results.length == 0) {
+    await pool.execute(insertNaverId, [userName, userId]);
+  }
+  const { accessToken, refreshToken } = createToken(req.body);
+
+  // 커밋하기 올리기
+
   //회원정보db에 userId 있는지 확인
   //없으면 insert 후 local jwt 생성으로 이동
   //있으면 local jwt 생성으로 이동
 
   //있으면 local jwt 생성
 };
-// local jwt 생성 후 반환
-export const makeJwt = async (req, res, next) => {};
-
-// local 액세스 토큰만료시 갱신 후 반환
-export const refreshJwt = async (req, res, next) => {};
-
-// 리프레이쉬 토큰 만료시

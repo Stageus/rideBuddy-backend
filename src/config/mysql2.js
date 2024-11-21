@@ -1,14 +1,12 @@
 import mysql from 'mysql2/promise';
+import 'dotenv/config';
 
-// const pool = mysql.createPool({
-//   host: 'localhost', // MariaDB 서버 주소
-//   user: 'stageus', // 사용자 이름
-//   password: '1234', // 비밀번호
-//   database: 'web', // 사용할 데이터베이스 이름
-//   port: 3306, // MariaDB 포트 (기본값: 3306)
-//   connectionLimit: 10,
-// });
-
-const pool = mysql;
+const pool = mysql.createPool({
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  connectionLimit: 10,
+});
 
 export default pool;

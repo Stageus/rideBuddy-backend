@@ -1,5 +1,11 @@
 import express from 'express';
-import { googleAuth, googleCallback } from './users.tj/users.service.js';
+import {
+  googleAuth,
+  googleCallback,
+  register,
+  duplicate_id,
+  duplicate_tell,
+} from './users.tj/users.service.js';
 import {
   userNaverLogin,
   userNaverCallback,
@@ -25,9 +31,9 @@ router.get('/google', googleAuth);
 // Google OAuth 콜백 처리
 router.get('/google/callback', googleCallback);
 
-router.get('/duplicate-id');
-router.get('/duplicate-tell');
-router.post('/register');
+router.get('/duplicate-id', duplicate_id);
+router.get('/duplicate-tell', duplicate_tell);
+router.post('/register', register);
 router.post('/mail');
 router.get('/mail/check');
 router.delete('/my');
