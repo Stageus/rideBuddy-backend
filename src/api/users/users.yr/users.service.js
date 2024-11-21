@@ -49,6 +49,10 @@ export const userNaverCallback = async (req, res, next) => {
   const response = await axios.get(tokenUrl);
 
   if (response.status == 200) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 09be6cd2057f1e96fe9097fd15c92580203873bb
     // await axios({
     //   method: 'GET',
     //   url: 'http://localhost:5000/users/login/naver/profile',
@@ -57,6 +61,10 @@ export const userNaverCallback = async (req, res, next) => {
     //   },
     // });
     //api로 호출하지 말고 서버에서 호출.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 09be6cd2057f1e96fe9097fd15c92580203873bb
   }
 
   // res.set({
@@ -82,6 +90,10 @@ export const userNaverProfile = async (req, res, next) => {
   const naverName = personalInfo.data.response.name;
   const naverId = personalInfo.data.response.id;
   if (naverName && naverId) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 09be6cd2057f1e96fe9097fd15c92580203873bb
     // await axios({
     //   method: 'POST',
     //   url: 'http://localhost:5000/users/login/oauth/user/check',
@@ -90,6 +102,10 @@ export const userNaverProfile = async (req, res, next) => {
     //     id: `${naverId}`,
     //   },
     // });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 09be6cd2057f1e96fe9097fd15c92580203873bb
   }
 };
 

@@ -19,9 +19,9 @@ router.get('/google');
 // Google OAuth 콜백 처리
 router.get('/google/callback');
 
-router.get('/duplicate-id');
-router.get('/duplicate-tell');
-router.post('/register');
+router.get('/duplicate-id', duplicate_id);
+router.get('/duplicate-tell', duplicate_tell);
+router.post('/register', register);
 router.post('/mail');
 router.get('/mail/check');
 router.delete('/my');
