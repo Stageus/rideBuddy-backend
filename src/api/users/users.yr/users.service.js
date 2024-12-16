@@ -1,7 +1,7 @@
 import axios from 'axios';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import pool from '../../../config/mysql2.js';
+import pool from '../../../config/postgresql.js';
 import { checkNaverId, insertNaverId } from './users.repository.js';
 
 // local jwt 생성 후 반환
@@ -48,16 +48,7 @@ export const userNaverCallback = async (req, res, next) => {
 
   const response = await axios.get(tokenUrl);
 
-  if (response.status == 200) {
-    // await axios({
-    //   method: 'GET',
-    //   url: 'http://localhost:5000/users/login/naver/profile',
-    //   headers: {
-    //     access_token: `${response.data.access_token}`,
-    //   },
-    // });
-    //api로 호출하지 말고 서버에서 호출.
-  }
+  console.log(response);
 
   // res.set({
   //   Content_type: 'text/plain',
