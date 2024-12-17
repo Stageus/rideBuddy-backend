@@ -5,7 +5,7 @@ import pool from '../../../config/postgresql.js';
 import { checkNaverId, insertNaverId } from './users.repository.js';
 
 // local jwt 생성 후 반환
-export const createToken = async (req, res, next) => {
+export const createToken = async (name) => {
   const acessToken = jwt.sign(
     {
       userName: req.name,
@@ -33,7 +33,7 @@ export const userNaverLogin = (req, res, next) => {
   res.send(loginWindow);
 };
 
-// 네이버 토큰발급 요청
+// 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 jwt와 함께 응답.
 export const userNaverCallback = async (req, res, next) => {
   const code = req.query.code;
   const state = req.query.string;
@@ -47,9 +47,10 @@ export const userNaverCallback = async (req, res, next) => {
     `&state=${state}`;
 
   const response = await axios.get(tokenUrl);
+  // response.data.access_token
+  // response.data.refresh_token
 
-  console.log(response);
-
+  userNaverProfile(response.data.access_token);
   // res.set({
   //   Content_type: 'text/plain',
   //   refresh_token: `${response.data.refresh_token}`,
@@ -59,42 +60,39 @@ export const userNaverCallback = async (req, res, next) => {
 };
 
 // 네이버 액세스토큰으로 식별자 얻기
-export const userNaverProfile = async (req, res, next) => {
+export const userNaverProfile = async (access_token) => {
   const identifierURL = `https://openapi.naver.com/v1/nid/me?`;
 
   const personalInfo = await axios({
     method: 'GET',
     url: identifierURL,
     headers: {
-      Authorization: `Bearer ${req.headers.access_token}`,
+      Authorization: `Bearer ${access_token}`,
     },
   });
 
   const naverName = personalInfo.data.response.name;
   const naverId = personalInfo.data.response.id;
-  if (naverName && naverId) {
-    // await axios({
-    //   method: 'POST',
-    //   url: 'http://localhost:5000/users/login/oauth/user/check',
-    //   data: {
-    //     name: `${naverName}`,
-    //     id: `${naverId}`,
-    //   },
-    // });
-  }
+  // if (naverName && naverId) {
+  //   userDBCheck(naverName, naverId);
+  // }
+  userDBCheck(naverName, naverId);
 };
 
 // 네이버 식별자 데이터 베이스에 저장 or 확인
-export const userDBCheck = async (req, res, next) => {
-  const userName = req.body.name;
-  const userId = req.body.id;
+export const userDBCheck = async (name, id) => {
+  const userName = name;
+  const userId = id;
 
   const [results, fields] = await pool.execute(checkNaverId, [userId]);
 
   if (results.length == 0) {
     await pool.execute(insertNaverId, [userName, userId]);
   }
-  const { accessToken, refreshToken } = createToken(req.body);
+  const { accessToken, refreshToken } = createToken();
+  // createToken jwt에 뭘 넣지???
+  // 이거 마무리하고 돌아가는지 확인하고 commit 하기
+  // wrapper 적용하고 돌아가는지 확인해야함.
 
   // 커밋하기 올리기
 
