@@ -1,6 +1,4 @@
 import axios from 'axios';
-import 'dotenv/config';
-import jwt from 'jsonwebtoken';
 import pool from '../../../config/postgresql.js';
 import bcrypt from 'bcrypt';
 import {
@@ -11,15 +9,21 @@ import {
   selectLocalAccountIdx,
   insertPw,
 } from './users.repository.js';
+import {
+  genAccessToken,
+  genRefreshToken,
+} from '../../../module/util/generateToken.js';
 
 // local jwt 생성 후 반환
-export const createToken = async (name) => {
-  const acessToken = jwt.sign(
-    {
-      userName: req.name,
-    },
-    process.env.JWT_SECRET //
-  );
+export const createToken = async (account_idx) => {
+  try {
+    const accessToken = genAccessToken;
+    const refreshToken = genRefreshToken;
+
+    return accessToken, refreshToken;
+  } catch (err) {
+    // 500에러
+  }
 };
 
 // local 액세스 토큰만료시 갱신 후 반환
@@ -55,9 +59,6 @@ export const userNaverCallback = async (req, res, next) => {
     `&state=${state}`;
 
   const response = await axios.get(tokenUrl);
-  // response.data.access_token
-  // response.data.refresh_token
-
   userNaverProfile(response.data.access_token);
 
   res.send();
@@ -85,7 +86,7 @@ export const userNaverProfile = async (access_token) => {
   const naverId = personalInfo.data.response.id;
   // if (naverName && naverId) {
   //   userDBCheck(naverName, naverId);
-  // }
+  // } -> 여기 예외처리 해야함.
   userNaverDBCheck(naverName, naverId);
 };
 
@@ -147,11 +148,4 @@ export const userLocalDBCheck = async (req, res) => {
       res.statusCode(404).send();
     }
   });
-
-  // 더미데이터
-  // yiryung 1234
-  // 일단 db에 넣기 위해서 이걸 쓴다.
-  // bcrypt.hash(userPw, saltRounds).then(async function (hash) {
-  //   await pool.query(insertPw, [userId, hash, '정이령']);
-  // });
 };
