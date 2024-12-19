@@ -1,12 +1,15 @@
-import mysql from 'mysql2/promise';
+import pg from 'pg';
 import 'dotenv/config';
 
-const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-  connectionLimit: 10,
+const { Pool } = pg;
+
+const pool = new Pool({
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  user: process.env.PG_USER,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
+  max: 10,
 });
 
 export default pool;
