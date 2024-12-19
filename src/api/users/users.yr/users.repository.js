@@ -13,7 +13,17 @@ export const selectUserPw = `
     SELECT pw FROM project.account 
     WHERE id = $1;`;
 
-export const selectAccountIdx = `
+export const selectNaverAccountIdx = `
     SELECT account_idx FROM project.account
     WHERE naver_id = $1;
+`;
+
+export const selectLocalAccountIdx = `
+    SELECT account_idx FROM project.account
+    WHERE id = $1;
+`;
+
+export const insertPw = `
+    INSERT INTO project.account (id, pw, account_name) 
+    VALUES($1,$2,$3);
 `;

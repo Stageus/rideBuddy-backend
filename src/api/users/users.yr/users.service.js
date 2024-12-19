@@ -7,7 +7,9 @@ import {
   checkNaverId,
   insertNaverId,
   selectUserPw,
-  selectAccountIdx,
+  selectNaverAccountIdx,
+  selectLocalAccountIdx,
+  insertPw,
 } from './users.repository.js';
 
 // local jwt 생성 후 반환
@@ -92,14 +94,19 @@ export const userNaverDBCheck = async (naverName, naverId) => {
   const userName = naverName;
   const userAuthId = naverId;
 
+  // 해당 네이버식별자 아이디가 있는지 확인
   const checkResults = await pool.query(checkNaverId, [userAuthId]);
 
+  // 네이버 식별자 아이디가 없으면 db에 추가
   if (checkResults.rows.length == 0) {
     await pool.query(insertNaverId, [userName, userAuthId]);
   }
 
-  const idxResults = await pool.query(selectAccountIdx, [userAuthId]);
+  // 네이버 식별자 아이디에 해당하는 account_idx 가져오기
+  const idxResults = await pool.query(selectNaverAccountIdx, [userAuthId]);
   const account_idx = idxResults.rows[0].account_idx;
+
+  //localJWT 발급
 
   //createToken(account_idx);
   // 가독성 좇창났네 시발
@@ -110,12 +117,6 @@ export const userNaverDBCheck = async (naverName, naverId) => {
   // wrapper 적용하고 돌아가는지 확인해야함.
 
   // 커밋하기 올리기
-
-  //회원정보db에 userId 있는지 확인
-  //없으면 insert 후 local jwt 생성으로 이동
-  //있으면 local jwt 생성으로 이동
-
-  //있으면 local jwt 생성
 };
 
 export const userLocalDBCheck = async (req, res) => {
@@ -130,6 +131,27 @@ export const userLocalDBCheck = async (req, res) => {
   // 3. 맞으면 createToken 해서 생성된 JWT 토큰과 함께 200상태코드를 보낸다.
   // 4. 틀리면 상태코드 404를 보낸다. ... -> 이거 커스텀 에러로 처리 .
 
-  const dbPw = await pool.query(selectUserPw, [userId]);
-  console.log('dbPw결고ㅏ', dbPw.rows);
+  // id에 해당하는 해싱된 pw 불러오기
+  const pwResults = await pool.query(selectUserPw, [userId]);
+  const pwHash = pwResults.rows[0].pw;
+
+  // db의 pw와 userPw가 같은지 검증한다.
+  bcrypt.compare(userPw, pwHash).then(async function (result) {
+    if (result == true) {
+      // 로컬 아이디에 해당하는 account_idx 가져오기
+      const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+      const account_idx = idxResults.rows[0].account_idx;
+
+      //createToken(account_idx);
+    } else {
+      res.statusCode(404).send();
+    }
+  });
+
+  // 더미데이터
+  // yiryung 1234
+  // 일단 db에 넣기 위해서 이걸 쓴다.
+  // bcrypt.hash(userPw, saltRounds).then(async function (hash) {
+  //   await pool.query(insertPw, [userId, hash, '정이령']);
+  // });
 };

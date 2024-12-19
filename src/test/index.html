@@ -34,25 +34,16 @@
         const idValue = document.getElementById("id").value
         const pwValue = document.getElementById("pw").value
         
-        //fetch 
-        const resposne = await fetch("/",{
+        const resposne = await fetch("/users/login/local",{
             "method" : "POST",
             "headers" : {
                 "Content-Type" : "application/json",
             },
             "body" : JSON.stringify({
-                "title" : titleValue,
-                "content" : contentValue
-            }) //json은 통신에 사용불가이므로 string으로 바꿔주는것. 
-        }) //fetch는 기본적으로 get 요청을 함. post인경우 매개변수가 필요
-        //  
-
-        if( response.status === 200) {
-            //페이지 이동 
-        }else if (response.status === 400){
-            const result = await response.json()
-            alert(result.message)
-        }
+                "id" : idValue,
+                "pw" : pwValue
+            }) 
+        }) 
         //const result  = await response.json() // 이게 res.status(200).send()// 빈 {} 오브젝트 지워주세요 쓰고 안쓰고의 차이가 커
         // 보내주는 값이 없는데 json으로 바꿀수없으므로 에러가 남. 
         // 그래서 api 명세서 정확하게 써줘야해. 
@@ -66,6 +57,8 @@
         const naverLoginWindow = await response.text();
         window.location.href = naverLoginWindow;
     }
+
+
 </script>
 </body>
 </html>
