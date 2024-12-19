@@ -2,10 +2,7 @@ import axios from 'axios';
 import pool from '../../../config/postgresql.js';
 import bcrypt from 'bcrypt';
 import { selectUserPw, selectLocalAccountIdx } from './users.repository.js';
-import {
-  genAccessToken,
-  genRefreshToken,
-} from '../../../module/util/generateToken.js';
+import { genAccessToken, genRefreshToken } from '../../../module/util/token.js';
 import { userNaverProfile } from '../../../module/util/naverOauth.js';
 
 // 네이버 로그인 화면 띄우기
@@ -22,7 +19,7 @@ export const userNaverLogin = (req, res, next) => {
   res.send(loginWindow);
 };
 
-// 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 jwt와 함께 응답.
+// 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 db의 account_idx req에 추가
 export const userNaverCallback = async (req, res, next) => {
   const code = req.query.code;
   const state = req.query.string;
@@ -64,7 +61,7 @@ export const userLocalDBCheck = async (req, res, next) => {
       req.account_idx = account_idx;
       next();
     } else {
-      res.statusCode(404).send();
+      res.status(404).send();
     }
   });
 };
@@ -75,6 +72,7 @@ export const createToken = async (req, res) => {
     const accessToken = genAccessToken(req.account_idx);
     const refreshToken = genRefreshToken(req.account_idx);
 
+    // 쿠키에 refresh token, authorization header 에 access token
     res.set({
       Content_type: 'text/plain',
       refresh_token: `${refreshToken}`,
@@ -86,7 +84,8 @@ export const createToken = async (req, res) => {
   }
 };
 
-// local 액세스 토큰만료시 갱신 후 반환
-export const renewAccessToken = async (req, res, next) => {};
-
-// 리프레이쉬 토큰 만료시
+export const verifyToken = async (req, res, next) => {
+  //1. access token 만료, refresh token 만료 -> 로그인 다시
+  //2. access token 만료, refresh token 비만료 -> access token 갱신
+  //
+};

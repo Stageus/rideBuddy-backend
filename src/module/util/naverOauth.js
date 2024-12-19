@@ -2,7 +2,7 @@ import {
   checkNaverId,
   insertNaverId,
   selectNaverAccountIdx,
-} from './users.repository.js';
+} from '../../api/users/users.yr/users.repository.js';
 // 네이버 액세스토큰으로 식별자 얻기
 export const userNaverProfile = async (naverAccessToken) => {
   const identifierURL = `https://openapi.naver.com/v1/nid/me?`;

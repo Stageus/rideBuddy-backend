@@ -5,6 +5,7 @@ import {
   userNaverCallback,
   userLocalDBCheck,
   createToken,
+  verifyToken,
 } from './users.yr/users.service.js';
 import { checkRegx } from '../../module/util/checkRegx.js';
 const router = express.Router();
@@ -14,9 +15,8 @@ router.post('/login/local', userLocalDBCheck, createToken); //checkRegx 해야�
 router.post('/login/naver', userNaverLogin);
 router.get('/login/naver/callback', userNaverCallback, createToken);
 router.get('/find-id');
-router.put('/find-pw');
-
-router.put('/tell');
+router.get('/change-pw');
+router.put('/change-pw');
 
 // Google OAuth 시작
 router.get('/google');
@@ -25,10 +25,9 @@ router.get('/google');
 router.get('/google/callback');
 
 router.get('/duplicate-id');
-router.get('/duplicate-tell');
 router.post('/register');
 router.post('/mail');
 router.get('/mail/check');
-router.delete('/my');
+router.delete('/my', verifyToken);
 
 export default router;
