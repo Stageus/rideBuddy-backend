@@ -4,14 +4,15 @@ import {
   userNaverLogin,
   userNaverCallback,
   userLocalDBCheck,
+  createToken,
 } from './users.yr/users.service.js';
 import { checkRegx } from '../../module/util/checkRegx.js';
 const router = express.Router();
 
 //로컬 로그인
-router.post('/login/local', userLocalDBCheck); //checkRegx 해야해
+router.post('/login/local', userLocalDBCheck, createToken); //checkRegx 해야해
 router.post('/login/naver', userNaverLogin);
-router.get('/login/naver/callback', userNaverCallback);
+router.get('/login/naver/callback', userNaverCallback, createToken);
 router.get('/find-id');
 router.put('/find-pw');
 

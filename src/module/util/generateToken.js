@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const accessSecretKey = process.env.JWT_ACCESSTOKEN_SECRET;
 const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
 
-export const genAccessToken = () => {
+export const genAccessToken = (account_idx) => {
   const accessToken = jwt.sign(
     {
       accountIdx: account_idx,
@@ -17,7 +17,7 @@ export const genAccessToken = () => {
   return accessToken;
 };
 
-export const genRefreshToken = () => {
+export const genRefreshToken = (account_idx) => {
   const refreshToken = jwt.sign(
     {
       accountIdx: account_idx,
