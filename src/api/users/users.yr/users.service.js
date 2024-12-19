@@ -2,7 +2,13 @@ import axios from 'axios';
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import pool from '../../../config/postgresql.js';
-import { checkNaverId, insertNaverId } from './users.repository.js';
+import bcrypt from 'bcrypt';
+import {
+  checkNaverId,
+  insertNaverId,
+  selectUserPw,
+  selectAccountIdx,
+} from './users.repository.js';
 
 // local jwt 생성 후 반환
 export const createToken = async (name) => {
@@ -51,6 +57,8 @@ export const userNaverCallback = async (req, res, next) => {
   // response.data.refresh_token
 
   userNaverProfile(response.data.access_token);
+
+  res.send();
   // res.set({
   //   Content_type: 'text/plain',
   //   refresh_token: `${response.data.refresh_token}`,
@@ -76,21 +84,28 @@ export const userNaverProfile = async (access_token) => {
   // if (naverName && naverId) {
   //   userDBCheck(naverName, naverId);
   // }
-  userDBCheck(naverName, naverId);
+  userNaverDBCheck(naverName, naverId);
 };
 
 // 네이버 식별자 데이터 베이스에 저장 or 확인
-export const userDBCheck = async (name, id) => {
-  const userName = name;
-  const userId = id;
+export const userNaverDBCheck = async (naverName, naverId) => {
+  const userName = naverName;
+  const userAuthId = naverId;
 
-  const [results, fields] = await pool.execute(checkNaverId, [userId]);
+  const checkResults = await pool.query(checkNaverId, [userAuthId]);
 
-  if (results.length == 0) {
-    await pool.execute(insertNaverId, [userName, userId]);
+  if (checkResults.rows.length == 0) {
+    await pool.query(insertNaverId, [userName, userAuthId]);
   }
-  const { accessToken, refreshToken } = createToken();
-  // createToken jwt에 뭘 넣지???
+
+  const idxResults = await pool.query(selectAccountIdx, [userAuthId]);
+  const account_idx = idxResults.rows[0].account_idx;
+
+  //createToken(account_idx);
+  // 가독성 좇창났네 시발
+  //const { accessToken, refreshToken } = createToken();
+  // createToken jwt에 뭘 넣지??? -> account_idx
+  //
   // 이거 마무리하고 돌아가는지 확인하고 commit 하기
   // wrapper 적용하고 돌아가는지 확인해야함.
 
@@ -101,4 +116,20 @@ export const userDBCheck = async (name, id) => {
   //있으면 local jwt 생성으로 이동
 
   //있으면 local jwt 생성
+};
+
+export const userLocalDBCheck = async (req, res) => {
+  const userId = req.body.id;
+  const userPw = req.body.pw;
+
+  const saltRounds = 10;
+  // 지금은 회원가입이아니라 로그인이니까,,
+  // 1. db에서 id에 대한 해싱된 pw를 가져온다.
+  //    selectPw
+  // 2. 해싱된 pw와 req.body.pw와 compare해서 결과를 판단한다.
+  // 3. 맞으면 createToken 해서 생성된 JWT 토큰과 함께 200상태코드를 보낸다.
+  // 4. 틀리면 상태코드 404를 보낸다. ... -> 이거 커스텀 에러로 처리 .
+
+  const dbPw = await pool.query(selectUserPw, [userId]);
+  console.log('dbPw결고ㅏ', dbPw.rows);
 };

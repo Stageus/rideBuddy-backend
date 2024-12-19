@@ -1,11 +1,15 @@
 import express from 'express';
 import {} from './users.tj/users.service.js';
-import { userNaverLogin, userNaverCallback } from './users.yr/users.service.js';
-
+import {
+  userNaverLogin,
+  userNaverCallback,
+  userLocalDBCheck,
+} from './users.yr/users.service.js';
+import { checkRegx } from '../../module/util/checkRegx.js';
 const router = express.Router();
 
 //로컬 로그인
-router.post('/login/local');
+router.post('/login/local', userLocalDBCheck); //checkRegx 해야해
 router.post('/login/naver', userNaverLogin);
 router.get('/login/naver/callback', userNaverCallback);
 router.get('/find-id');
