@@ -17,9 +17,7 @@ export const userNaverProfile = async (naverAccessToken) => {
 
   const naverName = personalInfo.data.response.name;
   const naverId = personalInfo.data.response.id;
-  // if (naverName && naverId) {
-  //   userDBCheck(naverName, naverId);
-  // } -> 여기 예외처리 해야함.
+
   const DbAccountIdx = userNaverDBCheck(naverName, naverId);
   return DbAccountIdx;
 };

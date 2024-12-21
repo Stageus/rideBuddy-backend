@@ -72,18 +72,23 @@ export const createToken = async (req, res) => {
     const accessToken = genAccessToken(req.account_idx);
     const refreshToken = genRefreshToken(req.account_idx);
 
-    // 쿠키에 refresh token, authorization header 에 access token
-    res.set({
-      Content_type: 'text/plain',
-      refresh_token: `${refreshToken}`,
+    res.cookie('access_token', `${accessToken}`, {
+      httpOnly: false,
+      sameSite: 'Strict',
     });
-    res.cookie('access_token', `${accessToken}`);
+    res.cookie('refresh_token', `${refreshToken}`, {
+      httpOnly: true,
+      samesite: 'Strict',
+    });
+
     res.status(200).send();
   } catch (err) {
     // 500에러
   }
 };
 
+// 토큰이 유효한지 체크 ,
+// 로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyToken = async (req, res, next) => {
   //1. access token 만료, refresh token 만료 -> 로그인 다시
   //2. access token 만료, refresh token 비만료 -> access token 갱신
