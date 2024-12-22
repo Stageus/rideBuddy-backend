@@ -11,6 +11,10 @@
     "url": "git+https://github.com/Stageus/rideBuddy-backend.git"
   },
   "type": "module",
+  "imports": {
+    "#config/*": "./src/config/*",
+    "#util/*": "./src/module/util/*"
+  },
   "author": "\"front : 현기윤 , back : 이태준, 정이령, PM : 정이령 \"",
   "license": "ISC",
   "bugs": {

@@ -1,9 +1,15 @@
 import axios from 'axios';
-import pool from '../../../config/postgresql.js';
+
+import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
-import { selectUserPw, selectLocalAccountIdx } from './users.repository.js';
-import { genAccessToken, genRefreshToken } from '../../../module/util/token.js';
-import { userNaverProfile } from '../../../module/util/naverOauth.js';
+import {
+  selectUserPw,
+  selectLocalAccountIdx,
+  insertPw,
+} from './users.repository.js';
+import { genAccessToken, genRefreshToken, verifyResult } from '#util/token.js';
+import { userNaverProfile } from '#util/naverOauth.js';
+import 'dotenv/config';
 
 // 네이버 로그인 화면 띄우기
 export const userNaverLogin = (req, res, next) => {
@@ -46,11 +52,20 @@ export const userLocalDBCheck = async (req, res, next) => {
 
   const saltRounds = 10;
 
-  // id에 해당하는 해싱된 pw 불러오기
+  //  더미데이터
+  // yiryung 1234
+  // 일단 db에 넣기 위해서 이걸 쓴다.
+  // bcrypt.hash(userPw, saltRounds).then(async function (hash) {
+  //   await pool.query(insertPw, [userId, hash, '정이령']);
+  // });
+
+  //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
+  console.log('psResults.rows', pwResults.rows);
   const pwHash = pwResults.rows[0].pw;
 
-  // db의 pw와 userPw가 같은지 검증한다.
+  //db의 pw와 userPw가 같은지 검증한다.
+
   bcrypt.compare(userPw, pwHash).then(async function (result) {
     if (result == true) {
       // 로컬 아이디에 해당하는 account_idx 가져오기
@@ -72,22 +87,50 @@ export const createToken = async (req, res) => {
     const accessToken = genAccessToken(req.account_idx);
     const refreshToken = genRefreshToken(req.account_idx);
 
-    // 쿠키에 refresh token, authorization header 에 access token
-    res.set({
-      Content_type: 'text/plain',
-      refresh_token: `${refreshToken}`,
+    console.log('accessToken', accessToken);
+    console.log('refreshToken', refreshToken);
+
+    res.cookie('access_token', `${accessToken}`, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'Strict',
     });
-    res.cookie('access_token', `${accessToken}`);
+    res.cookie('refresh_token', `${refreshToken}`, {
+      httpOnly: true,
+      secure: true,
+      samesite: 'Strict',
+    });
+
     res.status(200).send();
-    console.log(accessToken)
-    console.log(refreshToken)
   } catch (err) {
     // 500에러
   }
 };
 
+// 토큰이 유효한지 체크 ,
+// 로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyToken = async (req, res, next) => {
-  //1. access token 만료, refresh token 만료 -> 로그인 다시
-  //2. access token 만료, refresh token 비만료 -> access token 갱신
-  //
+  const refreshToken = req.cookies.refresh_token;
+  const accessToken = req.headers.authorization;
+
+  const accessResult = verifyResult('access', accessToken);
+  const refreshResult = verifyResult('refresh', refreshToken);
+
+  //(1) access token 비만료, -> 갱신할 필요 없음.
+  if (accessResult.errMessage === null) {
+    next();
+  }
+  //(2) access token 만료, refresh token 만료 -> 로그인 다시
+  else if (refreshResult.errMessage === 'jwt expired') {
+    next(err);
+  }
+  //(3) access token 만료, refresh token 비만료 -> access token 갱신
+  else {
+    // 갱신
+    // 1. 리프레쉬토큰의 account_idx 얻어서
+    const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
+    const decoded = jwt.verify(refreshToken, refreshSecretKey);
+    console.log('decoded', decoded);
+    // 2. 다시 genAccessToken 하면 됨.
+  }
 };
