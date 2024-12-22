@@ -46,24 +46,31 @@ export const userLocalDBCheck = async (req, res, next) => {
 
   const saltRounds = 10;
 
+  //  더미데이터
+  // yiryung 1234
+  // 일단 db에 넣기 위해서 이걸 쓴다.
+  bcrypt.hash(userPw, saltRounds).then(async function (hash) {
+    await pool.query(insertPw, [userId, hash, '정이령']);
+  });
+
   // id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
   const pwHash = pwResults.rows[0].pw;
 
   // db의 pw와 userPw가 같은지 검증한다.
-  bcrypt.compare(userPw, pwHash).then(async function (result) {
-    if (result == true) {
-      // 로컬 아이디에 해당하는 account_idx 가져오기
-      const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
-      const account_idx = idxResults.rows[0].account_idx;
+  // bcrypt.compare(userPw, pwHash).then(async function (result) {
+  //   if (result == true) {
+  //     // 로컬 아이디에 해당하는 account_idx 가져오기
+  //     const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+  //     const account_idx = idxResults.rows[0].account_idx;
 
-      // req 객체에 account_idx 추가 하여 createToken 미들웨어로 전달.
-      req.account_idx = account_idx;
-      next();
-    } else {
-      res.status(404).send();
-    }
-  });
+  //     // req 객체에 account_idx 추가 하여 createToken 미들웨어로 전달.
+  //     req.account_idx = account_idx;
+  //     next();
+  //   } else {
+  //     res.status(404).send();
+  //   }
+  // });
 };
 
 // local jwt 생성 후 반환
@@ -71,6 +78,9 @@ export const createToken = async (req, res) => {
   try {
     const accessToken = genAccessToken(req.account_idx);
     const refreshToken = genRefreshToken(req.account_idx);
+
+    console.log('accessToken', accessToken);
+    console.log('refreshToken', refreshToken);
 
     res.cookie('access_token', `${accessToken}`, {
       httpOnly: false,
@@ -90,7 +100,14 @@ export const createToken = async (req, res) => {
 // 토큰이 유효한지 체크 ,
 // 로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyToken = async (req, res, next) => {
-  //1. access token 만료, refresh token 만료 -> 로그인 다시
-  //2. access token 만료, refresh token 비만료 -> access token 갱신
-  //
+  //(1) access token 만료, refresh token 만료 -> 로그인 다시
+  //(2) access token 만료, refresh token 비만료 -> access token 갱신
+  //(3) access token 비만료, -> 갱신할 필요 없음.
+  // 1. header에 있는 access token 과 cookie에 있는 refresh token을 추출한다.
+  console.log(req.cookies);
+  // 2. access token이 만료되었는지 확인한다.
+  // 3. refresh token이 만료되었는지 확인한다.
+  // 4. (1)인경우 다시 로그인
+  // 5. (2)인 경우 access token 갱신한다.
+  // 6. (3)인경우, access token 갱신할 필요가 없다.
 };

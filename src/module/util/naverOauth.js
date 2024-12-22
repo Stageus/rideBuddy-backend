@@ -3,6 +3,9 @@ import {
   insertNaverId,
   selectNaverAccountIdx,
 } from '../../api/users/users.yr/users.repository.js';
+import axios from 'axios';
+import pool from '../../config/postgresql.js';
+
 // 네이버 액세스토큰으로 식별자 얻기
 export const userNaverProfile = async (naverAccessToken) => {
   const identifierURL = `https://openapi.naver.com/v1/nid/me?`;

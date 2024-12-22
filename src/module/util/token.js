@@ -11,7 +11,7 @@ export const genAccessToken = (account_idx) => {
     },
     accessSecretKey,
     {
-      expiresIn: '1h',
+      expiresIn: '30s',
     }
   );
   return accessToken;
