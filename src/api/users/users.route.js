@@ -7,7 +7,7 @@ import {
   createToken,
   verifyToken,
 } from './users.yr/users.service.js';
-import { checkRegx } from '../../module/util/checkRegx.js';
+import { checkRegx } from '#util/checkRegx.js';
 const router = express.Router();
 
 //로컬 로그인
