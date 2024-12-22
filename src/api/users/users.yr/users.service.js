@@ -1,8 +1,17 @@
 import axios from 'axios';
 import pool from '../../../config/postgresql.js';
 import bcrypt from 'bcrypt';
-import { selectUserPw, selectLocalAccountIdx } from './users.repository.js';
-import { genAccessToken, genRefreshToken } from '../../../module/util/token.js';
+import {
+  selectUserPw,
+  selectLocalAccountIdx,
+  insertPw,
+} from './users.repository.js';
+import {
+  genAccessToken,
+  genRefreshToken,
+  verifyAccess,
+  verifyRefresh,
+} from '../../../module/util/token.js';
 import { userNaverProfile } from '../../../module/util/naverOauth.js';
 
 // 네이버 로그인 화면 띄우기
@@ -49,28 +58,29 @@ export const userLocalDBCheck = async (req, res, next) => {
   //  더미데이터
   // yiryung 1234
   // 일단 db에 넣기 위해서 이걸 쓴다.
-  bcrypt.hash(userPw, saltRounds).then(async function (hash) {
-    await pool.query(insertPw, [userId, hash, '정이령']);
-  });
+  // bcrypt.hash(userPw, saltRounds).then(async function (hash) {
+  //   await pool.query(insertPw, [userId, hash, '정이령']);
+  // });
 
-  // id에 해당하는 해싱된 pw 불러오기
+  //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
+  console.log('psResults.rows', pwResults.rows);
   const pwHash = pwResults.rows[0].pw;
 
-  // db의 pw와 userPw가 같은지 검증한다.
-  // bcrypt.compare(userPw, pwHash).then(async function (result) {
-  //   if (result == true) {
-  //     // 로컬 아이디에 해당하는 account_idx 가져오기
-  //     const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
-  //     const account_idx = idxResults.rows[0].account_idx;
+  //db의 pw와 userPw가 같은지 검증한다.
+  bcrypt.compare(userPw, pwHash).then(async function (result) {
+    if (result == true) {
+      // 로컬 아이디에 해당하는 account_idx 가져오기
+      const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+      const account_idx = idxResults.rows[0].account_idx;
 
-  //     // req 객체에 account_idx 추가 하여 createToken 미들웨어로 전달.
-  //     req.account_idx = account_idx;
-  //     next();
-  //   } else {
-  //     res.status(404).send();
-  //   }
-  // });
+      // req 객체에 account_idx 추가 하여 createToken 미들웨어로 전달.
+      req.account_idx = account_idx;
+      next();
+    } else {
+      res.status(404).send();
+    }
+  });
 };
 
 // local jwt 생성 후 반환
@@ -84,10 +94,12 @@ export const createToken = async (req, res) => {
 
     res.cookie('access_token', `${accessToken}`, {
       httpOnly: false,
+      secure: true,
       sameSite: 'Strict',
     });
     res.cookie('refresh_token', `${refreshToken}`, {
       httpOnly: true,
+      secure: true,
       samesite: 'Strict',
     });
 
@@ -104,7 +116,13 @@ export const verifyToken = async (req, res, next) => {
   //(2) access token 만료, refresh token 비만료 -> access token 갱신
   //(3) access token 비만료, -> 갱신할 필요 없음.
   // 1. header에 있는 access token 과 cookie에 있는 refresh token을 추출한다.
-  console.log(req.cookies);
+  console.log('req.cookies', req.cookies.refresh_token);
+  console.log('req.headers', req.headers.authorization);
+  const refreshToken = req.cookies.refresh_token;
+  const accessToken = req.headers.authorization;
+
+  verifyAccess(accessToken);
+  verifyRefresh(refreshToken);
   // 2. access token이 만료되었는지 확인한다.
   // 3. refresh token이 만료되었는지 확인한다.
   // 4. (1)인경우 다시 로그인

@@ -30,6 +30,44 @@ export const genRefreshToken = (account_idx) => {
   return refreshToken;
 };
 
+export const verifyAccess = (token) => {
+  const accessSecretKey = process.env.JWT_ACCESSTOKEN_SECRET;
+  let result = {
+    errMessage: '',
+    decoded: '',
+  };
+  jwt.verify(token, accessSecretKey, function (err, decoded) {
+    if (err) {
+      result.errMessage = err.message;
+      result.decoded = decoded; //undefined
+      return result;
+    } else {
+      result.errMessage = null;
+      result.decoded = decoded;
+      return result;
+    }
+  });
+};
+
+export const verifyRefresh = (token) => {
+  const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
+  let result = {
+    errMessage: '',
+    decoded: '',
+  };
+  jwt.verify(token, refreshSecretKey, function (err, decoded) {
+    if (err) {
+      result.errMessage = err.message;
+      result.decoded = decoded; //undefined
+      return result;
+    } else {
+      result.errMessage = null;
+      result.decoded = decoded;
+      return result;
+    }
+  });
+};
+
 // local 액세스 토큰만료시 갱신 후 반환
 // 로직이 어떻게 됐더라
 //
