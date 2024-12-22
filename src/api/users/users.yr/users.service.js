@@ -9,8 +9,7 @@ import {
 import {
   genAccessToken,
   genRefreshToken,
-  verifyAccess,
-  verifyRefresh,
+  verifyResult,
 } from '../../../module/util/token.js';
 import { userNaverProfile } from '../../../module/util/naverOauth.js';
 
@@ -116,16 +115,19 @@ export const verifyToken = async (req, res, next) => {
   //(2) access token 만료, refresh token 비만료 -> access token 갱신
   //(3) access token 비만료, -> 갱신할 필요 없음.
   // 1. header에 있는 access token 과 cookie에 있는 refresh token을 추출한다.
-  console.log('req.cookies', req.cookies.refresh_token);
-  console.log('req.headers', req.headers.authorization);
+
   const refreshToken = req.cookies.refresh_token;
   const accessToken = req.headers.authorization;
 
-  verifyAccess(accessToken);
-  verifyRefresh(refreshToken);
+  const accessResult = verifyResult('access', accessToken);
+  const refreshResult = verifyResult('refresh', refreshToken);
+
+  // if(accessResult.errMessage)
   // 2. access token이 만료되었는지 확인한다.
   // 3. refresh token이 만료되었는지 확인한다.
   // 4. (1)인경우 다시 로그인
   // 5. (2)인 경우 access token 갱신한다.
   // 6. (3)인경우, access token 갱신할 필요가 없다.
+
+  // accountIdx를 db에서 봐보고
 };

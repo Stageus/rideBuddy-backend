@@ -30,36 +30,29 @@ export const genRefreshToken = (account_idx) => {
   return refreshToken;
 };
 
-export const verifyAccess = (token) => {
-  const accessSecretKey = process.env.JWT_ACCESSTOKEN_SECRET;
-  let result = {
-    errMessage: '',
-    decoded: '',
-  };
-  jwt.verify(token, accessSecretKey, function (err, decoded) {
-    if (err) {
-      result.errMessage = err.message;
-      result.decoded = decoded; //undefined
-      return result;
-    } else {
-      result.errMessage = null;
-      result.decoded = decoded;
-      return result;
-    }
-  });
-};
+//
+export const verifyResult = (tokenType, token) => {
+  let secretKey;
+  if (tokenType === 'access') {
+    secretKey = process.env.JWT_ACCESSTOKEN_SECRET;
+  } else {
+    secretKey = process.env.JWT_REFRESHTOKEN_SECRET;
+  }
 
-export const verifyRefresh = (token) => {
-  const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
   let result = {
     errMessage: '',
     decoded: '',
   };
-  jwt.verify(token, refreshSecretKey, function (err, decoded) {
+
+  jwt.verify(token, secretKey, function (err, decoded) {
     if (err) {
-      result.errMessage = err.message;
-      result.decoded = decoded; //undefined
-      return result;
+      if (err.message === 'jwt expired') {
+        result.errMessage = err.message;
+        result.decoded = decoded; //undefined
+        return result;
+      } else {
+        next(err);
+      }
     } else {
       result.errMessage = null;
       result.decoded = decoded;
