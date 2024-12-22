@@ -1,37 +1,93 @@
-/* eslint-disable no-unused-vars */
 import axios from 'axios';
-import 'dotenv/config';
-import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken';
-
-/*global process :true*/
-/*eslint no-undef: "error"*/
+import pool from '../../../config/postgresql.js';
+import bcrypt from 'bcrypt';
+import { selectUserPw, selectLocalAccountIdx } from './users.repository.js';
+import { genAccessToken, genRefreshToken } from '../../../module/util/token.js';
+import { userNaverProfile } from '../../../module/util/naverOauth.js';
 
 // 네이버 로그인 화면 띄우기
-export const userNaverLogin = async (req, res, next) => {
+export const userNaverLogin = (req, res, next) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
-  res.redirect(
+  const loginWindow =
     `https://nid.naver.com/oauth2.0/authorize?` +
-      `response_type=code` +
-      `&client_id=${process.env.NAVER_CLIENT_ID}` +
-      `&state=${NAVER_STATE}` + //인코딩 해야할수도 테스트해보기
-      `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`
-  );
+    `response_type=code` +
+    `&client_id=${process.env.NAVER_CLIENT_ID}` +
+    `&state=${NAVER_STATE}` +
+    `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`;
+
+  res.send(loginWindow);
 };
 
-// 네이버 토큰발급 요청
+// 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 db의 account_idx req에 추가
 export const userNaverCallback = async (req, res, next) => {
-  const token = axios.get('');
-  // const token1;
+  const code = req.query.code;
+  const state = req.query.string;
+
+  const tokenUrl =
+    `https://nid.naver.com/oauth2.0/token?` +
+    `grant_type=authorization_code` +
+    `&client_id=${process.env.NAVER_CLIENT_ID}` +
+    `&client_secret=${process.env.NAVER_CLIENT_SECRET}` +
+    `&code=${code}` +
+    `&state=${state}`;
+
+  const response = await axios.get(tokenUrl);
+  const naverAccessToken = response.data.access_token;
+  const DbAccountIdx = userNaverProfile(naverAccessToken);
+
+  req.account_idx = DbAccountIdx;
+  next();
 };
 
-// 네이버 액세스토큰으로 식별자 얻기
-export const userNaverProfile = async (req, res, next) => {};
+export const userLocalDBCheck = async (req, res, next) => {
+  const userId = req.body.id;
+  const userPw = req.body.pw;
 
-// 네이버 식별자 데이터 베이스에 저장 or 확인
+  const saltRounds = 10;
+
+  // id에 해당하는 해싱된 pw 불러오기
+  const pwResults = await pool.query(selectUserPw, [userId]);
+  const pwHash = pwResults.rows[0].pw;
+
+  // db의 pw와 userPw가 같은지 검증한다.
+  bcrypt.compare(userPw, pwHash).then(async function (result) {
+    if (result == true) {
+      // 로컬 아이디에 해당하는 account_idx 가져오기
+      const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+      const account_idx = idxResults.rows[0].account_idx;
+
+      // req 객체에 account_idx 추가 하여 createToken 미들웨어로 전달.
+      req.account_idx = account_idx;
+      next();
+    } else {
+      res.status(404).send();
+    }
+  });
+};
 
 // local jwt 생성 후 반환
+export const createToken = async (req, res) => {
+  try {
+    const accessToken = genAccessToken(req.account_idx);
+    const refreshToken = genRefreshToken(req.account_idx);
 
-// local 액세스 토큰만료시 갱신 후 반환
-// 리프레이쉬 토큰 만료시
+    // 쿠키에 refresh token, authorization header 에 access token
+    res.set({
+      Content_type: 'text/plain',
+      refresh_token: `${refreshToken}`,
+    });
+    res.cookie('access_token', `${accessToken}`);
+    res.status(200).send();
+    console.log(accessToken)
+    console.log(refreshToken)
+  } catch (err) {
+    // 500에러
+  }
+};
+
+export const verifyToken = async (req, res, next) => {
+  //1. access token 만료, refresh token 만료 -> 로그인 다시
+  //2. access token 만료, refresh token 비만료 -> access token 갱신
+  //
+};

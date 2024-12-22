@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import userRoute from './src/api/users/users.route.js';
 import path from 'path';
+import cookieParser from 'cookie-parser';
 
 // import infoRoute from './src/api/info/info.route';
 import weatherRoute from './src/api/weather/weather.route.js';
@@ -15,6 +16,15 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use(passport.initialize());
+
+//로그인기능 테스트용
+const __dirname = path.resolve();
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/src/test/index.html`);
+});
 
 app.use('/users', userRoute);
 // app.use('/info', infoRoute);
