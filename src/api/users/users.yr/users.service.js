@@ -8,6 +8,7 @@ import {
 } from './users.repository.js';
 import { genAccessToken, genRefreshToken, verifyResult } from '#util/token.js';
 import { userNaverProfile } from '#util/naverOauth.js';
+import 'dotenv/config';
 
 // 네이버 로그인 화면 띄우기
 export const userNaverLogin = (req, res, next) => {
@@ -124,6 +125,10 @@ export const verifyToken = async (req, res, next) => {
   //(3) access token 만료, refresh token 비만료 -> access token 갱신
   else {
     // 갱신
-    //
+    // 1. 리프레쉬토큰의 account_idx 얻어서
+    const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
+    const decoded = jwt.verify(refreshToken, refreshSecretKey);
+    console.log('decoded', decoded);
+    // 2. 다시 genAccessToken 하면 됨.
   }
 };

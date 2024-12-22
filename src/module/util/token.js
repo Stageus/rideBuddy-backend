@@ -51,7 +51,7 @@ export const verifyResult = (tokenType, token) => {
         result.decoded = decoded; //undefined
         return result;
       } else {
-        next(err);
+        // try catch throw? 여기 수정해야함.
       }
     } else {
       result.errMessage = null;
