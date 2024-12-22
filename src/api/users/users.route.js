@@ -1,5 +1,13 @@
 import express from 'express';
-import {} from './users.tj/users.service.js';
+
+import {
+  userGoogleLogin,
+  userGoogleCallback,
+  deleteuser,
+  register,
+  duplicateId
+} from './users.tj/users.service.js';
+
 import {
   userNaverLogin,
   userNaverCallback,
@@ -7,7 +15,9 @@ import {
   createToken,
   verifyToken,
 } from './users.yr/users.service.js';
+
 import { checkRegx } from '#util/checkRegx.js';
+
 const router = express.Router();
 
 //로컬 로그인
@@ -19,15 +29,23 @@ router.get('/change-pw');
 router.put('/change-pw');
 
 // Google OAuth 시작
-router.get('/google');
+
+router.get('/google', userGoogleLogin);  //완료
 
 // Google OAuth 콜백 처리
-router.get('/google/callback');
+router.get('/google/callback',userGoogleCallback,createToken); //완료료
 
-router.get('/duplicate-id');
-router.post('/register');
+
+router.get('/duplicate-id',duplicateId);
+
+router.post('/register',register);
+
+
+
+
 router.post('/mail');
 router.get('/mail/check');
-router.delete('/my', verifyToken);
+router.delete('/my', verifyToken,deleteuser);
+
 
 export default router;

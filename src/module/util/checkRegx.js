@@ -1,4 +1,6 @@
+
 import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#config/regx.js';
+
 
 export const checkRegx = async (req, res, next) => {
   //req body로만 줌.

@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
 import {
@@ -64,6 +65,7 @@ export const userLocalDBCheck = async (req, res, next) => {
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
+
   bcrypt.compare(userPw, pwHash).then(async function (result) {
     if (result == true) {
       // 로컬 아이디에 해당하는 account_idx 가져오기
