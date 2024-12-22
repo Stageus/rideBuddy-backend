@@ -11,7 +11,7 @@ export const genAccessToken = (account_idx) => {
     },
     accessSecretKey,
     {
-      expiresIn: '1h',
+      expiresIn: '30s',
     }
   );
   return accessToken;
@@ -28,6 +28,37 @@ export const genRefreshToken = (account_idx) => {
     }
   );
   return refreshToken;
+};
+
+//
+export const verifyResult = (tokenType, token) => {
+  let secretKey;
+  if (tokenType === 'access') {
+    secretKey = process.env.JWT_ACCESSTOKEN_SECRET;
+  } else {
+    secretKey = process.env.JWT_REFRESHTOKEN_SECRET;
+  }
+
+  let result = {
+    errMessage: '',
+    decoded: '',
+  };
+
+  jwt.verify(token, secretKey, function (err, decoded) {
+    if (err) {
+      if (err.message === 'jwt expired') {
+        result.errMessage = err.message;
+        result.decoded = decoded; //undefined
+        return result;
+      } else {
+        next(err);
+      }
+    } else {
+      result.errMessage = null;
+      result.decoded = decoded;
+      return result;
+    }
+  });
 };
 
 // local 액세스 토큰만료시 갱신 후 반환
