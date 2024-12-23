@@ -1,7 +1,5 @@
 import axios from 'axios';
 import pool from '#config/postgresql.js';
-
-import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
 import {
   selectUserPw,
@@ -66,7 +64,6 @@ export const userLocalDBCheck = async (req, res, next) => {
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
-
   bcrypt.compare(userPw, pwHash).then(async function (result) {
     if (result == true) {
       // 로컬 아이디에 해당하는 account_idx 가져오기
@@ -83,6 +80,25 @@ export const userLocalDBCheck = async (req, res, next) => {
 };
 
 // local jwt 생성 후 반환
+// 응답을 해주면 서비스야
+// 굳이 이게 필요가 없다.
+// gen 도 유틸이고
+// middleware는 왜 써? 중복코드
+// 3계층 빼자
+// 라우터 들, 서비스(토큰 로그인체크 이런건 미들웨어로 빼자) , 레포지토리
+// 유틸 : 미들웨어가 아닌 중복함수들 .
+// 정의 필요성 장단점,한계쩜 예제코드
+// index.js 필요없는거 쳐내고
+// 3계층 구조에서 미들웨어 구조 이상햇던거 바꾹고
+// 비밀번호 변경 로그인 안된상태에서 하는거 식별값 쓸수 잇게
+// 비밀번호찾기 회원가입 -> api 각각 설계  (로그인 안되어있는데 임시적으로 로그인된것처럼 할거면 식별값을 주자)
+//
+// 다음주 일요일까지 user랑 mypage 완벽하게 해오기
+// 12월 30일날 수업. 6시쯤 수업.
+// 기윤이한테 진도 상황 알려주기
+// 일주일에 한번정도는 기윤이한테 알려주기 -pm
+//
+
 export const createToken = async (req, res) => {
   try {
     const accessToken = genAccessToken(req.account_idx);
@@ -117,6 +133,8 @@ export const verifyToken = async (req, res, next) => {
   const accessResult = verifyResult('access', accessToken);
   const refreshResult = verifyResult('refresh', refreshToken);
 
+  console.log('accessResult', accessResult);
+  console.log('refreshResult', refreshResult);
   //(1) access token 비만료, -> 갱신할 필요 없음.
   if (accessResult.errMessage === null) {
     next();

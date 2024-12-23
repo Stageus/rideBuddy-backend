@@ -44,15 +44,20 @@ export const verifyResult = (tokenType, token) => {
     decoded: '',
   };
 
+  // token이 없어서 그런가?
   jwt.verify(token, secretKey, function (err, decoded) {
+    //
     if (err) {
-      if (err.message === 'jwt expired') {
-        result.errMessage = err.message;
-        result.decoded = decoded; //undefined
-        return result;
-      } else {
-        // try catch throw? 여기 수정해야함.
-      }
+      result.errMessage = err.message;
+      console.log('에러메시지', result.errMessage);
+      result.decoded = decoded; //undefined
+      return result;
+      // if (err.message === 'jwt expired') {
+      //   result.errMessage = err.message;
+      //   result.decoded = decoded; //undefined
+      //   return result;
+      // } else {
+      // }
     } else {
       result.errMessage = null;
       result.decoded = decoded;
@@ -60,10 +65,3 @@ export const verifyResult = (tokenType, token) => {
     }
   });
 };
-
-// local 액세스 토큰만료시 갱신 후 반환
-// 로직이 어떻게 됐더라
-//
-
-// 리프레이쉬 토큰 만료시
-
