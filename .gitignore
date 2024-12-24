@@ -1,0 +1,4 @@
+#env 파일안에 개인적인 정보가 들어있기 때문
+.env
+#node_modules를 모두 다운 받으면 데이터 용량이 커지게 된다.
+node_modules
