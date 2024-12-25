@@ -1,5 +1,21 @@
 import express from 'express';
-const app = express();
+import {
+  userGoogleLogin,
+  userGoogleCallback,
+  deleteuser,
+  register,
+  duplicateId,
+} from './tj/service.js';
+
+import {
+  userNaverLogin,
+  userNaverCallback,
+  userLocalDBCheck,
+  createToken,
+  verifyToken,
+} from './yr/service.js';
+
+const router = express.Router();
 
 router.post('/login/local', userLocalDBCheck, createToken); //checkRegx 해야해
 router.post('/login/naver', userNaverLogin);
