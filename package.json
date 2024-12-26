@@ -9,12 +9,6 @@
     "type": "git",
     "url": "git+https://github.com/Stageus/rideBuddy-backend.git"
   },
-  "type": "module",
-  "imports": {
-    "#config/*": "./src/config/*",
-    "#module/*": "./src/module/*",
-    "#utility/*": "./src/utility/*"
-  },
   "author": "\"front : 현기윤 , back : 이태준, 정이령, PM : 정이령 \"",
   "license": "ISC",
   "bugs": {
@@ -22,6 +16,12 @@
   },
   "homepage": "https://github.com/jonny0323/rideBuddy#readme",
   "description": "\"라이딩을 취미로 하는 사람들에게 정보를 제공하는 플랫폼\"",
+  "type": "module",
+  "imports": {
+    "#config/*": "./src/config/*",
+    "#utility/*": "./src/utility/*",
+    "#module/*": "./src/module/*"
+  },
   "devDependencies": {
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
