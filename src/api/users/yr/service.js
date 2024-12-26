@@ -9,7 +9,6 @@ import {
 } from '#module/token.js';
 // import { userNaverProfile } from '#util/naverOauth.js';
 import 'dotenv/config';
-
 // 네이버 로그인 화면 띄우기
 export const userNaverLogin = (req, res, next) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
