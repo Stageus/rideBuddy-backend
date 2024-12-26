@@ -1,5 +1,5 @@
 import axios from 'axios';
-import pool from '#config/postgresql.js';
+import pool from '../../../config/postgresql.js';
 import qs from 'qs';
 import {
   checkGoogleId,
@@ -7,8 +7,7 @@ import {
   insertGoogleId,
   checkDuplicateId,
   registerdb,
-} from './repository.js';
-
+} from './users.repository.js';
 import jwt from 'jsonwebtoken';
 
 //구글 오어뜨 페이지로 이동

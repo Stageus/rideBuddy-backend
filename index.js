@@ -8,18 +8,14 @@ import 'dotenv/config';
 app.use(express.json());
 // josn 형식 -> js객체 형식으로 바꾼다.
 
-//============================================================================^기본 파일 설정^============================================
-
 import userRoute from './src/api/users/route.js';
 app.use('/users', userRoute);
 import infoRoute from './src/api/info/route.js';
-app.use('/users', infoRoute);
+app.use('/info', infoRoute);
 import mypagesRoute from './src/api/mypages/route.js';
-app.use('/users', mypagesRoute);
+app.use('/mypages', mypagesRoute);
 import weatherRoute from './src/api/weather/route.js';
-app.use('/users', weatherRoute);
-
-//============================================================================^기본 라우팅 설정^==========================================
+app.use('/weather', weatherRoute);
 
 app.listen(process.env.PORT, () => {
   console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
