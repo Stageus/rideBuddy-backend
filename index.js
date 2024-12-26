@@ -10,12 +10,13 @@ app.use(express.json());
 
 import userRoute from './src/api/users/route.js';
 app.use('/users', userRoute);
-import infoRoute from './src/api/info/route.js';
-app.use('/info', infoRoute);
-import mypagesRoute from './src/api/mypages/route.js';
-app.use('/mypages', mypagesRoute);
-import weatherRoute from './src/api/weather/route.js';
-app.use('/weather', weatherRoute);
+
+// import infoRoute from './src/api/info/route.js';
+// app.use('/info', infoRoute);
+// import mypagesRoute from './src/api/mypages/route.js';
+// app.use('/mypages', mypagesRoute);
+// import weatherRoute from './src/api/weather/route.js';
+// app.use('/weather', weatherRoute);
 
 app.listen(process.env.PORT, () => {
   console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
