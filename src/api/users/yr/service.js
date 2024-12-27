@@ -8,7 +8,7 @@ import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 
 // 네이버 로그인 화면 띄우기
-export const userNaverLogin = (req, res) => {
+export const naverLogin = (req, res) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
   const loginWindow =
@@ -83,10 +83,3 @@ export const localCreateToken = async (req, res) => {
     }
   });
 };
-
-// local jwt 생성 후 반환
-// 응답을 해주면 서비스야
-// 굳이 이게 필요가 없다.
-// 3계층 빼자
-// index.js 필요없는거 쳐내고
-// 3계층 구조에서 미들웨어 구조 이상햇던거 바꾹고

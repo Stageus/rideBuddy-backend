@@ -9,15 +9,16 @@ import {
 
 import {
   localCreateToken,
-  userNaverLogin,
+  naverLogin,
   naverCreateToken,
 } from './yr/service.js';
 
 import { verifyToken } from '#middleware/verifyToken.js';
+
 const router = express.Router();
 
 router.post('/login/local', localCreateToken); //checkRegx 해야해
-router.post('/login/naver', userNaverLogin);
+router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
 router.get('/google', userGoogleLogin); //완료
 //router.get('/google/callback', userGoogleCallback, createToken); //createToken 없앴음
