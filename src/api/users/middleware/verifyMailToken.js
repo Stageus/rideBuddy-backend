@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import { genIdentToken } from '../utility/generateToken.js';
 
 // 5분내에 인증을 원하는 개인인지 확인필요
 

@@ -31,8 +31,8 @@ export const genRefreshToken = (account_idx) => {
   return refreshToken;
 };
 
-export const genIdentToken = (mail) => {
-  const identToken = jwt.sign(
+export const genMailToken = (mail) => {
+  const mailToken = jwt.sign(
     {
       mail: mail,
     },
@@ -41,5 +41,5 @@ export const genIdentToken = (mail) => {
       expiresIn: '5m',
     }
   );
-  return identToken;
+  return mailToken;
 };
