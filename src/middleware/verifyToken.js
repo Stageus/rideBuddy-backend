@@ -33,6 +33,7 @@ const verifyJWT = (tokenType, token) => {
 // 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyToken = async (req, res, next) => {
   const refreshToken = req.headers.refreshtoken;
+  // 여기 프론트와 refreshtoken 어떻게 보내줄건지 상의후 코드 고치기
   const accessToken = req.headers.authorization;
 
   const accessResult = verifyJWT('access', accessToken);
@@ -59,11 +60,10 @@ export const verifyToken = async (req, res, next) => {
     // 1. 리프레쉬토큰의 account_idx 얻어서
     const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
     const decoded = jwt.verify(refreshToken, refreshSecretKey);
-    console.log('decoded', decoded);
     // 2. 다시 genAccessToken 하면 됨.
-
     const newAccessToken = genAccessToken(decoded.accountIdx);
     //응답헤더에 accessToken 보내기
     res.set('access_token', newAccessToken);
+    next();
   }
 };

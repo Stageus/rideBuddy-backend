@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 const accessSecretKey = process.env.JWT_ACCESSTOKEN_SECRET;
 const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
+const identSecretKey = process.env.JWT_IDENT_SECRET;
 
 export const genAccessToken = (account_idx) => {
   const accessToken = jwt.sign(
@@ -28,4 +29,17 @@ export const genRefreshToken = (account_idx) => {
     }
   );
   return refreshToken;
+};
+
+export const genIdentToken = (mail) => {
+  const identToken = jwt.sign(
+    {
+      mail: mail,
+    },
+    identSecretKey,
+    {
+      expiresIn: '5m',
+    }
+  );
+  return identToken;
 };

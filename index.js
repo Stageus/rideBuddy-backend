@@ -17,10 +17,16 @@ app.use('/users', userRoute);
 
 // import infoRoute from './src/api/info/route.js';
 // app.use('/info', infoRoute);
-// import mypagesRoute from './src/api/mypages/route.js';
-// app.use('/mypages', mypagesRoute);
+import mypagesRoute from './src/api/mypages/route.js';
+app.use('/mypages', mypagesRoute);
 // import weatherRoute from './src/api/weather/route.js';
 // app.use('/weather', weatherRoute);
+
+//간이에러핸들러
+app.use((err, req, res, next) => {
+  console.log('에러', err);
+  res.send(err.message);
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
