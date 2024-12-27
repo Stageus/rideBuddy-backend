@@ -8,7 +8,7 @@ import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 
 // 네이버 로그인 화면 띄우기
-export const userNaverLogin = (req, res) => {
+export const naverLogin = (req, res) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
   const loginWindow =
@@ -21,7 +21,7 @@ export const userNaverLogin = (req, res) => {
   res.send(loginWindow);
 };
 
-// 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 db의 account_idx req에 추가
+// 네이버 토큰발급 요청후 로직거쳐 localToken 발급
 export const naverCreateToken = async (req, res) => {
   const code = req.query.code;
   const state = req.query.string;
@@ -50,18 +50,12 @@ export const naverCreateToken = async (req, res) => {
 export const localCreateToken = async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
-
+  console.log(userId, userPw);
   const saltRounds = 10;
-
-  //  더미데이터
-  // yiryung 1234
-  // 일단 db에 넣기 위해서 이걸 쓴다.
-  // bcrypt.hash(userPw, saltRounds).then(async function (hash) {
-  //   await pool.query(insertPw, [userId, hash, '정이령']);
-  // });
 
   //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
+  console.log(pwResults);
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
@@ -84,9 +78,6 @@ export const localCreateToken = async (req, res) => {
   });
 };
 
-// local jwt 생성 후 반환
-// 응답을 해주면 서비스야
-// 굳이 이게 필요가 없다.
-// 3계층 빼자
-// index.js 필요없는거 쳐내고
-// 3계층 구조에서 미들웨어 구조 이상햇던거 바꾹고
+export const changePw = async (req, res) => {
+  //true 면 db에 pw 바꿈
+};

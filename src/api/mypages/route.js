@@ -1,9 +1,13 @@
 import express from 'express';
-const app = express();
+import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 
-app.get('/mypages');
-app.post('/mypages/profile');
-app.get('/mypages/profile/list');
-app.delete('/mypages/profile');
-app.get('/mypages/roads/like-list');
-app.get('/mypages/center/like-list');
+const router = express.Router();
+
+router.get('/mypages', verifyLoginToken);
+router.post('/mypages/profile', verifyLoginToken);
+router.get('/mypages/profile/list', verifyLoginToken);
+router.delete('/mypages/profile', verifyLoginToken);
+router.get('/mypages/roads/like-list', verifyLoginToken);
+router.get('/mypages/center/like-list', verifyLoginToken);
+
+export default router;
