@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
+import { genAccessToken } from '../api/users/utility/generateToken.js';
 
 //jwt를 검증하는 로직 , 밑에 함수에서 필요
 // 이거 수정 필요
@@ -12,50 +13,45 @@ const verifyJWT = (tokenType, token) => {
   }
 
   let result = {
-    errMessage: '',
+    errName: '',
     decoded: '',
   };
 
-  // token이 없어서 그런가?
   jwt.verify(token, secretKey, function (err, decoded) {
-    //
     if (err) {
-      result.errMessage = err.message;
-      console.log('에러메시지', result.errMessage);
+      result.errName = err.name;
       result.decoded = decoded; //undefined
-      return result;
-      // if (err.message === 'jwt expired') {
-      //   result.errMessage = err.message;
-      //   result.decoded = decoded; //undefined
-      //   return result;
-      // } else {
-      // }
+      result.err = err;
     } else {
-      result.errMessage = null;
+      result.errName = null;
       result.decoded = decoded;
-      return result;
     }
   });
+  return result;
 };
 
-// 토큰이 유효한지 체크 ,
-// 로컬 액세스 토큰 만료시 갱신후 반환
+// 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyToken = async (req, res, next) => {
-  const refreshToken = req.cookies.refresh_token;
+  const refreshToken = req.headers.refreshtoken;
   const accessToken = req.headers.authorization;
 
   const accessResult = verifyJWT('access', accessToken);
   const refreshResult = verifyJWT('refresh', refreshToken);
 
-  console.log('accessResult', accessResult);
-  console.log('refreshResult', refreshResult);
+  //토큰 만료가 아닌 다른에러라면
+  const errorName = ['JsonWebTokenError', 'NotBeforeError'];
+  for (const error of errorName) {
+    if (accessResult.errNmae === error) next(accessResult.err);
+    if (refreshResult.errName === error) next(refreshResult.err);
+  }
+
   //(1) access token 비만료, -> 갱신할 필요 없음.
-  if (accessResult.errMessage === null) {
+  if (accessResult.errName === null) {
     next();
   }
   //(2) access token 만료, refresh token 만료 -> 로그인 다시
-  else if (refreshResult.errMessage === 'jwt expired') {
-    next(err);
+  else if (refreshResult.errName === 'TokenExpiredError') {
+    next(err); //리프레쉬 토큰 만료라고 보내줘야 할것 같다.
   }
   //(3) access token 만료, refresh token 비만료 -> access token 갱신
   else {
@@ -65,5 +61,9 @@ export const verifyToken = async (req, res, next) => {
     const decoded = jwt.verify(refreshToken, refreshSecretKey);
     console.log('decoded', decoded);
     // 2. 다시 genAccessToken 하면 됨.
+
+    const newAccessToken = genAccessToken(decoded.accountIdx);
+    //응답헤더에 accessToken 보내기
+    res.set('access_token', newAccessToken);
   }
 };

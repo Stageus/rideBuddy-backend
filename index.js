@@ -1,12 +1,16 @@
 import express from 'express';
-const app = express();
-// 가장 기본이 되는 express 시작
-
+import path from 'path';
 import 'dotenv/config';
-// env 파일 활성화 config까지 해줌으로써 process.env 로 접근 가능하게 함.
+const app = express();
 
 app.use(express.json());
 // josn 형식 -> js객체 형식으로 바꾼다.
+
+//로그인기능 테스트용
+const __dirname = path.resolve();
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/src/test/index.html`);
+});
 
 import userRoute from './src/api/users/route.js';
 app.use('/users', userRoute);

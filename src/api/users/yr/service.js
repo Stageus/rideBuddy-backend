@@ -21,7 +21,7 @@ export const naverLogin = (req, res) => {
   res.send(loginWindow);
 };
 
-// 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 db의 account_idx req에 추가
+// 네이버 토큰발급 요청후 로직거쳐 localToken 발급
 export const naverCreateToken = async (req, res) => {
   const code = req.query.code;
   const state = req.query.string;
@@ -50,18 +50,12 @@ export const naverCreateToken = async (req, res) => {
 export const localCreateToken = async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
-
+  console.log(userId, userPw);
   const saltRounds = 10;
-
-  //  더미데이터
-  // yiryung 1234
-  // 일단 db에 넣기 위해서 이걸 쓴다.
-  // bcrypt.hash(userPw, saltRounds).then(async function (hash) {
-  //   await pool.query(insertPw, [userId, hash, '정이령']);
-  // });
 
   //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
+  console.log(pwResults);
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.

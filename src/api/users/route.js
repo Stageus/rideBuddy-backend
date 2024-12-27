@@ -31,6 +31,6 @@ router.post('/register', register);
 router.post('/mail');
 router.post('/mail/withId');
 router.get('/mail/check');
-router.delete('/my', verifyToken, deleteuser);
+router.delete('/my', verifyToken); //deleteuser
 
 export default router;
