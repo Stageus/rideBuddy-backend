@@ -7,7 +7,7 @@ import {
   genAccessToken,
   genRefreshToken,
   verifyResult,
-} from '#module/token.js';
+} from '#middleware/token.js';
 // import { userNaverProfile } from '#util/naverOauth.js';
 import 'dotenv/config';
 
@@ -46,7 +46,7 @@ export const userNaverCallback = async (req, res, next) => {
   next();
 };
 
-export const userLocalDBCheck = async (req, res, next) => {
+export const localCreateToken = async (req, res, next) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
 
@@ -61,7 +61,6 @@ export const userLocalDBCheck = async (req, res, next) => {
 
   //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
-  console.log('psResults.rows', pwResults.rows);
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
@@ -70,10 +69,14 @@ export const userLocalDBCheck = async (req, res, next) => {
       // 로컬 아이디에 해당하는 account_idx 가져오기
       const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
       const account_idx = idxResults.rows[0].account_idx;
-
-      // req 객체에 account_idx 추가 하여 createToken 미들웨어로 전달.
-      req.account_idx = account_idx;
-      next();
+      // access, refresh 토큰 생성
+      const accessToken = genAccessToken(account_idx);
+      const refreshToken = genRefreshToken(account_idx);
+      // 프론트 전달
+      res.status(200).json({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
     } else {
       res.status(404).send();
     }
@@ -86,20 +89,6 @@ export const userLocalDBCheck = async (req, res, next) => {
 // 3계층 빼자
 // index.js 필요없는거 쳐내고
 // 3계층 구조에서 미들웨어 구조 이상햇던거 바꾹고
-
-export const createToken = async (req, res) => {
-  try {
-    const accessToken = genAccessToken(req.account_idx);
-    const refreshToken = genRefreshToken(req.account_idx);
-
-    res.status(200).json({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-  } catch (err) {
-    // 500에러
-  }
-};
 
 // 토큰이 유효한지 체크 ,
 // 로컬 액세스 토큰 만료시 갱신후 반환
