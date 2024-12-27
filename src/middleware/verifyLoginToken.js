@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { genAccessToken } from '../api/users/utility/generateToken.js';
 
 //jwt를 검증하는 로직 , 밑에 함수에서 필요
-// 이거 수정 필요
 const verifyJWT = (tokenType, token) => {
   let secretKey;
   if (tokenType === 'access') {
@@ -31,7 +30,7 @@ const verifyJWT = (tokenType, token) => {
 };
 
 // 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
-export const verifyToken = async (req, res, next) => {
+export const verifyLoginToken = async (req, res, next) => {
   const refreshToken = req.headers.refreshtoken;
   // 여기 프론트와 refreshtoken 어떻게 보내줄건지 상의후 코드 고치기
   const accessToken = req.headers.authorization;

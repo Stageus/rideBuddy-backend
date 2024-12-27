@@ -77,3 +77,7 @@ export const localCreateToken = async (req, res) => {
     }
   });
 };
+
+export const changePw = async (req, res) => {
+  //true 면 db에 pw 바꿈
+};

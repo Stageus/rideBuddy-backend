@@ -1,13 +1,13 @@
 import express from 'express';
-import { verifyToken } from '#middleware/verifyToken.js';
+import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 
 const router = express.Router();
 
-router.get('/mypages', verifyToken);
-router.post('/mypages/profile', verifyToken);
-router.get('/mypages/profile/list', verifyToken);
-router.delete('/mypages/profile', verifyToken);
-router.get('/mypages/roads/like-list', verifyToken);
-router.get('/mypages/center/like-list', verifyToken);
+router.get('/mypages', verifyLoginToken);
+router.post('/mypages/profile', verifyLoginToken);
+router.get('/mypages/profile/list', verifyLoginToken);
+router.delete('/mypages/profile', verifyLoginToken);
+router.get('/mypages/roads/like-list', verifyLoginToken);
+router.get('/mypages/center/like-list', verifyLoginToken);
 
 export default router;
