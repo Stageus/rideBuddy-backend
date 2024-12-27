@@ -20,7 +20,7 @@ router.post('/login/local', localCreateToken); //checkRegx 해야해
 router.post('/login/naver', userNaverLogin);
 router.get('/login/naver/callback', naverCreateToken);
 router.get('/google', userGoogleLogin); //완료
-//router.get('/google/callback', userGoogleCallback, createToken); //완료료
+//router.get('/google/callback', userGoogleCallback, createToken); //createToken 없앴음
 router.get('/find-id');
 router.put('/change-pw');
 router.put('/change-pw/mypages');
