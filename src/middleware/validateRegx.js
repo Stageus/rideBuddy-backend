@@ -1,6 +1,6 @@
-import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#config/regx.js';
+import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#utility/regx.js';
 
-export const checkRegx = async (req, res, next) => {
+export const validateRegx = async (req, res, next) => {
   //req body로만 줌.
 
   //console.log(Object.keys(req.body).length);

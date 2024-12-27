@@ -10,17 +10,16 @@ import {
 import {
   localCreateToken,
   userNaverLogin,
-  userNaverCallback,
-  userLocalDBCheck,
-  createToken,
+  naverCreateToken,
   verifyToken,
+  naverCreateToken,
 } from './yr/service.js';
 
 const router = express.Router();
 
 router.post('/login/local', localCreateToken); //checkRegx 해야해
 router.post('/login/naver', userNaverLogin);
-router.get('/login/naver/callback', userNaverCallback, createToken);
+router.get('/login/naver/callback', naverCreateToken);
 router.get('/google', userGoogleLogin); //완료
 router.get('/google/callback', userGoogleCallback, createToken); //완료료
 router.get('/find-id');

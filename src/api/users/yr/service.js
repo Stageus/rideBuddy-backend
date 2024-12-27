@@ -1,18 +1,14 @@
 import axios from 'axios';
 import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
-
-import { selectUserPw, selectLocalAccountIdx, insertPw } from './repository.js';
-import {
-  genAccessToken,
-  genRefreshToken,
-  verifyResult,
-} from '#middleware/token.js';
-// import { userNaverProfile } from '#util/naverOauth.js';
 import 'dotenv/config';
 
+import { selectUserPw, selectLocalAccountIdx, insertPw } from './repository.js';
+import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
+import { userNaverProfile } from '../utility/naverOauth.js';
+
 // 네이버 로그인 화면 띄우기
-export const userNaverLogin = (req, res, next) => {
+export const userNaverLogin = (req, res) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
   const loginWindow =
@@ -26,7 +22,7 @@ export const userNaverLogin = (req, res, next) => {
 };
 
 // 네이버 토큰발급 요청후 액세스 토큰으로 식별자 얻고 db에 저장 or 확인하고 db의 account_idx req에 추가
-export const userNaverCallback = async (req, res, next) => {
+export const naverCreateToken = async (req, res) => {
   const code = req.query.code;
   const state = req.query.string;
 
@@ -42,11 +38,16 @@ export const userNaverCallback = async (req, res, next) => {
   const naverAccessToken = response.data.access_token;
   const DbAccountIdx = userNaverProfile(naverAccessToken);
 
-  req.account_idx = DbAccountIdx;
-  next();
+  const accessToken = genAccessToken(DbAccountIdx);
+  const refreshToken = genRefreshToken(DbAccountIdx);
+  // 프론트 전달
+  res.status(200).json({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
 };
 
-export const localCreateToken = async (req, res, next) => {
+export const localCreateToken = async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
 
