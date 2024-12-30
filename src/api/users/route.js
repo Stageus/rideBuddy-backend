@@ -20,7 +20,7 @@ import { validateRegx } from '#middleware/validateRegx.js';
 import { checkMailStatus } from './middleware/checkMailStatus.js';
 const router = express.Router();
 
-router.post('/login/local', validateRegx); //localCreateToken
+router.post('/login/local', validateRegx, localCreateToken); //localCreateToken
 router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
 router.get('/google', userGoogleLogin); //완료

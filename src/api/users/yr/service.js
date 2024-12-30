@@ -50,12 +50,10 @@ export const naverCreateToken = async (req, res) => {
 export const localCreateToken = async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
-  console.log(userId, userPw);
   const saltRounds = 10;
 
   //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
-  console.log(pwResults);
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
