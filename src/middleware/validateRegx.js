@@ -22,8 +22,9 @@ export const validateRegx = async (req, res, next) => {
       if (!result) {
         return next(new Error('정규표현식 에러'));
       }
+    } else {
+      return next(new Error('유효하지 않은 정규표현식 key값'));
     }
+    return next();
   });
-
-  next();
 };

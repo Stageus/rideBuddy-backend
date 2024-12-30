@@ -47,10 +47,13 @@ export const verifyLoginToken = async (req, res, next) => {
 
   //(1) access token 비만료, -> 갱신할 필요 없음.
   if (accessResult.errName === null) {
+    req.tokenResult = process.env.ACCESS_UNEXPIRED;
+    console.log('첫번째');
     next();
   }
   //(2) access token 만료, refresh token 만료 -> 로그인 다시
   else if (refreshResult.errName === 'TokenExpiredError') {
+    console.log('두번째');
     next(err); //리프레쉬 토큰 만료라고 보내줘야 할것 같다.
   }
   //(3) access token 만료, refresh token 비만료 -> access token 갱신
@@ -62,7 +65,9 @@ export const verifyLoginToken = async (req, res, next) => {
     // 2. 다시 genAccessToken 하면 됨.
     const newAccessToken = genAccessToken(decoded.accountIdx);
     //응답헤더에 accessToken 보내기
-    res.set('access_token', newAccessToken);
+    res.set('new_access_token', newAccessToken);
+    req.tokenResult = process.env.ACCESS_RENEWAL;
+    console.log('세번째');
     next();
   }
 };

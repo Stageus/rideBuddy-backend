@@ -77,5 +77,24 @@ export const localCreateToken = async (req, res) => {
 };
 
 export const changePw = async (req, res) => {
-  //true 면 db에 pw 바꿈
+  // 메일 토큰이 true 가 아니면 에러핸들러로
+  // 여기 작성 필요
+  console.log(req.tokenResult);
+  // 1. access token이 갱신되었다면 갱신된 토큰으로 decoded해서 id 빼기
+  if (req.tokenResult == process.env.ACCESS_RENEWAL) {
+    console.log(res.get('new_access_token'));
+    // jwt.verify(token, secretKey, function (err, decoded) {
+    //   if (err) {
+    //     result.errName = err.name;
+    //     result.decoded = decoded; //undefined
+    //     result.err = err;
+    //   } else {
+    //     result.errName = null;
+    //     result.decoded = decoded;
+    //   }
+    // });
+  }
+  // 1-1. access token이 유효하다면 decode 해서 id 빼고
+
+  // 2. pw bcypt 해서 id에 해당하는 db에 저장
 };
