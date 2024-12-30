@@ -2,6 +2,7 @@ import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 
 // 5분내에 인증을 원하는 개인인지 확인필요
+// 아직 안함
 
 //jwt를 검증하는 로직 , 밑에 함수에서 필요
 const verifyJWT = (token) => {

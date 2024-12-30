@@ -1,22 +1,29 @@
 import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#utility/regx.js';
 
 export const validateRegx = async (req, res, next) => {
-  //req body로만 줌.
+  const regx = {
+    id: idRegx,
+    pw: pwRegx,
+    name: nameRegx,
+    mail: mailRegx,
+    code: codeRegx,
+  };
+  //mail_token은 제외하기
+  const bodyArray = Object.entries(req.body);
+  const withoutToken = bodyArray.filter((element) => {
+    return element[0] !== 'mail_token';
+  });
 
-  //console.log(Object.keys(req.body).length);
-  //console.log(Object.keys(req.body));
+  //정규식test
+  withoutToken.forEach((elem) => {
+    const key = elem[0];
+    if (regx[key]) {
+      const result = regx[key].test(elem[1]);
+      if (!result) {
+        return next(new Error('정규표현식 에러'));
+      }
+    }
+  });
 
-  //length 만큼 반복,, 아님 키만큼 반복해도 되는거 아냐?
-  //for ..of?
-  //해당 키 값에 Regx 더하기.
-  //이게 가능한가?
-
-  //
-  //console.log(Object.keys(req.body)[0]);
-  let regx = Object.keys(req.body)[0] + 'Regx';
-
-  let value = 'id가되나';
-  let func = new Function(`${regx}.test(${value})`);
-  console.log(func());
-  res.send();
+  next();
 };
