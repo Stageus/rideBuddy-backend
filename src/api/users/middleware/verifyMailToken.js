@@ -27,6 +27,7 @@ const verifyJWT = (token) => {
 
 // 토큰이 유효한지 체크
 export const verifyMailToken = async (req, res, next) => {
+  // wrapper 필요 mail_token으로 안올시 에러남
   const mailToken = req.body['mail_token'];
 
   const mailResult = verifyJWT(mailToken);
