@@ -24,6 +24,11 @@ export const selectLocalAccountIdx = `
 `;
 
 export const insertPw = `
-    INSERT INTO project.account (id, pw, account_name) 
+    INSERT INTO project.account (account_id, pw, account_name) 
     VALUES($1,$2,$3);
+`;
+
+export const updatePw = `
+    UPDATE project.account SET pw = $1 
+    WHERE account_idx = $2
 `;

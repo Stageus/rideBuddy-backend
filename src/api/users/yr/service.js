@@ -1,11 +1,18 @@
 import axios from 'axios';
 import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-import { selectUserPw, selectLocalAccountIdx, insertPw } from './repository.js';
+import {
+  selectUserPw,
+  selectLocalAccountIdx,
+  insertPw,
+  updatePw,
+} from './repository.js';
 import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
+import { verifyJWT } from '#utility/verifyJWT.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = (req, res) => {
@@ -76,25 +83,22 @@ export const localCreateToken = async (req, res) => {
   });
 };
 
-export const changePw = async (req, res) => {
+export const changePw = async (req, res, next) => {
   // 메일 토큰이 true 가 아니면 에러핸들러로
   // 여기 작성 필요
-  console.log(req.tokenResult);
-  // 1. access token이 갱신되었다면 갱신된 토큰으로 decoded해서 id 빼기
-  if (req.tokenResult == process.env.ACCESS_RENEWAL) {
-    console.log(res.get('new_access_token'));
-    // jwt.verify(token, secretKey, function (err, decoded) {
-    //   if (err) {
-    //     result.errName = err.name;
-    //     result.decoded = decoded; //undefined
-    //     result.err = err;
-    //   } else {
-    //     result.errName = null;
-    //     result.decoded = decoded;
-    //   }
-    // });
-  }
-  // 1-1. access token이 유효하다면 decode 해서 id 빼고
 
-  // 2. pw bcypt 해서 id에 해당하는 db에 저장
+  const accountIdx = req.decoded;
+  const newPw = req.body.pw;
+  const saltRounds = 10;
+
+  bcrypt.hash(userPw, saltRounds).then(async function (hash) {
+    await pool.query(updatePw, [hash, accountIdx]);
+  });
+  // 돌아가는지 검사해보기
+
+  // 생각을 멈추지 말고
+  // 생각의 반례를 생각하자
+  // 왜 검증이 필요하지? 검증이 필요한 이유는 프론트에서 조작할 수 있기 때문이잖아.
+  // 근데 우리가 만든건데 조작 가능성은 없지 않나?
+  // 이렇게
 };
