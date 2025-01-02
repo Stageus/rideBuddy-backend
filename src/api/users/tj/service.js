@@ -14,6 +14,7 @@ import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
 import smtpTransport from '#config/email.js';
 import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
+import { BadRequestError,UnauthorizedError,ForbiddenError,NotFoundError,ConflictError } from '#utility/customError.js';
 
 //구글 oauth
 export const userGoogleLogin = (req, res, next) => {
@@ -78,62 +79,43 @@ export const googleCreateToken = async (req, res, next) => {
   console.log('accessToken', accessToken, 'refreshToken', refreshToken);
 };
 
+export const duplicateId = async (req, res, next) => {
+  // 정규표현식 완료 후
+  const id = req.body.id;
+
+  const checkResults = await pool.query(checkDuplicateId, [id]);
+  if (checkResults.rows.length > 0) {
+    return ConflictError.send({ message: '이미 사용중인 id' });
+  }
+  return res.status(200).send();
+};
+
+export const duplicateMail = async (req, res, next) => {
+  // 정규표현식 완료 후
+  const mail = req.body.mail;
+
+  const checkResults = await pool.query(checkDuplicateMail, [mail]);
+  if (checkResults.rows.length > 0) {
+    return ConflictError.send({ message: '이미 사용중인 mail' });
+  }
+  return res.status(200).send();
+};
+
+
 export const register = async (req, res, next) => {
+  // 정규표현식 완료 후
+  // 중복여부 id,mail 체크 완료 후
+  // token 여부 확인 후 
   const id = req.body.id;
   const account_name = req.body.account_name;
   const pw = req.body.pw;
   const mail = req.body.mail;
-
-  // 정규표현식 완료후
-
-  //아이디 중복여부 체크
-  const checkResultsId = await pool.query(checkDuplicateId, [id]);
-  if (checkResultsId.rows.length > 0) {
-    return res.status(409).send({ message: '아이디가 중복됨' });
-  }
 
   //db에 값 넣기기
   await pool.query(registerdb, [id, account_name, pw, mail]);
   console.log();
 };
 
-export const duplicateId = async (req, res, next) => {
-  const id = req.body.id;
-  // 정규표현식 완료 후
-
-  const checkResults = await pool.query(checkDuplicateId, [id]);
-  if (checkResults.rows.length > 0) {
-    return res.status(409).send({ message: '이미 사용중인 id' });
-  }
-  return res.status(200).send();
-};
-
-export const verifyToken = (token, secret) => {
-  try {
-    const decoded = jwt.verify(token, secret);
-    return decoded.idx; // JWT에서 회원 식별자 추출
-  } catch (error) {
-    throw new Error('Invalid Token');
-  }
-};
-
-export const deleteuser = async (req, res, next) => {
-  //올바른 jwt 토큰인지 확인
-
-  //누구꺼 refreshtoken 인지 인식
-  const idx = verifyToken(res.cookie('access_token'));
-  console.log(idx);
-
-  //await pool.query(deleteaccount,[])
-};
-
-export const mailregx = async (req, res, next) => {
-  const mail = req.mail;
-  const checkResults = await pool.query(checkDuplicateMail, [mail]);
-  if (checkResults.rows.length > 0) {
-    return res.status(409).send({ message: '이메일이 중복됨' });
-  }
-};
 
 export const mailSendregister = async (req, res, next) => {
   const number = randomNumber;
@@ -162,6 +144,47 @@ export const mailSendregister = async (req, res, next) => {
     }
   });
 };
+
+
+
+
+
+
+
+
+
+
+export const verifyToken = (token, secret) => {
+  try {
+    const decoded = jwt.verify(token, secret);
+    return decoded.idx; // JWT에서 회원 식별자 추출
+  } catch (error) {
+    throw new Error('Invalid Token');
+  }
+};
+
+
+
+
+export const deleteuser = async (req, res, next) => {
+  //올바른 jwt 토큰인지 확인
+
+  //누구꺼 refreshtoken 인지 인식
+  const idx = verifyToken(res.cookie('access_token'));
+  console.log(idx);
+
+  //await pool.query(deleteaccount,[])
+};
+
+export const mailregx = async (req, res, next) => {
+  const mail = req.mail;
+  const checkResults = await pool.query(checkDuplicateMail, [mail]);
+  if (checkResults.rows.length > 0) {
+    return res.status(409).send({ message: '이메일이 중복됨' });
+  }
+};
+
+
 
 export const mailSendPw = async (req, res, next) => {
   const number = randomNumber;
