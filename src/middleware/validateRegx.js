@@ -14,6 +14,7 @@ export const validateRegx = async (req, res, next) => {
     return element[0] !== 'mail_token';
   });
   console.log('regx test', withoutToken);
+
   //정규식test
   withoutToken.forEach((elem) => {
     const key = elem[0];
