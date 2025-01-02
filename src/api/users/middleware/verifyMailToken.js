@@ -1,7 +1,10 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import { verifyJWT } from '#utility/verifyJWT.js';
+
 // 5분내에 인증을 원하는 개인인지 확인필요
+// 아직 안함
+
 
 // 토큰이 유효한지 체크
 export const verifyMailToken = async (req, res, next) => {
@@ -9,6 +12,7 @@ export const verifyMailToken = async (req, res, next) => {
   const mailToken = req.body['mail_token'];
 
   const mailResult = verifyJWT('mail', mailToken);
+
 
   //토큰 만료가 아닌 다른에러라면
   const errorName = ['JsonWebTokenError', 'NotBeforeError'];
