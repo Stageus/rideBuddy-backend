@@ -112,5 +112,3 @@ export const findId = async (req, res) => {
     });
   }
 };
-
-//3. 반환한다.

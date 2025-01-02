@@ -165,7 +165,7 @@ export const mailSendPw = async (req, res, next) => {
     console.log('response', response);
     console.log('response', email);
     if (err) {
-      res.status(200).send({ "mail_token" : });
+      res.status(200).send({ "mail_token" :});
       smtpTransport.close();
       return;
     } else {
