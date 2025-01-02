@@ -7,9 +7,14 @@ import {
   insertGoogleId,
   checkDuplicateId,
   registerdb,
+  checkDuplicateMail,
 } from './repository.js';
 
+import randomNumber from '#utility/randomNumber.js';
+
 import jwt from 'jsonwebtoken';
+
+import smtpTransport from '#config/email.js';
 
 //구글 오어뜨 페이지로 이동
 export const userGoogleLogin = (req, res, next) => {
@@ -113,3 +118,62 @@ export const deleteuser = async (req, res, next) => {
 
   //await pool.query(deleteaccount,[])
 };
+
+export const mailregx = async (req, res, next) => {
+  const mail = req.mail;
+  const checkResults = await pool.query(checkDuplicateMail, [mail]);
+  if (checkResults.rows.length > 0) {
+    return res.status(409).send({ message: '이메일이 중복됨' });
+  }
+};
+
+export const mailSendregister = async (req, res, next) => {
+  const number = randomNumber;
+  const email = req.body.email;
+  const mailOptions = {
+    from: process.env.MAIL_ID + '@naver.com',
+    to: email,
+    subject: '인증 관련 메일 입니다.',
+    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number,
+  };
+  smtpTransport.sendMail(mailOptions, (err, response) => {
+    console.log('response', response);
+    console.log('response', email);
+    if (err) {
+      res.status(200).send({ "mail_token" : });
+      smtpTransport.close();
+      return;
+    } else {
+      res.json({ ok: true, msg: '메일 전송 성공', authNum: number });
+      smtpTransport.close();
+      return;
+    }
+  });
+};
+
+export const mailSendPw = async (req, res, next) => {
+  const number = randomNumber;
+  const email = req.body.email;
+  const id = req.body.id;
+  const mailOptions = {
+    from: process.env.MAIL_ID + '@naver.com',
+    to: email,
+    subject: '인증 관련 메일 입니다.',
+    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number,
+  };
+  smtpTransport.sendMail(mailOptions, (err, response) => {
+    console.log('response', response);
+    console.log('response', email);
+    if (err) {
+      res.status(200).send({ "mail_token" : });
+      smtpTransport.close();
+      return;
+    } else {
+      res.json({ ok: true, msg: '메일 전송 성공', authNum: number });
+      smtpTransport.close();
+      return;
+    }
+  });
+};
+
+export const mailVerify = {};
