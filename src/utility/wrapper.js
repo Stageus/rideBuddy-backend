@@ -1,4 +1,4 @@
-export const wrapController = (fn) => {
+const wrapController = (fn) => {
   return (req, res, next) => {
     try {
       fn(req, res, next);
@@ -8,8 +8,4 @@ export const wrapController = (fn) => {
   };
 };
 
-export const wrapAsyncController = (fn) => {
-  return (req, res, next) => {
-    fn(req, res, next).catch(next);
-  };
-};
+export default wrapController;
