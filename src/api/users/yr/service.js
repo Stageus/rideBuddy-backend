@@ -1,11 +1,19 @@
 import axios from 'axios';
 import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-import { selectUserPw, selectLocalAccountIdx, insertPw } from './repository.js';
+import {
+  selectUserPw,
+  selectLocalAccountIdx,
+  insertPw,
+  updatePw,
+  findAccountId,
+} from './repository.js';
 import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
+import { verifyJWT } from '#utility/verifyJWT.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = (req, res) => {
@@ -76,6 +84,33 @@ export const localCreateToken = async (req, res) => {
   });
 };
 
-export const changePw = async (req, res) => {
-  //true 면 db에 pw 바꿈
+export const changePw = async (req, res, next) => {
+  // 메일 토큰이 true 가 아니면 에러핸들러로
+  // 여기 작성 필요
+
+  const accountIdx = req.decoded;
+  const newPw = req.body.pw;
+  const saltRounds = 10;
+  console.log('진행중');
+
+  bcrypt.hash(userPw, saltRounds).then(async function (hash) {
+    await pool.query(updatePw, [hash, accountIdx]);
+  });
+  // 돌아가는지 검사해보기
+  res.send();
 };
+
+export const findId = async (req, res) => {
+  const { name, mail } = req.body;
+  const result = await pool.query(findAccountId, [name, mail]);
+  const accountId = result.rows[0];
+  if (result.rows.length == 0) {
+    res.status(404).send();
+  } else {
+    res.status(200).send({
+      account_id: accountId,
+    });
+  }
+};
+
+//3. 반환한다.
