@@ -11,6 +11,7 @@ import {
   localCreateToken,
   naverLogin,
   naverCreateToken,
+  findId,
   changePw,
 } from './yr/service.js';
 
@@ -25,8 +26,8 @@ router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
 router.get('/google', userGoogleLogin); //완료
 //router.get('/google/callback', userGoogleCallback, createToken); //createToken 없앴음
-router.get('/find-id', validateRegx);
-router.put('/change-pw', validateRegx); //db에 True가 되어있어야함 checkMailStatus, changePw
+router.get('/find-id', validateRegx, findId);
+router.put('/change-pw', validateRegx, checkMailStatus, changePw); //db에 True가 되어있어야함
 router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw);
 router.get('/duplicate-id', duplicateId);
 //메일 중복체크 라우터 추가하기 - 태준
