@@ -9,6 +9,7 @@ import {
   selectLocalAccountIdx,
   insertPw,
   updatePw,
+  findAccountId,
 } from './repository.js';
 import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
@@ -90,15 +91,26 @@ export const changePw = async (req, res, next) => {
   const accountIdx = req.decoded;
   const newPw = req.body.pw;
   const saltRounds = 10;
+  console.log('진행중');
 
   bcrypt.hash(userPw, saltRounds).then(async function (hash) {
     await pool.query(updatePw, [hash, accountIdx]);
   });
   // 돌아가는지 검사해보기
-
-  // 생각을 멈추지 말고
-  // 생각의 반례를 생각하자
-  // 왜 검증이 필요하지? 검증이 필요한 이유는 프론트에서 조작할 수 있기 때문이잖아.
-  // 근데 우리가 만든건데 조작 가능성은 없지 않나?
-  // 이렇게
+  res.send();
 };
+
+export const findId = async (req, res) => {
+  const { name, mail } = req.body;
+  const result = await pool.query(findAccountId, [name, mail]);
+  const accountId = result.rows[0];
+  if (result.rows.length == 0) {
+    res.status(404).send();
+  } else {
+    res.status(200).send({
+      account_id: accountId,
+    });
+  }
+};
+
+//3. 반환한다.

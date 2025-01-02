@@ -32,3 +32,8 @@ export const updatePw = `
     UPDATE project.account SET pw = $1 
     WHERE account_idx = $2
 `;
+
+export const findAccountId = `
+    SELECT id FROM project.account
+    WHERE account_name = $1 AND mail = $2
+`;
