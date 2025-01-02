@@ -23,3 +23,8 @@ export const registerdb = `
     INSERT INTO project.account (id,account_name,pw,mail) 
     VALUES ($1,$2,$3,$4);
 `;
+
+export const checkDuplicateMail = `
+    SELECT mail FROM project.account
+    WHERE mail = $1;
+`;

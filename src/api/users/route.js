@@ -5,6 +5,7 @@ import {
   deleteuser,
   register,
   duplicateId,
+  mailSendregister,
 } from './tj/service.js';
 
 import {
@@ -32,7 +33,7 @@ router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw);
 router.get('/duplicate-id', duplicateId);
 //메일 중복체크 라우터 추가하기 - 태준
 router.post('/register', validateRegx, checkMailStatus, register);
-router.post('/mail', validateRegx); //code랑 mailToken 생성해서 db에 저장
+router.post('/mail', validateRegx, mailSendregister); //code랑 mailToken 생성해서 db에 저장
 router.post('/mail/withId', validateRegx); //code랑 mailToken 생성해서 db에 저장
 router.get('/mail/check', verifyMailToken, validateRegx); // db에 저장한거 True로 수정
 router.delete('/my', verifyLoginToken, deleteuser);
