@@ -28,3 +28,19 @@ export const checkDuplicateMail = `
     SELECT mail FROM project.account
     WHERE mail = $1;
 `;
+
+export const insertMailToken = `
+    INSERT INTO project.mail_code (token,code,status)
+    VALUES ($1,$2,$3);
+`;
+
+export const mailVerifyDB = `
+    SELECT token,code FROM project.account
+    WHERE token = $1 AND  code = $2;
+`;
+
+export const modifyMailToken = `
+    UPDATE project.account
+    SET status = $1
+    WHERE token = $2;;
+`;
