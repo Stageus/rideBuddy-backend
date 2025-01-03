@@ -61,8 +61,6 @@ router.get(
 router.post(
   '/register',
   wrapController(validateRegx),
-  wrapController(duplicateId),
-  wrapController(duplicateMail),
   wrapController(checkMailStatus),
   wrapController(register)
 );

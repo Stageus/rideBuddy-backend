@@ -25,7 +25,7 @@ app.use('/mypages', mypagesRoute);
 //==============================================================================================================================================================================================
 app.use((err, req, res, next) => {
   console.log('에러', err);
-  res.send(err.message);
+  res.status(err.statusCode || 500).json({ message: err.message });
 });
 
 // app.use(Errorhandler);

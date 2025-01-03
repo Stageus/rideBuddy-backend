@@ -9,6 +9,7 @@ export const validateRegx = async (req, res, next) => {
     code: codeRegx,
   };
   //mail_token은 제외하기
+  console.log('validateRegx 함수 통과중');
   const bodyArray = Object.entries(req.body);
   const withoutToken = bodyArray.filter((element) => {
     return element[0] !== 'mail_token';
