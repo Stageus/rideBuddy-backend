@@ -22,7 +22,7 @@ import {
 import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 import { verifyMailToken } from './middleware/verifyMailToken.js';
 import { validateRegx } from '#middleware/validateRegx.js';
-import { checkMailStatus } from './middleware/checkMailStatus.js';
+import checkMailStatus from './middleware/checkMailStatus.js';
 import wrapController from '#utility/wrapper.js';
 const router = express.Router();
 
@@ -80,7 +80,7 @@ router.get(
 router.delete(
   '/my',
   wrapController(verifyLoginToken),
-  wrapControllerd(deleteuser)
+  wrapController(deleteuser)
 );
 
 export default router;
