@@ -11,10 +11,15 @@ import {
   updatePw,
   findAccountId,
 } from './repository.js';
-import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
+import {
+  genAccessToken,
+  genMailToken,
+  genRefreshToken,
+} from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
 import wrapController from '#utility/wrapper.js';
+import { NotFoundError } from '#utility/customError.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = (req, res) => {
@@ -63,7 +68,6 @@ export const localCreateToken = async (req, res) => {
   // 아예 pw나 id 키가 안온다면? 래퍼 try catch 래퍼 사용하기
   // 래퍼를 사용해도 왜 에러가 안잡히고 서버가 꺼지는지?
   // try-catch는 promise 에러는 잡지 못한다.... 왜?
-  //
 
   console.log('유져pw', userPw);
   //id에 해당하는 해싱된 pw 불러오기
@@ -107,9 +111,11 @@ export const changePw = async (req, res, next) => {
   const saltRounds = 10;
   console.log('진행중');
 
-  bcrypt.hash(userPw, saltRounds).then(async function (hash) {
-    await pool.query(updatePw, [hash, accountIdx]);
-  });
+  const hashPw = await bcrypt.hash(newPw, saltRounds);
+
+  // .then(async function (hash) {
+  //   await pool.query(updatePw, [hash, accountIdx]);
+  // });
   // 돌아가는지 검사해보기
   res.send();
 };
@@ -119,7 +125,7 @@ export const findId = async (req, res) => {
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
   if (result.rows.length == 0) {
-    res.status(404).send();
+    throw new NotFoundError();
   } else {
     res.status(200).send({
       account_id: accountId,

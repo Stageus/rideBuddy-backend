@@ -20,7 +20,7 @@ import {
 import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 import { verifyMailToken } from './middleware/verifyMailToken.js';
 import { validateRegx } from '#middleware/validateRegx.js';
-import { checkMailStatus } from './middleware/checkMailStatus.js';
+import checkMailStatus from './middleware/checkMailStatus.js';
 
 import wrapController from '#utility/wrapper.js';
 const router = express.Router();
@@ -29,13 +29,19 @@ router.post(
   '/login/local',
   wrapController(validateRegx),
   wrapController(localCreateToken)
-); //localCreateToken
+);
+
 router.post('/login/naver', wrapController(naverLogin));
 router.get('/login/naver/callback', wrapController(naverCreateToken));
 router.get('/login/google', wrapController(userGoogleLogin)); //완료
 router.get('/google/callback', wrapController(googleCreateToken)); //createToken 없앴음
-router.get('/find-id', wrapController(validateRegx));
-router.put('/change-pw', wrapController(validateRegx)); //db에 True가 되어있어야함 checkMailStatus, changePw
+router.get('/find-id', wrapController(validateRegx), wrapController(findId));
+router.put(
+  '/change-pw',
+  wrapController(validateRegx),
+  wrapController(checkMailStatus),
+  wrapController(changePw)
+); //db에 True가 되어있어야함 checkMailStatus, changePw
 router.put(
   '/change-pw/mypages',
   wrapController(verifyLoginToken),
