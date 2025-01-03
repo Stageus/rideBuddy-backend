@@ -9,12 +9,24 @@ import {
   registerdb,
   checkDuplicateMail,
   mailVerifyDB,
+  correctaccount,
+  checkMail,
 } from './repository.js';
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
 import smtpTransport from '#config/email.js';
-import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
-import { BadRequestError,UnauthorizedError,ForbiddenError,NotFoundError,ConflictError } from '#utility/customError.js';
+import {
+  genAccessToken,
+  genRefreshToken,
+  genMailToken,
+} from '../utility/generateToken.js';
+import {
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+} from '#utility/customError.js';
 
 //구글 oauth
 export const userGoogleLogin = (req, res, next) => {
@@ -101,11 +113,10 @@ export const duplicateMail = async (req, res, next) => {
   return res.status(200).send();
 };
 
-
 export const register = async (req, res, next) => {
   // 정규표현식 완료 후
   // 중복여부 id,mail 체크 완료 후
-  // token 여부 확인 후 
+  // token 여부 확인 후
   const id = req.body.id;
   const account_name = req.body.account_name;
   const pw = req.body.pw;
@@ -113,9 +124,7 @@ export const register = async (req, res, next) => {
 
   //db에 값 넣기기
   await pool.query(registerdb, [id, account_name, pw, mail]);
-  console.log();
 };
-
 
 export const mailSendregister = async (req, res, next) => {
   const number = randomNumber;
@@ -145,51 +154,16 @@ export const mailSendregister = async (req, res, next) => {
   });
 };
 
-
-
-
-
-
-
-
-
-
-export const verifyToken = (token, secret) => {
-  try {
-    const decoded = jwt.verify(token, secret);
-    return decoded.idx; // JWT에서 회원 식별자 추출
-  } catch (error) {
-    throw new Error('Invalid Token');
-  }
-};
-
-
-
-
-export const deleteuser = async (req, res, next) => {
-  //올바른 jwt 토큰인지 확인
-
-  //누구꺼 refreshtoken 인지 인식
-  const idx = verifyToken(res.cookie('access_token'));
-  console.log(idx);
-
-  //await pool.query(deleteaccount,[])
-};
-
-export const mailregx = async (req, res, next) => {
-  const mail = req.mail;
-  const checkResults = await pool.query(checkDuplicateMail, [mail]);
-  if (checkResults.rows.length > 0) {
-    return res.status(409).send({ message: '이메일이 중복됨' });
-  }
-};
-
-
-
-export const mailSendPw = async (req, res, next) => {
+export const mailSendChanePw = async (req, res, next) => {
   const number = randomNumber;
   const email = req.body.email;
   const id = req.body.id;
+  //id 와 email 일치 여부 확인
+  const correctResult = await pool.query(correctaccount, [id, email]);
+  if (correctResult.rows.length == 0) {
+    return NotFoundError.send({ message: '해당하는 계정이 없음.' });
+  }
+
   const mailOptions = {
     from: process.env.MAIL_ID + '@naver.com',
     to: email,
@@ -204,7 +178,7 @@ export const mailSendPw = async (req, res, next) => {
       smtpTransport.close();
       return;
     } else {
-      const token = genMailToken;
+      const token = genMailToken(email);
       res.status(200).send({ mail_token: token });
       //저장
       await pool.query(insertMailToken, [token, number, False]);
@@ -215,11 +189,36 @@ export const mailSendPw = async (req, res, next) => {
   });
 };
 
-export const mailVerify = async (req, res, next) => {
+export const mailCheck = async (req, res, next) => {
   const mail_token = req.body.mail_token;
   const code = req.body.code;
-  const checkResults = await pool.query(mailVerifyDB, [mail_token, code]);
-  if (checkResults.rows.length > 0) {
-    await pool.query(modifyMailToken, [True, mail_token]);
+
+  const correctResult = await pool.query(mailVerifyDB, [mail_token, code]);
+  if (correctResult.rows.length == 0) {
+    return NotFoundError.send({
+      message: '메일, 인증코드와 일치하는 데이터가 없거나 제한시간 만료됨',
+    });
   }
+  await pool.query(checkMailToken_True, ['True', mail_token, code]);
+  return res.status(200);
+};
+
+export const verifyToken = (token, secret) => {
+  try {
+    const decoded = jwt.verify(token, secret);
+    return decoded.idx; // JWT에서 회원 식별자 추출
+  } catch (error) {
+    throw new Error('Invalid Token');
+  }
+};
+
+export const deleteuser = async (req, res, next) => {
+  //올바른 jwt 토큰인지 확인
+
+  //누구꺼 refreshtoken 인지 인식
+  const idx = verifyToken(res.cookie('access_token'));
+  console.log(idx);
+
+  await pool.query(deleteaccount, [idx]);
+  res.status(200);
 };

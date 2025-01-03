@@ -35,14 +35,14 @@ export const insertMailToken = `
 `;
 
 export const mailVerifyDB = `
-    SELECT token,code FROM project.account
+    SELECT token,code FROM project.mail_code
     WHERE token = $1 AND  code = $2;
 `;
 
 export const modifyMailToken = `
-    UPDATE project.account
+    UPDATE project.mail_code
     SET status = $1
-    WHERE token = $2;;
+    WHERE token = $2;
 `;
 export const checkMailToken = `
     SELECT token FROM project.mail_code
@@ -53,3 +53,18 @@ export const checkMailToken_True = `
     WHERE token = $1 AND status = $2;
 `;
 
+export const deleteaccount = `
+    DELETE FROM project.account
+    WHERE idx = $1;
+`;
+
+export const correctaccount = `
+    SELECT id,mail FROM project.account
+    WHERE id = $1 AND mail = $2;
+`;
+
+export const checkMail = `
+    UPDATE project.mail_code
+    SET status = $1
+    WHERE token = $2 AND code =$3;
+`;
