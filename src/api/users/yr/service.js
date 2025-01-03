@@ -3,7 +3,7 @@ import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
-
+import logger from '#utility/logger.js';
 import {
   selectUserPw,
   selectLocalAccountIdx,
@@ -14,6 +14,7 @@ import {
 import { genAccessToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
+import wrapController from '#utility/wrapper.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = (req, res) => {
@@ -59,12 +60,24 @@ export const localCreateToken = async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
   const saltRounds = 10;
+  // 아예 pw나 id 키가 안온다면? 래퍼 try catch 래퍼 사용하기
+  // 래퍼를 사용해도 왜 에러가 안잡히고 서버가 꺼지는지?
+  // try-catch는 promise 에러는 잡지 못한다.... 왜?
+  //
 
+  console.log('유져pw', userPw);
   //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
   const pwHash = pwResults.rows[0].pw;
 
+  //로깅 테스트
+  try {
+    throw new Error('응~');
+  } catch (err) {
+    logger.error(err);
+  }
   //db의 pw와 userPw가 같은지 검증한다.
+  // await bcrypt.compare 로 바꾸고 동기적으로 바꾸기
   bcrypt.compare(userPw, pwHash).then(async function (result) {
     if (result == true) {
       // 로컬 아이디에 해당하는 account_idx 가져오기
@@ -73,6 +86,7 @@ export const localCreateToken = async (req, res) => {
       // access, refresh 토큰 생성
       const accessToken = genAccessToken(account_idx);
       const refreshToken = genRefreshToken(account_idx);
+
       // 프론트 전달
       res.status(200).json({
         access_token: accessToken,

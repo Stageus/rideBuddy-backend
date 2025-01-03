@@ -20,15 +20,16 @@ import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 import { verifyMailToken } from './middleware/verifyMailToken.js';
 import { validateRegx } from '#middleware/validateRegx.js';
 import { checkMailStatus } from './middleware/checkMailStatus.js';
+
 const router = express.Router();
 
-router.post('/login/local', validateRegx, localCreateToken); //localCreateToken
+router.post('/login/local', validateRegx, localCreateToken);
 router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
-router.get('/google', userGoogleLogin); //완료
-router.get('/google/callback', googleCreateToken); //createToken 없앴음
-router.get('/find-id', validateRegx);
-router.put('/change-pw', validateRegx); //db에 True가 되어있어야함 checkMailStatus, changePw
+router.get('/google', userGoogleLogin);
+router.get('/google/callback', googleCreateToken);
+router.get('/find-id', validateRegx, findId);
+router.put('/change-pw', validateRegx, checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
 router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw);
 router.get('/duplicate-id', duplicateId);
 //메일 중복체크 라우터 추가하기 - 태준
