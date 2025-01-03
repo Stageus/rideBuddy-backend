@@ -11,6 +11,8 @@ import {
   mailVerifyDB,
   correctaccount,
   checkMail,
+  insertMailToken,
+  checkMailToken_True,
 } from './repository.js';
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
@@ -97,9 +99,10 @@ export const duplicateId = async (req, res, next) => {
 
   const checkResults = await pool.query(checkDuplicateId, [id]);
   if (checkResults.rows.length > 0) {
-    return ConflictError.send({ message: '이미 사용중인 id' });
+    throw new ConflictError('이미 사용중인 id');
   }
-  return res.status(200).send();
+  res.status(200).send();
+  next();
 };
 
 export const duplicateMail = async (req, res, next) => {
@@ -108,9 +111,10 @@ export const duplicateMail = async (req, res, next) => {
 
   const checkResults = await pool.query(checkDuplicateMail, [mail]);
   if (checkResults.rows.length > 0) {
-    return ConflictError.send({ message: '이미 사용중인 mail' });
+    throw new ConflictError('이미 사용중인 mail');
   }
-  return res.status(200).send();
+  res.status(200);
+  next();
 };
 
 export const register = async (req, res, next) => {
@@ -118,35 +122,43 @@ export const register = async (req, res, next) => {
   // 중복여부 id,mail 체크 완료 후
   // token 여부 확인 후
   const id = req.body.id;
-  const account_name = req.body.account_name;
+  const account_name = req.body.name;
   const pw = req.body.pw;
   const mail = req.body.mail;
 
+  console.log(id);
+  console.log(account_name);
+  console.log(pw);
+  console.log(mail);
+
   //db에 값 넣기기
   await pool.query(registerdb, [id, account_name, pw, mail]);
+  return res.status(201);
 };
 
 export const mailSendregister = async (req, res, next) => {
   const number = randomNumber;
-  const email = req.body.email;
+  const mail = req.body.mail;
+  console.log(mail);
   const mailOptions = {
     from: process.env.MAIL_ID + '@naver.com',
-    to: email,
+    to: mail,
     subject: '인증 관련 메일 입니다.',
     html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number,
   };
   smtpTransport.sendMail(mailOptions, async (err, response) => {
     console.log('response', response);
-    console.log('response', email);
+    console.log('response', mail);
     if (err) {
-      res.json({ ok: false, msg: '메일 전송 실패' });
+      res.json({ ok: false, msg: err });
       smtpTransport.close();
       return;
     } else {
-      const token = genMailToken;
+      const token = genMailToken(mail);
       res.status(200).send({ mail_token: token });
       //저장
-      await pool.query(insertMailToken, [token, number, False]);
+      console.log(token);
+      await pool.query(insertMailToken, [token, number, 'False']);
 
       smtpTransport.close();
       return;
@@ -156,32 +168,32 @@ export const mailSendregister = async (req, res, next) => {
 
 export const mailSendChanePw = async (req, res, next) => {
   const number = randomNumber;
-  const email = req.body.email;
+  const mail = req.body.mail;
   const id = req.body.id;
   //id 와 email 일치 여부 확인
-  const correctResult = await pool.query(correctaccount, [id, email]);
+  const correctResult = await pool.query(correctaccount, [id, mail]);
   if (correctResult.rows.length == 0) {
-    return NotFoundError.send({ message: '해당하는 계정이 없음.' });
+    throw new NotFoundError('해당하는 계정이 없음.');
   }
 
   const mailOptions = {
     from: process.env.MAIL_ID + '@naver.com',
-    to: email,
+    to: mail,
     subject: '인증 관련 메일 입니다.',
     html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number,
   };
   smtpTransport.sendMail(mailOptions, async (err, response) => {
     console.log('response', response);
-    console.log('response', email);
+    console.log('response', mail);
     if (err) {
       res.json({ ok: false, msg: '메일 전송 실패' });
       smtpTransport.close();
       return;
     } else {
-      const token = genMailToken(email);
+      const token = genMailToken(mail);
       res.status(200).send({ mail_token: token });
       //저장
-      await pool.query(insertMailToken, [token, number, False]);
+      await pool.query(insertMailToken, [token, number, 'False']);
 
       smtpTransport.close();
       return;
@@ -195,10 +207,11 @@ export const mailCheck = async (req, res, next) => {
 
   const correctResult = await pool.query(mailVerifyDB, [mail_token, code]);
   if (correctResult.rows.length == 0) {
-    return NotFoundError.send({
-      message: '메일, 인증코드와 일치하는 데이터가 없거나 제한시간 만료됨',
-    });
+    throw new NotFoundError(
+      '메일, 인증코드와 일치하는 데이터가 없거나 제한시간 만료됨'
+    );
   }
+  //true 로 바꾸기
   await pool.query(checkMailToken_True, ['True', mail_token, code]);
   return res.status(200);
 };

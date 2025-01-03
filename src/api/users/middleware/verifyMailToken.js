@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import { verifyJWT } from '#utility/verifyJWT.js';
+import { UnauthorizedError } from '#utility/customError.js';
 
 // 5분내에 인증을 원하는 개인인지 확인필요
 
@@ -18,7 +19,7 @@ export const verifyMailToken = async (req, res, next) => {
 
   //1. 만료되었다면 만료되었다고
   if (mailResult.errName == 'TokenExpiredError') {
-    next(new Error('토큰이 만료되었음.'));
+    return next(new UnauthorizedError('mail_token이 유효하지 않음.'));
   }
   //2. 검증성공시
   else {

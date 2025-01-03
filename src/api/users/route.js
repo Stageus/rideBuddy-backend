@@ -65,8 +65,22 @@ router.post(
   wrapController(validateRegx),
   wrapController(mailSendregister)
 ); //code랑 mailToken 생성해서 db에 저장
-router.post('/mail/withId', validateRegx); //code랑 mailToken 생성해서 db에 저장
-router.get('/mail/check', verifyMailToken, validateRegx); // db에 저장한거 True로 수정
-router.delete('/my', verifyLoginToken, deleteuser);
+
+router.post(
+  '/mail/withId',
+  wrapController(validateRegx),
+  wrapController(mailSendChanePw)
+); //code랑 mailToken 생성해서 db에 저장
+router.get(
+  '/mail/check',
+  wrapController(verifyMailToken),
+  wrapController(validateRegx),
+  wrapController(mailCheck)
+); // db에 저장한거 True로 수정
+router.delete(
+  '/my',
+  wrapController(verifyLoginToken),
+  wrapController(deleteuser)
+);
 
 export default router;
