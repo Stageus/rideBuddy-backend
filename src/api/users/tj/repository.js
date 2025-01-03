@@ -44,3 +44,12 @@ export const modifyMailToken = `
     SET status = $1
     WHERE token = $2;;
 `;
+export const checkMailToken = `
+    SELECT token FROM project.mail_code
+    WHERE token = $1;
+`;
+export const checkMailToken_True = `
+    SELECT token,status FROM project.mail_code
+    WHERE token = $1 AND status = $2;
+`;
+
