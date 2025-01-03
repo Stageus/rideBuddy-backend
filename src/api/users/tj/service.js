@@ -99,7 +99,7 @@ export const duplicateId = async (req, res, next) => {
 
   const checkResults = await pool.query(checkDuplicateId, [id]);
   if (checkResults.rows.length > 0) {
-    throw new ConflictError('이미 사용중인 id');
+    return next(new ConflictError('이미 사용중인 id'));
   }
   res.status(200).send();
   next();
@@ -111,7 +111,7 @@ export const duplicateMail = async (req, res, next) => {
 
   const checkResults = await pool.query(checkDuplicateMail, [mail]);
   if (checkResults.rows.length > 0) {
-    throw new ConflictError('이미 사용중인 mail');
+    return next(new ConflictError('이미 사용중인 mail'));
   }
   res.status(200);
   next();
@@ -120,11 +120,22 @@ export const duplicateMail = async (req, res, next) => {
 export const register = async (req, res, next) => {
   // 정규표현식 완료 후
   // 중복여부 id,mail 체크 완료 후
-  // token 여부 확인 후
   const id = req.body.id;
+
+  const checkResultsId = await pool.query(checkDuplicateId, [id]);
+  if (checkResults.rows.length > 0) {
+    return next(new ConflictError('이미 사용중인 id'));
+  }
+  const mail = req.body.mail;
+
+  const checkResultsMail = await pool.query(checkDuplicateMail, [mail]);
+  if (checkResults.rows.length > 0) {
+    return next(new ConflictError('이미 사용중인 mail'));
+  }
+
+  // token 여부 확인 후
   const account_name = req.body.name;
   const pw = req.body.pw;
-  const mail = req.body.mail;
 
   console.log(id);
   console.log(account_name);
@@ -158,7 +169,7 @@ export const mailSendregister = async (req, res, next) => {
       res.status(200).send({ mail_token: token });
       //저장
       console.log(token);
-      await pool.query(insertMailToken, [token, number, 'False']);
+      await pool.query(insertMailToken, [token, number, 'FALSE']);
 
       smtpTransport.close();
       return;
@@ -173,7 +184,7 @@ export const mailSendChanePw = async (req, res, next) => {
   //id 와 email 일치 여부 확인
   const correctResult = await pool.query(correctaccount, [id, mail]);
   if (correctResult.rows.length == 0) {
-    throw new NotFoundError('해당하는 계정이 없음.');
+    return next(new NotFoundError('해당하는 계정이 없음.'));
   }
 
   const mailOptions = {
@@ -193,7 +204,7 @@ export const mailSendChanePw = async (req, res, next) => {
       const token = genMailToken(mail);
       res.status(200).send({ mail_token: token });
       //저장
-      await pool.query(insertMailToken, [token, number, 'False']);
+      await pool.query(insertMailToken, [token, number, 'FALSE']);
 
       smtpTransport.close();
       return;
@@ -204,16 +215,22 @@ export const mailSendChanePw = async (req, res, next) => {
 export const mailCheck = async (req, res, next) => {
   const mail_token = req.body.mail_token;
   const code = req.body.code;
+  console.log('mail 토큰 : ', mail_token);
+  console.log('code : ', code);
+  console.log('mailCheck 통과중');
 
   const correctResult = await pool.query(mailVerifyDB, [mail_token, code]);
   if (correctResult.rows.length == 0) {
-    throw new NotFoundError(
-      '메일, 인증코드와 일치하는 데이터가 없거나 제한시간 만료됨'
+    return next(
+      new NotFoundError(
+        '메일, 인증코드와 일치하는 데이터가 없거나 제한시간 만료됨'
+      )
     );
   }
   //true 로 바꾸기
-  await pool.query(checkMailToken_True, ['True', mail_token, code]);
-  return res.status(200);
+  console.log('mailCheck 통과중2');
+  await pool.query(checkMailToken_True, ['TRUE', mail_token, code]);
+  return res.status(200).send({ message: 'finish' });
 };
 
 export const verifyToken = (token, secret) => {
