@@ -1,6 +1,7 @@
 import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#utility/regx.js';
+import wrapper from '#utility/wrapper.js';
 
-export const validateRegx = async (req, res, next) => {
+export const validateRegx = wrapper(async (req, res, next) => {
   // 여기다가 wrapper를 쓰기 그게 중복코드도 더 줄어들고.
   const regx = {
     id: idRegx,
@@ -43,4 +44,4 @@ export const validateRegx = async (req, res, next) => {
     }
   });
   next();
-};
+});

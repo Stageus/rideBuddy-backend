@@ -9,14 +9,9 @@ export default [
   {
     languageOptions: { globals: globals.browser },
     plugins: { eslintPluginImport },
-    ignores: [
-      'node_modules/*',
-      '.prettierrc',
-      'eslint.config.js',
-      'package-lock.json',
-      'package.json',
-    ],
+    ignores: ['node_modules/*', '.prettierrc', 'eslint.config.js', 'package-lock.json', 'package.json'],
     rules: {
+      'prettier/prettier': ['error', { printWidth: 120 }],
       'no-unused-vars': 'off',
       'no-undef': 'off',
       'no-useless-escape': 'off',
