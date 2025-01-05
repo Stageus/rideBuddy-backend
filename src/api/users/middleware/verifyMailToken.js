@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import { verifyJWT } from '#utility/verifyJWT.js';
+
 import { UnauthorizedError } from '#utility/customError.js';
 
 // 5분내에 인증을 원하는 개인인지 확인필요
