@@ -17,11 +17,7 @@ import {
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
 import smtpTransport from '#config/email.js';
-import {
-  genAccessToken,
-  genRefreshToken,
-  genMailToken,
-} from '../utility/generateToken.js';
+import { genAccessToken, genRefreshToken, genMailToken } from '../utility/generateToken.js';
 import {
   BadRequestError,
   UnauthorizedError,
@@ -196,7 +192,7 @@ export const mailSendregister = async (req, res, next) => {
       return;
     }
   });
-  // 이건 유틸하는건 맞아 . 추샃화 하는건 맞아. 메일전송기능이 추가될수도 있고 .
+  // 이건 유틸하는게 맞아 . 추상화 하는게 맞아. 메일전송기능이 추가될수도 있고 .
   // 유저 안의 utility에 넣음 되겠다.
   // 콜백함수 넣어서 만들기.
 

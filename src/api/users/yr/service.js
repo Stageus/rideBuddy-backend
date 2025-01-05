@@ -4,18 +4,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 import logger from '#utility/logger.js';
-import {
-  selectUserPw,
-  selectLocalAccountIdx,
-  insertPw,
-  updatePw,
-  findAccountId,
-} from './repository.js';
-import {
-  genAccessToken,
-  genMailToken,
-  genRefreshToken,
-} from '../utility/generateToken.js';
+import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId } from './repository.js';
+import { genAccessToken, genMailToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
 import wrapController from '#utility/wrapper.js';
@@ -25,13 +15,13 @@ import { NotFoundError } from '#utility/customError.js';
 export const naverLogin = (req, res) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
-  const loginWindow =
-    `https://nid.naver.com/oauth2.0/authorize? 
-    response_type=code` +
-    `&client_id=${process.env.NAVER_CLIENT_ID}` +
-    `&state=${NAVER_STATE}` +
-    `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`;
-  // 이거 +말고 백틱이니까 엔터쳐도됨
+  const loginWindow = `
+    https://nid.naver.com/oauth2.0/authorize? 
+    response_type=code
+    &client_id=${process.env.NAVER_CLIENT_ID}
+    &state=${NAVER_STATE}
+    &redirect_uri=${process.env.NAVER_CALLBACK_URL}`;
+
   res.send(loginWindow);
 };
 
@@ -40,13 +30,13 @@ export const naverCreateToken = async (req, res) => {
   const code = req.query.code;
   const state = req.query.string;
 
-  const tokenUrl =
-    `https://nid.naver.com/oauth2.0/token?` +
-    `grant_type=authorization_code` +
-    `&client_id=${process.env.NAVER_CLIENT_ID}` +
-    `&client_secret=${process.env.NAVER_CLIENT_SECRET}` +
-    `&code=${code}` +
-    `&state=${state}`;
+  const tokenUrl = `
+    https://nid.naver.com/oauth2.0/token?
+    grant_type=authorization_code
+    &client_id=${process.env.NAVER_CLIENT_ID}
+    &client_secret=${process.env.NAVER_CLIENT_SECRET}
+    &code=${code} 
+    &state=${state}`;
 
   const response = await axios.get(tokenUrl);
   const naverAccessToken = response.data.access_token;
@@ -132,8 +122,3 @@ export const findId = async (req, res) => {
     });
   }
 };
-
-// 최대한 15일까지라도
-// user 피드백 받은거 고치기
-// info , weather , mypages 완성하고 보자.
-// 최대한 열심히 해서 최대한 해서 가져오자.
