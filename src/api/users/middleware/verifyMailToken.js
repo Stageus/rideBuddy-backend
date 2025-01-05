@@ -10,6 +10,7 @@ export const verifyMailToken = async (req, res, next) => {
   // wrapper 필요 mail_token으로 안올시 에러남
   console.log('verify함수 통과중');
   const mailToken = req.body['mail_token'];
+
   const mailResult = verifyJWT('mail', mailToken);
 
   //토큰 만료가 아닌 다른에러라면
