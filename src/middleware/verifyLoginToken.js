@@ -43,3 +43,8 @@ export const verifyLoginToken = async (req, res, next) => {
     next();
   }
 };
+
+// generateToken.js는 밖의 utility로 옮기기
+// refresh token 의 효용성이 딱히 없 다
+// refresh token을 지 우 자
+// access token 24h
