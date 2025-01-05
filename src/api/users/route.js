@@ -19,14 +19,10 @@ import checkMailStatus from './middleware/checkMailStatus.js';
 const router = express.Router();
 
 router.post('/login/local', validateRegx, localCreateToken);
-// 이거 고쳐주기 컨벤션
-// 래퍼 빼
-// || || 이거 써서 regx 고치기 매개변수 넘어가게
-//
 router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
-router.get('/login/google', userGoogleLogin); //완료
-router.get('/google/callback', googleCreateToken); //createToken 없앴음
+router.get('/login/google', userGoogleLogin);
+router.get('/google/callback', googleCreateToken);
 router.get('/find-id', validateRegx, findId);
 router.put('/change-pw', validateRegx, checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
 router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw);
@@ -34,7 +30,6 @@ router.get('/duplicate-id', validateRegx, duplicateId);
 router.get('/duplicate-mail', validateRegx, duplicateMail);
 router.post('/register', validateRegx, checkMailStatus, register);
 router.post('/mail', validateRegx, mailSendregister); //code랑 mailToken 생성해서 db에 저장
-
 router.post('/mail/withId', validateRegx, mailSendChanePw); //code랑 mailToken 생성해서 db에 저장
 router.get('/mail/check', verifyMailToken, validateRegx, mailCheck); // db에 저장한거 True로 수정
 router.delete('/my', verifyLoginToken, deleteuser);

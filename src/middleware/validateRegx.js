@@ -3,6 +3,7 @@ import wrapper from '#utility/wrapper.js';
 
 export const validateRegx = wrapper(async (req, res, next) => {
   // 여기다가 wrapper를 쓰기 그게 중복코드도 더 줄어들고.
+  // || || 이거 써서 regx 고치기 매개변수 넘어가게
   const regx = {
     id: idRegx,
     pw: pwRegx,
@@ -11,7 +12,7 @@ export const validateRegx = wrapper(async (req, res, next) => {
     code: codeRegx,
   };
   //mail_token은 제외하기
-  console.log('validateRegx 함수 통과중');
+
   const bodyArray = Object.entries(req.body);
 
   // 추상화를 잘못했다????
@@ -21,7 +22,6 @@ export const validateRegx = wrapper(async (req, res, next) => {
   // 매개변숲로 테스트하고 싶은 키, 정규표현식
   // 이렇게 제외해야할 req내용이 나오면 코드를 추가해야하니까 그것또 유지보수에 문제가 됨.
 
-  //
   const withoutToken = bodyArray.filter((element) => {
     return element[0] !== 'mail_token';
   });

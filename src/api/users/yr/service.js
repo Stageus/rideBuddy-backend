@@ -8,11 +8,11 @@ import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId 
 import { genAccessToken, genMailToken, genRefreshToken } from '../utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
-import wrapController from '#utility/wrapper.js';
+import wrap from '#utility/wrapper.js';
 import { NotFoundError } from '#utility/customError.js';
 
 // 네이버 로그인 화면 띄우기
-export const naverLogin = (req, res) => {
+export const naverLogin = wrap((req, res) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
   const loginWindow = `
@@ -23,10 +23,10 @@ export const naverLogin = (req, res) => {
     &redirect_uri=${process.env.NAVER_CALLBACK_URL}`;
 
   res.send(loginWindow);
-};
+});
 
 // 네이버 토큰발급 요청후 로직거쳐 localToken 발급
-export const naverCreateToken = async (req, res) => {
+export const naverCreateToken = wrap(async (req, res) => {
   const code = req.query.code;
   const state = req.query.string;
 
@@ -49,9 +49,9 @@ export const naverCreateToken = async (req, res) => {
     access_token: accessToken,
     refresh_token: refreshToken,
   });
-};
+});
 
-export const localCreateToken = async (req, res) => {
+export const localCreateToken = wrap(async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
   const saltRounds = 10;
@@ -93,9 +93,9 @@ export const localCreateToken = async (req, res) => {
       }
     })
     .catch((err) => {});
-};
+});
 
-export const changePw = async (req, res, next) => {
+export const changePw = wrap(async (req, res, next) => {
   // 메일 토큰이 true 가 아니면 에러핸들러로
   // 아직 미완성
 
@@ -108,9 +108,9 @@ export const changePw = async (req, res, next) => {
 
   // 돌아가는지 검사해보기
   res.send();
-};
+});
 
-export const findId = async (req, res) => {
+export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
@@ -121,4 +121,4 @@ export const findId = async (req, res) => {
       account_id: accountId,
     });
   }
-};
+});
