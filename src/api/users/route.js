@@ -30,7 +30,10 @@ router.post(
   wrapController(validateRegx),
   wrapController(localCreateToken)
 );
-
+// 이거 고쳐주기 컨벤션
+// 래퍼 빼
+// || || 이거 써서 regx 고치기 매개변수 넘어가게
+//
 router.post('/login/naver', wrapController(naverLogin));
 router.get('/login/naver/callback', wrapController(naverCreateToken));
 router.get('/login/google', wrapController(userGoogleLogin)); //완료

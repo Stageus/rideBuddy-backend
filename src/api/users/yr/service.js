@@ -26,12 +26,12 @@ export const naverLogin = (req, res) => {
   const NAVER_STATE = Math.random().toString(36).substring(2, 12);
 
   const loginWindow =
-    `https://nid.naver.com/oauth2.0/authorize?` +
-    `response_type=code` +
+    `https://nid.naver.com/oauth2.0/authorize? 
+    response_type=code` +
     `&client_id=${process.env.NAVER_CLIENT_ID}` +
     `&state=${NAVER_STATE}` +
     `&redirect_uri=${process.env.NAVER_CALLBACK_URL}`;
-
+  // 이거 +말고 백틱이니까 엔터쳐도됨
   res.send(loginWindow);
 };
 
@@ -82,40 +82,40 @@ export const localCreateToken = async (req, res) => {
   }
   //db의 pw와 userPw가 같은지 검증한다.
   // await bcrypt.compare 로 바꾸고 동기적으로 바꾸기
-  bcrypt.compare(userPw, pwHash).then(async function (result) {
-    if (result == true) {
-      // 로컬 아이디에 해당하는 account_idx 가져오기
-      const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
-      const account_idx = idxResults.rows[0].account_idx;
-      // access, refresh 토큰 생성
-      const accessToken = genAccessToken(account_idx);
-      const refreshToken = genRefreshToken(account_idx);
+  bcrypt
+    .compare(userPw, pwHash)
+    .then(async function (result) {
+      if (result == true) {
+        // 로컬 아이디에 해당하는 account_idx 가져오기
+        const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+        const account_idx = idxResults.rows[0].account_idx;
+        // access, refresh 토큰 생성
+        const accessToken = genAccessToken(account_idx);
+        const refreshToken = genRefreshToken(account_idx);
 
-      // 프론트 전달
-      res.status(200).json({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
-    } else {
-      res.status(404).send();
-    }
-  });
+        // 프론트 전달
+        res.status(200).json({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+      } else {
+        res.status(404).send();
+      }
+    })
+    .catch((err) => {});
 };
 
 export const changePw = async (req, res, next) => {
   // 메일 토큰이 true 가 아니면 에러핸들러로
-  // 여기 작성 필요
+  // 아직 미완성
 
   const accountIdx = req.decoded;
   const newPw = req.body.pw;
   const saltRounds = 10;
-  console.log('진행중');
 
   const hashPw = await bcrypt.hash(newPw, saltRounds);
+  await pool.query(updatePw, [hash, accountIdx]);
 
-  // .then(async function (hash) {
-  //   await pool.query(updatePw, [hash, accountIdx]);
-  // });
   // 돌아가는지 검사해보기
   res.send();
 };
@@ -125,10 +125,15 @@ export const findId = async (req, res) => {
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
   if (result.rows.length == 0) {
-    throw new NotFoundError();
+    throw new NotFoundError(); // 에러 나는 이유 찾아서 고치기 코드는 이게 맞아. 원인찾고 해결하기
   } else {
     res.status(200).send({
       account_id: accountId,
     });
   }
 };
+
+// 최대한 15일까지라도
+// user 피드백 받은거 고치기
+// info , weather , mypages 완성하고 보자.
+// 최대한 열심히 해서 최대한 해서 가져오자.
