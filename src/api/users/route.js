@@ -18,6 +18,7 @@ import {verifyMailToken} from './middleware/verifyMailToken.js';
 import {validateRegx} from '#middleware/validateRegx.js';
 import checkMailStatus from './middleware/checkMailStatus.js';
 import {idRegx, pwRegx, nameRegx, mailRegx, codeRegx} from '#utility/regx.js';
+
 const router = express.Router();
 
 router.post(
