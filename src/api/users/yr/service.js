@@ -1,13 +1,11 @@
 import axios from 'axios';
 import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 import logger from '#utility/logger.js';
 import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId } from './repository.js';
 import { genAccessToken, genMailToken } from '#utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
-import { verifyJWT } from '#utility/verifyJWT.js';
 import wrap from '#utility/wrapper.js';
 import { NotFoundError } from '#utility/customError.js';
 

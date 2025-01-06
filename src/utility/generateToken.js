@@ -18,19 +18,6 @@ export const genAccessToken = (account_idx) => {
   return accessToken;
 };
 
-// export const genRefreshToken = (account_idx) => {
-//   const refreshToken = jwt.sign(
-//     {
-//       accountIdx: account_idx,
-//     },
-//     refreshSecretKey,
-//     {
-//       expiresIn: '7d',
-//     }
-//   );
-//   return refreshToken;
-// };
-
 export const genMailToken = (mail) => {
   const mailToken = jwt.sign(
     {
