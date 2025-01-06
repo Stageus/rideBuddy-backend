@@ -20,9 +20,8 @@ import checkMailStatus from './middleware/checkMailStatus.js';
 import {idRegx, pwRegx, nameRegx, mailRegx, codeRegx} from '#utility/regx.js';
 const router = express.Router();
 
-//prettier-ignore
-
-router.post('/login/local',
+router.post(
+  '/login/local',
   validateRegx([['id', idRegx],['pw', pwRegx]]),
   localCreateToken
 );
@@ -30,8 +29,15 @@ router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
 router.get('/login/google', userGoogleLogin);
 router.get('/google/callback', googleCreateToken);
-router.get('/find-id', validateRegx, findId);
-router.put('/change-pw', validateRegx, checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
+router.get(
+  '/find-id',
+  validateRegx([['name', nameRegx],['mail', mailRegx]]),
+  findId
+);
+router.put('/change-pw', 
+  validateRegx([['pw',pwRegx]]), 
+  checkMailStatus, 
+  changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
 router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw); //
 router.get('/duplicate-id', validateRegx, duplicateId);
 router.get('/duplicate-mail', validateRegx, duplicateMail);
