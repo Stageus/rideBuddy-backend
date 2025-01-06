@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 import logger from '#utility/logger.js';
 import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId } from './repository.js';
-import { genAccessToken, genMailToken, genRefreshToken } from '../utility/generateToken.js';
+import { genAccessToken, genMailToken } from '#utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
 import wrap from '#utility/wrapper.js';
@@ -79,14 +79,13 @@ export const localCreateToken = wrap(async (req, res) => {
         // 로컬 아이디에 해당하는 account_idx 가져오기
         const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
         const account_idx = idxResults.rows[0].account_idx;
-        // access, refresh 토큰 생성
+        // access 토큰 생성
         const accessToken = genAccessToken(account_idx);
-        const refreshToken = genRefreshToken(account_idx);
+        // const refreshToken = genRefreshToken(account_idx);
 
         // 프론트 전달
         res.status(200).json({
           access_token: accessToken,
-          refresh_token: refreshToken,
         });
       } else {
         res.status(404).send();
