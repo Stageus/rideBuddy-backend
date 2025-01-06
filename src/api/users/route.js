@@ -27,7 +27,7 @@ router.get('/login/google', userGoogleLogin);
 router.get('/google/callback', googleCreateToken);
 router.get('/find-id', validateRegx, findId);
 router.put('/change-pw', validateRegx, checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
-router.put('/change-pw/mypages', verifyLoginToken); // validateRegx, changePw
+router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw); //
 router.get('/duplicate-id', validateRegx, duplicateId);
 router.get('/duplicate-mail', validateRegx, duplicateMail);
 router.post('/register', validateRegx, checkMailStatus, register);
