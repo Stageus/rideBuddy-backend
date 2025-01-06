@@ -17,10 +17,17 @@ import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 import { verifyMailToken } from './middleware/verifyMailToken.js';
 import { validateRegx } from '#middleware/validateRegx.js';
 import checkMailStatus from './middleware/checkMailStatus.js';
-
+import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#utility/regx.js';
 const router = express.Router();
 
-router.post('/login/local', validateRegx, localCreateToken);
+router.post(
+  '/login/local',
+  validateRegx([
+    ['id', idRegx],
+    ['pw', pwRegx],
+  ]),
+  localCreateToken
+);
 router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
 router.get('/login/google', userGoogleLogin);

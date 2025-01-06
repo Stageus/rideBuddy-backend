@@ -11,7 +11,13 @@ export default [
     plugins: { eslintPluginImport },
     ignores: ['node_modules/*', '.prettierrc', 'eslint.config.js', 'package-lock.json', 'package.json'],
     rules: {
-      'prettier/prettier': ['error', { printWidth: 120 }],
+      'prettier/prettier': [
+        'error',
+        {
+          printWidth: 150,
+          trailingComma: 'none',
+        },
+      ],
       'no-unused-vars': 'off',
       'no-undef': 'off',
       'no-useless-escape': 'off',
