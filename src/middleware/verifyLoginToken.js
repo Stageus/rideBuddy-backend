@@ -1,28 +1,26 @@
 import 'dotenv/config';
 import jwt from 'jsonwebtoken';
-import { genAccessToken } from '../api/users/utility/generateToken.js';
+import { genAccessToken } from '../utility/generateToken.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
-
+import wrap from '#utility/wrapper.js';
 // 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
-export const verifyLoginToken = async (req, res, next) => {
-  const refreshToken = req.headers.refreshtoken;
-  // 여기 프론트와 refreshtoken 어떻게 보내줄건지 상의후 코드 고치기
+export const verifyLoginToken = wrap(async (req, res, next) => {
   const accessToken = req.headers.authorization.split(' ')[1];
-  console.log(accessToken);
-  const accessResult = verifyJWT('access', accessToken);
-  const refreshResult = verifyJWT('refresh', refreshToken);
+  const accessResult = await verifyJWT('access', accessToken);
+  console.log('access결과', accessResult);
 
   //토큰 만료가 아닌 다른에러라면
   const errorName = ['JsonWebTokenError', 'NotBeforeError'];
   for (const error of errorName) {
     if (accessResult.errName === error) next(accessResult.err);
-    if (refreshResult.errName === error) next(refreshResult.err);
+    // if (refreshResult.errName === error) next(refreshResult.err);
   }
 
   //(1) access token 비만료, -> 갱신할 필요 없음.
   if (accessResult.errName === null) {
     req.decoded = accessResult.decoded;
-    next();
+    //next();
+    res.send();
   }
   //(2) access token 만료, refresh token 만료 -> 로그인 다시
   else if (refreshResult.errName === 'TokenExpiredError') {
@@ -31,6 +29,7 @@ export const verifyLoginToken = async (req, res, next) => {
   //(3) access token 만료, refresh token 비만료 -> access token 갱신
   else {
     // 갱신
+    console.log('여기로 온구');
     // 1. 리프레쉬토큰의 account_idx 얻어서
     const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
     const decoded = jwt.verify(refreshToken, refreshSecretKey);
@@ -42,9 +41,8 @@ export const verifyLoginToken = async (req, res, next) => {
     req.decoded = decoded;
     next();
   }
-};
+});
 
-// generateToken.js는 밖의 utility로 옮기기
 // refresh token 의 효용성이 딱히 없 다
 // refresh token을 지 우 자
 // access token 24h

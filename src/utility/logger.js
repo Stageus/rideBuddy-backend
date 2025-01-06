@@ -27,9 +27,9 @@ const { combine, timestamp, json, align, printf, errors } = winston.format;
 
 // Mongodb에는 level 설정할수있으니까 error레벨 로
 // file
-const transportOptions = {};
+// const transportOptions = {};
 
-const mongoDBTransport = new winston.transports.MongoDB(transportOptions);
+// const mongoDBTransport = new winston.transports.MongoDB(transportOptions);
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'http',
@@ -40,7 +40,7 @@ const logger = winston.createLogger({
     //   level: 'error',
     //   format: combine(errorFilter(), timestamp(), json()),
     // }),
-    mongoDBTransport,
+    // mongoDBTransport,
   ],
 });
 

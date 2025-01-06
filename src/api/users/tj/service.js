@@ -17,7 +17,7 @@ import {
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
 import smtpTransport from '#config/email.js';
-import { genAccessToken, genRefreshToken, genMailToken } from '../utility/generateToken.js';
+import { genAccessToken, genMailToken } from '#utility/generateToken.js'; //genRefreshToken 삭제함
 import {
   BadRequestError,
   UnauthorizedError,
@@ -201,7 +201,7 @@ export const mailSendregister = async (req, res, next) => {
   //
 };
 
-export const mailSendChanePw = async (req, res, next) => {
+export const mailSendChangePw = async (req, res, next) => {
   const number = randomNumber;
   const mail = req.body.mail;
   const id = req.body.id;

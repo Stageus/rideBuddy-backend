@@ -6,6 +6,8 @@ import {
   register,
   duplicateId,
   mailSendregister,
+  mailSendChangePw,
+  mailCheck,
   duplicateMail,
 } from './tj/service.js';
 
@@ -25,12 +27,12 @@ router.get('/login/google', userGoogleLogin);
 router.get('/google/callback', googleCreateToken);
 router.get('/find-id', validateRegx, findId);
 router.put('/change-pw', validateRegx, checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
-router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw);
+router.put('/change-pw/mypages', verifyLoginToken); // validateRegx, changePw
 router.get('/duplicate-id', validateRegx, duplicateId);
 router.get('/duplicate-mail', validateRegx, duplicateMail);
 router.post('/register', validateRegx, checkMailStatus, register);
 router.post('/mail', validateRegx, mailSendregister); //code랑 mailToken 생성해서 db에 저장
-router.post('/mail/withId', validateRegx, mailSendChanePw); //code랑 mailToken 생성해서 db에 저장
+router.post('/mail/withId', validateRegx, mailSendChangePw); //code랑 mailToken 생성해서 db에 저장
 router.get('/mail/check', verifyMailToken, validateRegx, mailCheck); // db에 저장한거 True로 수정
 router.delete('/my', verifyLoginToken, deleteuser);
 
