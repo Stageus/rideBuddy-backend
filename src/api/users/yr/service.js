@@ -97,36 +97,44 @@ export const localCreateToken = wrap(async (req, res) => {
 });
 
 export const changePw = wrap(async (req, res, next) => {
-  //oAuth로그인시 403 에러
-  const result = await pool.query(selectTokenType, [req.accountIdx]);
-  const token_type = result.rows[0].token_type;
-
-  if (!(token_type == 'local')) {
-    throw new ForbiddenError('OAuth 로그인은 changePw불가 ');
-  }
-
   let userIdx = req.accountIdx; // 마이페이지에서 비밀번호 변경시 사용
   let userId = req.body.id; // 비밀번호 변경모달창에서 변경시 사용
   let updateResult;
   const newPw = req.body.pw;
+
+  if (!newPw) {
+    throw new BadRequestError('pw를 받지못함');
+  }
   const saltRounds = 10;
 
   const hashPw = await bcrypt.hash(newPw, saltRounds);
 
   // 마이페이지에서 비밀번호 변경시
-
   if (userIdx) {
+    //oAuth로그인시 403 에러
+    const result = await pool.query(selectTokenType, [userIdx]);
+    const token_type = result.rows[0].token_type;
+    if (!(token_type == 'local')) {
+      throw new ForbiddenError('OAuth 로그인은 changePw불가 ');
+    }
+
     updateResult = await pool.query(updatePwFromIdx, [hashPw, userIdx]);
   }
   // 비밀번호 변경모달창에서 변경시
   else if (userId) {
     updateResult = await pool.query(updatePwFromId, [hashPw, userId]);
+  } else {
+    throw new BadRequestError('id를 받지못함');
   }
   res.status(200).send({});
 });
 
 export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
+  if (!name || !mail) {
+    throw new BadRequestError('name또는 mail이 안넘어옴');
+  }
+
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
   if (result.rows.length == 0) {
