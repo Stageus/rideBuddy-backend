@@ -10,9 +10,10 @@ const weather = async (req, res) => {
     method: 'get', // 통신 방식
     headers: {
       'x-ncp-apigw-api-key-id': MAP_API_ID,
-      'x-ncp-apigw-api-key': MAP_API_KEY,
-    },
+      'x-ncp-apigw-api-key': MAP_API_KEY
+    }
   });
+  console.log(response);
 };
 
 export default weather;

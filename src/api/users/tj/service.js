@@ -12,7 +12,7 @@ import {
   correctaccount,
   checkMail,
   insertMailToken,
-  checkMailToken_True
+  transMailToken_True
 } from './repository.js';
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
@@ -250,7 +250,7 @@ export const mailCheck = async (req, res, next) => {
   }
   //true 로 바꾸기
   console.log('mailCheck 통과중2');
-  await pool.query(checkMailToken_True, ['TRUE', mail_token, code]);
+  await pool.query(transMailToken_True, ['TRUE', mail_token, code]);
   return res.status(200).send({ message: 'finish' });
 };
 
