@@ -74,7 +74,7 @@ export const localCreateToken = wrap(async (req, res) => {
 
   // userPw와 pwHash가 일치하지 않을경우
   if (!bcryptResult) {
-    throw new NotFoundError('pw와 일치하지 않음');
+    throw new NotFoundError('db의 pw와 일치하지 않음');
   }
   // 로컬 아이디에 해당하는 account_idx 가져오기
   const idxResults = await pool.query(selectLocalAccountIdx, [userId]);

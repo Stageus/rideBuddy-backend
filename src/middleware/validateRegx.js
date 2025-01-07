@@ -8,9 +8,8 @@ export const validateRegx = (params) => {
       let value = req.body[key] || req.query[key] || req.params[key];
 
       const result = regx.test(value);
-      console.log('정규표현식 결과', result);
       if (!result) {
-        return next(new Error('정규표현식 에러'));
+        return next(new BadRequestError('정규표현식 에러'));
       }
     }
     next();
