@@ -40,6 +40,5 @@ router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendregister); //co
 router.post('/mail/withId',validateRegx([['mail', mailRegx],['id', idRegx]]),mailSendChangePw); //code랑 mailToken 생성해서 db에 저장
 router.get('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck); // db에 저장한거 True로 수정
 router.delete('/my', verifyLoginToken, deleteuser);
->>>>>>> dev
 
 export default router;
