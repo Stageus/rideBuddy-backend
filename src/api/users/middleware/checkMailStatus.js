@@ -16,7 +16,7 @@ const checkMailStatus = async (req, res, next) => {
   }
   const checkmail_tokenResult = await pool.query(checkMailToken_True, [
     mail_token,
-    'True',
+    'TRUE',
   ]);
   if (checkmail_tokenResult.rows.length == 0) {
     return next(new ForbiddenError('mail_token이 유효하지 않음.'));

@@ -49,9 +49,8 @@ export const checkMailToken = `
     WHERE token = $1;
 `;
 export const checkMailToken_True = `
-    UPDATE project.mail_code
-    SET status = $1
-    WHERE token = $2 AND code = $3;
+    SELECT * FROM project.mail_code
+    WHERE token = $1 AND status = $2 ;
 `;
 
 export const deleteaccount = `

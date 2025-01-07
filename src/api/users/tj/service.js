@@ -168,7 +168,8 @@ export const mailSendregister = async (req, res, next) => {
       const token = genMailToken(mail);
       res.status(200).send({ mail_token: token });
       //저장
-      console.log(token);
+      // console.log;
+      // console.log('test');
       await pool.query(insertMailToken, [token, number, 'FALSE']);
 
       smtpTransport.close();

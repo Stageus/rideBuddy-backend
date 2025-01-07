@@ -1,4 +1,5 @@
 import express from 'express';
-const app = express();
+// import weather from
+const router = express.Router();
 
-app.get('/weather');
+router.get('/weather', weather);
