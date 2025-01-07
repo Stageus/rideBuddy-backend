@@ -28,7 +28,12 @@ export const insertPw = `
     VALUES($1,$2,$3);
 `;
 
-export const updatePw = `
+export const updatePwFromId = `
+    UPDATE project.account SET pw = $1 
+    WHERE id = $2
+`;
+
+export const updatePwFromIdx = `
     UPDATE project.account SET pw = $1 
     WHERE account_idx = $2
 `;

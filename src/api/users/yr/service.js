@@ -3,7 +3,14 @@ import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import logger from '#utility/logger.js';
-import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId } from './repository.js';
+import {
+  selectUserPw,
+  selectLocalAccountIdx,
+  insertPw,
+  updatePwFromId,
+  updatePwFromIdx,
+  findAccountId
+} from './repository.js';
 import { genAccessToken, genMailToken } from '#utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import wrap from '#utility/wrapper.js';
@@ -89,18 +96,26 @@ export const localCreateToken = wrap(async (req, res) => {
 });
 
 export const changePw = wrap(async (req, res, next) => {
-  // 메일 토큰이 true 가 아니면 에러핸들러로
-  // 아직 미완성
-
-  const accountIdx = req.decoded;
+  let userIdx; // 마이페이지에서 비밀번호 변경시 사용
+  let userId; // 비밀번호 변경모달창에서 변경시 사용
+  let updateResult;
   const newPw = req.body.pw;
   const saltRounds = 10;
 
   const hashPw = await bcrypt.hash(newPw, saltRounds);
-  await pool.query(updatePw, [hash, accountIdx]);
 
-  // 돌아가는지 검사해보기
-  res.send();
+  // 마이페이지에서 비밀번호 변경시
+  if (req.accountIdx) {
+    userIdx = req.accountIdx;
+    updateResult = await pool.query(updatePwFromIdx, [hashPw, userIdx]);
+  }
+  // 비밀번호 변경모달창에서 변경시
+  else if (req.body.id) {
+    userId = req.body.id;
+    updateResult = await pool.query(updatePwFromId, [hashPw, userId]);
+  }
+
+  res.status(200).send({});
 });
 
 export const findId = wrap(async (req, res) => {

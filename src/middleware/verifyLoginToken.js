@@ -16,7 +16,8 @@ export const verifyLoginToken = wrap(async (req, res, next) => {
 
   //(1) access token 비만료, -> 갱신할 필요 없음.
   if (accessResult.errName === null) {
-    req.decoded = accessResult.decoded;
+    console.log('decoded결과', accessResult.decoded);
+    req.accountIdx = accessResult.decoded;
     next();
   }
   //(2) access token 만료-> 로그인 다시
