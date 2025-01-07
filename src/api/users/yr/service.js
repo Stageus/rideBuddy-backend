@@ -57,17 +57,16 @@ export const naverCreateToken = wrap(async (req, res) => {
 });
 
 export const localCreateToken = wrap(async (req, res) => {
-  const userId = req.body.id;
-  const userPw = req.body.pw;
+  const { id, pw } = req.body;
   const saltRounds = 10;
 
   // id나 pw키 자체가 안 넘어올 경우
-  if (!userId || !userPw) {
+  if (!id || !pw) {
     throw new BadRequestError('id또는 pw가 안넘어옴');
   }
 
   //id에 해당하는 해싱된 pw 불러오기
-  const pwResults = await pool.query(selectUserPw, [userId]);
+  const pwResults = await pool.query(selectUserPw, [id]);
   const pwHash = pwResults.rows[0].pw;
 
   //로깅 테스트
@@ -78,14 +77,14 @@ export const localCreateToken = wrap(async (req, res) => {
   // }
 
   //db의 pw와 userPw가 같은지 검증한다.
-  const bcryptResult = await bcrypt.compare(userPw, pwHash);
+  const bcryptResult = await bcrypt.compare(pw, pwHash);
 
   // userPw와 pwHash가 일치하지 않을경우
   if (!bcryptResult) {
     throw new NotFoundError('db의 pw와 일치하지 않음');
   }
   // 로컬 아이디에 해당하는 account_idx 가져오기
-  const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+  const idxResults = await pool.query(selectLocalAccountIdx, [id]);
   const account_idx = idxResults.rows[0].account_idx;
   // access 토큰 생성
   const accessToken = genAccessToken(account_idx);
