@@ -1,8 +1,4 @@
-import {
-  checkNaverId,
-  insertNaverId,
-  selectNaverAccountIdx,
-} from '../yr/repository.js';
+import { checkNaverId, insertNaverId, selectNaverAccountIdx } from '../yr/repository.js';
 
 import axios from 'axios';
 import pool from '#config/postgresql.js';

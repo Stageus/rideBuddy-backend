@@ -6,79 +6,40 @@ import {
   register,
   duplicateId,
   mailSendregister,
-  duplicateMail,
-  mailSendChanePw,
+  mailSendChangePw,
   mailCheck,
+  duplicateMail
 } from './tj/service.js';
 
-import {
-  localCreateToken,
-  naverLogin,
-  naverCreateToken,
-  findId,
-  changePw,
-} from './yr/service.js';
-
+import { localCreateToken, naverLogin, naverCreateToken, findId, changePw } from './yr/service.js';
 import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 import { verifyMailToken } from './middleware/verifyMailToken.js';
 import { validateRegx } from '#middleware/validateRegx.js';
 import checkMailStatus from './middleware/checkMailStatus.js';
-import wrapController from '#utility/wrapper.js';
-const router = express.Router();
+import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#utility/regx.js';
 
-router.post(
-  '/login/local',
-  wrapController(validateRegx),
-  wrapController(localCreateToken)
-); //localCreateToken
-router.post('/login/naver', wrapController(naverLogin));
-router.get('/login/naver/callback', wrapController(naverCreateToken));
-router.get('/login/google', wrapController(userGoogleLogin)); //완료
-router.get('/google/callback', wrapController(googleCreateToken)); //createToken 없앴음
-router.get('/find-id', wrapController(validateRegx));
-router.put('/change-pw', wrapController(validateRegx)); //db에 True가 되어있어야함 checkMailStatus, changePw
-router.put(
-  '/change-pw/mypages',
-  wrapController(verifyLoginToken),
-  wrapController(validateRegx),
-  wrapController(changePw)
+const router = express.Router();
+// prettier-ignore
+router.post('/login/local',validateRegx([['id', idRegx],['pw', pwRegx]]),localCreateToken);
+router.post('/login/naver', naverLogin);
+router.get('/login/naver/callback', naverCreateToken);
+router.get('/login/google', userGoogleLogin);
+router.get('/google/callback', googleCreateToken);
+// prettier-ignore
+router.get('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
+router.put('/change-pw', validateRegx([['pw', pwRegx]]), checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
+router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw); //
+router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId);
+router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail);
+// prettier-ignore
+router.post('/register',validateRegx([['id', idRegx],['pw', pwRegx],['name', nameRegx],['mail', mailRegx]]),
+  checkMailStatus,
+  register
 );
-router.get(
-  '/duplicate-id',
-  wrapController(validateRegx),
-  wrapController(duplicateId)
-);
-router.get(
-  '/duplicate-mail',
-  wrapController(validateRegx),
-  wrapController(duplicateMail)
-);
-router.post(
-  '/register',
-  wrapController(validateRegx),
-  wrapController(checkMailStatus),
-  wrapController(register)
-);
-router.post(
-  '/mail',
-  wrapController(validateRegx),
-  wrapController(mailSendregister)
-); //code랑 mailToken 생성해서 db에 저장
-router.post(
-  '/mail/withId',
-  wrapController(validateRegx),
-  wrapController(mailSendChanePw)
-); //code랑 mailToken 생성해서 db에 저장
-router.get(
-  '/mail/check',
-  wrapController(verifyMailToken),
-  wrapController(validateRegx),
-  wrapController(mailCheck)
-); // db에 저장한거 True로 수정
-router.delete(
-  '/my',
-  wrapController(verifyLoginToken),
-  wrapController(deleteuser)
-);
+router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendregister); //code랑 mailToken 생성해서 db에 저장
+// prettier-ignore
+router.post('/mail/withId',validateRegx([['mail', mailRegx],['id', idRegx]]),mailSendChangePw); //code랑 mailToken 생성해서 db에 저장
+router.get('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck); // db에 저장한거 True로 수정
+router.delete('/my', verifyLoginToken, deleteuser);
 
 export default router;
