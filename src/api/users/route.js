@@ -28,7 +28,7 @@ router.get('/google/callback', googleCreateToken);
 // prettier-ignore
 router.get('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
 router.put('/change-pw', validateRegx([['pw', pwRegx]]), checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
-router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw); //
+router.put('/change-pw/mypages', verifyLoginToken, validateRegx([['pw', pwRegx]]), changePw); // oAuth 로그인시에는 403에러 추가
 router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId);
 router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail);
 // prettier-ignore

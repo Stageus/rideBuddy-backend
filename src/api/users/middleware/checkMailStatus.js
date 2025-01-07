@@ -12,10 +12,12 @@ const checkMailStatus = wrap(async (req, res, next) => {
   if (checkmail_token.rows.length == 0) {
     return next(new UnauthorizedError('mail_token이 유효하지 않음.'));
   }
+
   const checkmail_tokenResult = await pool.query(checkMailToken_True, [mail_token, 'TRUE']);
   if (checkmail_tokenResult.rows.length == 0) {
-    return next(new ForbiddenError('mail_token이 유효하지 않음.'));
+    return next(new ForbiddenError('mail_token 인증하지 않음.'));
   }
+
   next();
 });
 

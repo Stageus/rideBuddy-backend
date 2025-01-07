@@ -28,7 +28,12 @@ export const insertPw = `
     VALUES($1,$2,$3);
 `;
 
-export const updatePw = `
+export const updatePwFromId = `
+    UPDATE project.account SET pw = $1 
+    WHERE id = $2
+`;
+
+export const updatePwFromIdx = `
     UPDATE project.account SET pw = $1 
     WHERE account_idx = $2
 `;
@@ -36,4 +41,9 @@ export const updatePw = `
 export const findAccountId = `
     SELECT id FROM project.account
     WHERE account_name = $1 AND mail = $2
+`;
+
+export const selectTokenType = `
+    SELECT token_type FROM project.account
+    WHERE account_idx = $1    
 `;
