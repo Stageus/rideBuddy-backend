@@ -14,8 +14,5 @@ export default [
   },
   {
     ignores: ['node_modules/*']
-  },
-  {
-    'array-element-newline': ['error', 'never']
   }
 ];
