@@ -48,10 +48,14 @@ export const checkMailToken = `
     SELECT token FROM project.mail_code
     WHERE token = $1;
 `;
-export const checkMailToken_True = `
+export const transMailToken_True = `
     UPDATE project.mail_code
     SET status = $1
     WHERE token = $2 AND code = $3;
+`;
+export const checkMailToken_True = `
+    SELECT * FROM project.mail_code
+    WHERE token = $1 AND  status = $2;
 `;
 
 export const deleteaccount = `
