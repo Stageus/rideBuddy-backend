@@ -1,32 +1,18 @@
-import { idRegx, pwRegx, nameRegx, mailRegx, codeRegx } from '#utility/regx.js';
+import wrap from '#utility/wrapper.js';
 
-export const validateRegx = async (req, res, next) => {
-  const regx = {
-    id: idRegx,
-    pw: pwRegx,
-    name: nameRegx,
-    mail: mailRegx,
-    code: codeRegx,
-  };
-  //mail_token은 제외하기
-  console.log('validateRegx 함수 통과중');
-  const bodyArray = Object.entries(req.body);
-  const withoutToken = bodyArray.filter((element) => {
-    return element[0] !== 'mail_token';
-  });
+export const validateRegx = (params) => {
+  return wrap(async (req, res, next) => {
+    for (let param of params) {
+      let key = param[0];
+      let regx = param[1];
+      let value = req.body[key] || req.query[key] || req.params[key];
 
-  //정규식test
-  withoutToken.forEach((elem) => {
-    const key = elem[0];
-    if (regx[key]) {
-      const result = regx[key].test(elem[1]);
-      console.log(result);
+      const result = regx.test(value);
+      console.log('정규표현식 결과', result);
       if (!result) {
         return next(new Error('정규표현식 에러'));
       }
-    } else {
-      return next(new Error('유효하지 않은 정규표현식 key값'));
     }
+    next();
   });
-  next();
 };

@@ -4,6 +4,7 @@ class CustomError extends Error {
     super(message);
   }
 }
+//
 
 export class BadRequestError extends CustomError {
   //400
