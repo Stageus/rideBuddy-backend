@@ -42,3 +42,8 @@ export const findAccountId = `
     SELECT id FROM project.account
     WHERE account_name = $1 AND mail = $2
 `;
+
+export const selectTokenType = `
+    SELECT token_type FROM project.account
+    WHERE account_idx = $1    
+`;

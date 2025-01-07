@@ -9,12 +9,13 @@ import {
   insertPw,
   updatePwFromId,
   updatePwFromIdx,
-  findAccountId
+  findAccountId,
+  selectTokenType
 } from './repository.js';
 import { genAccessToken, genMailToken } from '#utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import wrap from '#utility/wrapper.js';
-import { BadRequestError, NotFoundError } from '#utility/customError.js';
+import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = wrap((req, res) => {
@@ -48,10 +49,10 @@ export const naverCreateToken = wrap(async (req, res) => {
   const DbAccountIdx = userNaverProfile(naverAccessToken);
 
   const accessToken = genAccessToken(DbAccountIdx);
-  const refreshToken = genRefreshToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).json({
-    access_token: accessToken
+    access_token: accessToken,
+    OAuth: true
   });
 });
 
@@ -96,8 +97,16 @@ export const localCreateToken = wrap(async (req, res) => {
 });
 
 export const changePw = wrap(async (req, res, next) => {
-  let userIdx; // 마이페이지에서 비밀번호 변경시 사용
-  let userId; // 비밀번호 변경모달창에서 변경시 사용
+  //oAuth로그인시 403 에러
+  const result = await pool.query(selectTokenType, [req.accountIdx]);
+  const token_type = result.rows[0].token_type;
+
+  if (!(token_type == 'local')) {
+    throw new ForbiddenError('OAuth 로그인은 changePw불가 ');
+  }
+
+  let userIdx = req.accountIdx; // 마이페이지에서 비밀번호 변경시 사용
+  let userId = req.body.id; // 비밀번호 변경모달창에서 변경시 사용
   let updateResult;
   const newPw = req.body.pw;
   const saltRounds = 10;
@@ -105,16 +114,14 @@ export const changePw = wrap(async (req, res, next) => {
   const hashPw = await bcrypt.hash(newPw, saltRounds);
 
   // 마이페이지에서 비밀번호 변경시
-  if (req.accountIdx) {
-    userIdx = req.accountIdx;
+
+  if (userIdx) {
     updateResult = await pool.query(updatePwFromIdx, [hashPw, userIdx]);
   }
   // 비밀번호 변경모달창에서 변경시
-  else if (req.body.id) {
-    userId = req.body.id;
+  else if (userId) {
     updateResult = await pool.query(updatePwFromId, [hashPw, userId]);
   }
-
   res.status(200).send({});
 });
 
