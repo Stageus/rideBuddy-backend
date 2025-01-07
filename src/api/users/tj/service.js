@@ -12,7 +12,7 @@ import {
   correctaccount,
   checkMail,
   insertMailToken,
-  checkMailToken_True,
+  checkMailToken_True
 } from './repository.js';
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
@@ -23,7 +23,7 @@ import {
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
-  ConflictError,
+  ConflictError
 } from '#utility/customError.js';
 // 같은 도메인내에있는건 상대경로 (서비스에서 레포 참조한다 이럴때 )
 // 외부 도메인에 있는건 절대경로 shared같은 공용파일들 가져올때 절대경로로 많이 씀.
@@ -50,12 +50,12 @@ export const googleCreateToken = async (req, res, next) => {
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
       redirect_uri: process.env.GOOGLE_REDIRECT_URL,
-      grant_type: 'authorization_code',
+      grant_type: 'authorization_code'
     }),
     {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     }
   );
   //access_token 받음.
@@ -64,8 +64,8 @@ export const googleCreateToken = async (req, res, next) => {
   //access_token 통해서 정보 접근
   const userInfo = await axios.get(process.env.GOOGLE_INFORMATION_URL, {
     headers: {
-      Authorization: `Bearer ${googleaccessToken}`,
-    },
+      Authorization: `Bearer ${googleaccessToken}`
+    }
   });
   //name id 습득
   const googleName = userInfo.data.name;
@@ -86,7 +86,7 @@ export const googleCreateToken = async (req, res, next) => {
   const refreshToken = genRefreshToken(DbAccountIdx);
   res.status(200).json({
     access_token: accessToken,
-    refresh_token: refreshToken,
+    refresh_token: refreshToken
   });
   console.log('accessToken', accessToken, 'refreshToken', refreshToken);
 };
@@ -168,7 +168,7 @@ export const mailSendregister = async (req, res, next) => {
     from: process.env.MAIL_ID + '@naver.com',
     to: mail,
     subject: '인증 관련 메일 입니다.',
-    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number,
+    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number
   };
   smtpTransport.sendMail(mailOptions, async (err, response) => {
     //try catch 여기서 해야해 그래야 안에 에러를 잡을 수 있음.
@@ -215,7 +215,7 @@ export const mailSendChangePw = async (req, res, next) => {
     from: process.env.MAIL_ID + '@naver.com',
     to: mail,
     subject: '인증 관련 메일 입니다.',
-    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number,
+    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number
   };
   smtpTransport.sendMail(mailOptions, async (err, response) => {
     console.log('response', response);

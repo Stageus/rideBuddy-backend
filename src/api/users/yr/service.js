@@ -7,7 +7,7 @@ import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId 
 import { genAccessToken, genMailToken } from '#utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import wrap from '#utility/wrapper.js';
-import { NotFoundError } from '#utility/customError.js';
+import { BadRequestError, NotFoundError } from '#utility/customError.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = wrap((req, res) => {
@@ -44,8 +44,7 @@ export const naverCreateToken = wrap(async (req, res) => {
   const refreshToken = genRefreshToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).json({
-    access_token: accessToken,
-    refresh_token: refreshToken,
+    access_token: accessToken
   });
 });
 
@@ -53,43 +52,40 @@ export const localCreateToken = wrap(async (req, res) => {
   const userId = req.body.id;
   const userPw = req.body.pw;
   const saltRounds = 10;
-  // 아예 pw나 id 키가 안온다면? 래퍼 try catch 래퍼 사용하기
-  // 래퍼를 사용해도 왜 에러가 안잡히고 서버가 꺼지는지?
-  // try-catch는 promise 에러는 잡지 못한다.... 왜?
 
-  console.log('유져pw', userPw);
+  // id나 pw키 자체가 안 넘어올 경우
+  if (!userId || !userPw) {
+    throw new BadRequestError('id또는 pw가 안넘어옴');
+  }
+
   //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [userId]);
   const pwHash = pwResults.rows[0].pw;
 
   //로깅 테스트
-  try {
-    throw new Error('응~');
-  } catch (err) {
-    logger.error(err);
-  }
-  //db의 pw와 userPw가 같은지 검증한다.
-  // await bcrypt.compare 로 바꾸고 동기적으로 바꾸기
-  bcrypt
-    .compare(userPw, pwHash)
-    .then(async function (result) {
-      if (result == true) {
-        // 로컬 아이디에 해당하는 account_idx 가져오기
-        const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
-        const account_idx = idxResults.rows[0].account_idx;
-        // access 토큰 생성
-        const accessToken = genAccessToken(account_idx);
-        // const refreshToken = genRefreshToken(account_idx);
+  // try {
+  //   throw new Error('응~');
+  // } catch (err) {
+  //   logger.error(err);
+  // }
 
-        // 프론트 전달
-        res.status(200).json({
-          access_token: accessToken,
-        });
-      } else {
-        res.status(404).send();
-      }
-    })
-    .catch((err) => {});
+  //db의 pw와 userPw가 같은지 검증한다.
+  const bcryptResult = await bcrypt.compare(userPw, pwHash);
+
+  // userPw와 pwHash가 일치하지 않을경우
+  if (!bcryptResult) {
+    throw new NotFoundError('db의 pw와 일치하지 않음');
+  }
+  // 로컬 아이디에 해당하는 account_idx 가져오기
+  const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+  const account_idx = idxResults.rows[0].account_idx;
+  // access 토큰 생성
+  const accessToken = genAccessToken(account_idx);
+
+  // 프론트 전달
+  res.status(200).json({
+    access_token: accessToken
+  });
 });
 
 export const changePw = wrap(async (req, res, next) => {
@@ -112,10 +108,10 @@ export const findId = wrap(async (req, res) => {
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
   if (result.rows.length == 0) {
-    throw new NotFoundError(); // 에러 나는 이유 찾아서 고치기 코드는 이게 맞아. 원인찾고 해결하기
+    throw new NotFoundError();
   } else {
     res.status(200).send({
-      account_id: accountId,
+      account_id: accountId
     });
   }
 });
