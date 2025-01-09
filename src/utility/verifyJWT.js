@@ -14,22 +14,31 @@ function PromiseJwtVeriy(token, secretKey) {
 export const verifyJWT = async (tokenType, token) => {
   const secretKeys = {
     access: process.env.JWT_ACCESSTOKEN_SECRET,
-    mail: process.env.JWT_MAIL_SECRET,
+    mail: process.env.JWT_MAIL_SECRET
   };
 
   const secretKey = secretKeys[tokenType];
 
   try {
     const result = await PromiseJwtVeriy(token, secretKey);
-    return {
-      errName: null,
-      decoded: result.accountIdx,
-    };
+    // result 안에 accountIdx가 있으면 result.accountIdx (loginToken일 경우)
+    // result 안에 mail 있으면 result.mail (mailToken일 경우)
+    if (result.accountIdx) {
+      return {
+        errName: null,
+        decoded: result.accountIdx
+      };
+    } else if (result.mail) {
+      return {
+        errName: null,
+        decoded: result.mail
+      };
+    }
   } catch (err) {
     return {
       errName: err.name,
       decoded: undefined,
-      err: err,
+      err: err
     };
   }
 };

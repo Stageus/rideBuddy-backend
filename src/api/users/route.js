@@ -27,8 +27,8 @@ router.get('/login/google', userGoogleLogin);
 router.get('/google/callback', googleCreateToken);
 // prettier-ignore
 router.get('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
-router.put('/change-pw', validateRegx([['pw', pwRegx]]), checkMailStatus, changePw); //db에 True가 되어있어야함 checkMailStatus, changePw
-router.put('/change-pw/mypages', verifyLoginToken, validateRegx, changePw); //
+router.put('/change-pw', validateRegx([['pw', pwRegx]]), checkMailStatus, changePw);
+router.put('/change-pw/mypages', verifyLoginToken, validateRegx([['pw', pwRegx]]), changePw);
 router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId);
 router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail);
 // prettier-ignore
@@ -36,10 +36,10 @@ router.post('/register',validateRegx([['id', idRegx],['pw', pwRegx],['name', nam
   checkMailStatus,
   register
 );
-router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendregister); //code랑 mailToken 생성해서 db에 저장
+router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendregister);
 // prettier-ignore
-router.post('/mail/withId',validateRegx([['mail', mailRegx],['id', idRegx]]),mailSendChangePw); //code랑 mailToken 생성해서 db에 저장
-router.get('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck); // db에 저장한거 True로 수정
+router.post('/mail/withId',validateRegx([['mail', mailRegx],['id', idRegx]]),mailSendChangePw);
+router.get('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck);
 router.delete('/my', verifyLoginToken, deleteuser);
 
 export default router;

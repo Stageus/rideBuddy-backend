@@ -3,11 +3,19 @@ import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
 import logger from '#utility/logger.js';
-import { selectUserPw, selectLocalAccountIdx, insertPw, updatePw, findAccountId } from './repository.js';
+import {
+  selectUserPw,
+  selectLocalAccountIdx,
+  insertPw,
+  updatePwFromId,
+  updatePwFromIdx,
+  findAccountId,
+  selectTokenType
+} from './repository.js';
 import { genAccessToken, genMailToken } from '#utility/generateToken.js';
 import { userNaverProfile } from '../utility/naverOauth.js';
 import wrap from '#utility/wrapper.js';
-import { BadRequestError, NotFoundError } from '#utility/customError.js';
+import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
 
 // 네이버 로그인 화면 띄우기
 export const naverLogin = wrap((req, res) => {
@@ -41,25 +49,24 @@ export const naverCreateToken = wrap(async (req, res) => {
   const DbAccountIdx = userNaverProfile(naverAccessToken);
 
   const accessToken = genAccessToken(DbAccountIdx);
-  const refreshToken = genRefreshToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).json({
-    access_token: accessToken
+    access_token: accessToken,
+    OAuth: true
   });
 });
 
 export const localCreateToken = wrap(async (req, res) => {
-  const userId = req.body.id;
-  const userPw = req.body.pw;
+  const { id, pw } = req.body;
   const saltRounds = 10;
 
   // id나 pw키 자체가 안 넘어올 경우
-  if (!userId || !userPw) {
+  if (!id || !pw) {
     throw new BadRequestError('id또는 pw가 안넘어옴');
   }
 
   //id에 해당하는 해싱된 pw 불러오기
-  const pwResults = await pool.query(selectUserPw, [userId]);
+  const pwResults = await pool.query(selectUserPw, [id]);
   const pwHash = pwResults.rows[0].pw;
 
   //로깅 테스트
@@ -70,14 +77,14 @@ export const localCreateToken = wrap(async (req, res) => {
   // }
 
   //db의 pw와 userPw가 같은지 검증한다.
-  const bcryptResult = await bcrypt.compare(userPw, pwHash);
+  const bcryptResult = await bcrypt.compare(pw, pwHash);
 
   // userPw와 pwHash가 일치하지 않을경우
   if (!bcryptResult) {
     throw new NotFoundError('db의 pw와 일치하지 않음');
   }
   // 로컬 아이디에 해당하는 account_idx 가져오기
-  const idxResults = await pool.query(selectLocalAccountIdx, [userId]);
+  const idxResults = await pool.query(selectLocalAccountIdx, [id]);
   const account_idx = idxResults.rows[0].account_idx;
   // access 토큰 생성
   const accessToken = genAccessToken(account_idx);
@@ -89,22 +96,44 @@ export const localCreateToken = wrap(async (req, res) => {
 });
 
 export const changePw = wrap(async (req, res, next) => {
-  // 메일 토큰이 true 가 아니면 에러핸들러로
-  // 아직 미완성
-
-  const accountIdx = req.decoded;
+  let userIdx = req.accountIdx; // 마이페이지에서 비밀번호 변경시 사용
+  let userId = req.body.id; // 비밀번호 변경모달창에서 변경시 사용
+  let updateResult;
   const newPw = req.body.pw;
+
+  if (!newPw) {
+    throw new BadRequestError('pw를 받지못함');
+  }
   const saltRounds = 10;
 
   const hashPw = await bcrypt.hash(newPw, saltRounds);
-  await pool.query(updatePw, [hash, accountIdx]);
 
-  // 돌아가는지 검사해보기
-  res.send();
+  // 마이페이지에서 비밀번호 변경시
+  if (userIdx) {
+    //oAuth로그인시 403 에러
+    const result = await pool.query(selectTokenType, [userIdx]);
+    const token_type = result.rows[0].token_type;
+    if (!(token_type == 'local')) {
+      throw new ForbiddenError('OAuth 로그인은 changePw불가 ');
+    }
+
+    updateResult = await pool.query(updatePwFromIdx, [hashPw, userIdx]);
+  }
+  // 비밀번호 변경모달창에서 변경시
+  else if (userId) {
+    updateResult = await pool.query(updatePwFromId, [hashPw, userId]);
+  } else {
+    throw new BadRequestError('id를 받지못함');
+  }
+  res.status(200).send({});
 });
 
 export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
+  if (!name || !mail) {
+    throw new BadRequestError('name또는 mail이 안넘어옴');
+  }
+
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
   if (result.rows.length == 0) {
