@@ -1,9 +1,15 @@
 import express from 'express';
 import path from 'path';
 import 'dotenv/config';
+
+import morgan from 'morgan';
+
 import timeCheck from './backGroundGetData/timeCheck.js';
 const app = express();
 
+app.use(morgan('dev',{
+  stream: 
+}));
 app.use(express.json());
 // josn 형식 -> js객체 형식으로 바꾼다.
 
