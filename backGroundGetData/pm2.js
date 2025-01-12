@@ -15,7 +15,7 @@ const getWeatherData = async (date, time) => {
   //req로 시작과, 설정 시간 전송해줌
   // 252번 돌린다. 파일 list 파일 참고해서 돌리면 된다.
 
-  console.log(date, time);
+  // console.log(date, time);
   var rows = [];
   var results = [];
 
@@ -24,7 +24,7 @@ const getWeatherData = async (date, time) => {
   results = rows.map((row) => row.split(','));
   let cleanData = results.map((row) => row.map((item) => item.replace(/\r/g, '')));
 
-  console.log(cleanData);
+  // console.log(cleanData);
   for (let i = 0; i < 252; i++) {
     var ny = cleanData[i][2];
     var nx = cleanData[i][3];
@@ -35,7 +35,7 @@ const getWeatherData = async (date, time) => {
       method: 'get' // 통신 방식
     });
     var weatherData = response;
-    console.log(response);
+    // console.log(response);
     // await pool.query();
   }
   setInterval(timeCheck, 3 * 60 * 60 * 1000);

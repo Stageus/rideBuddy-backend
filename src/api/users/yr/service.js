@@ -2,7 +2,7 @@ import axios from 'axios';
 import pool from '#config/postgresql.js';
 import bcrypt from 'bcrypt';
 import 'dotenv/config';
-import logger from '#utility/logger.js';
+// import logger from '#utility/logger.js';
 import {
   selectUserPw,
   selectLocalAccountIdx,

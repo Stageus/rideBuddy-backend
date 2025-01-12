@@ -7,9 +7,9 @@ import morgan from 'morgan';
 import timeCheck from './backGroundGetData/timeCheck.js';
 const app = express();
 
-app.use(morgan('dev',{
-  stream: 
-}));
+// app.use(morgan('dev',{
+//   stream:
+// }));
 app.use(express.json());
 // josn 형식 -> js객체 형식으로 바꾼다.
 
@@ -37,11 +37,12 @@ app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({ message: err.message });
 });
 
+app.listen(process.env.PORT, () => {
+  console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
+});
+
 const startServer = async () => {
-  getWeatherData();
-  app.listen(process.env.PORT, () => {
-    console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
-  });
+  // getWeatherData();
 };
 
-timeCheck();
+// timeCheck();
