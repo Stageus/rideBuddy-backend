@@ -1,5 +1,3 @@
-import winston from 'winston';
-import 'winston-mongodb';
 import 'dotenv/config';
 import morgan from 'morgan';
 
@@ -30,8 +28,6 @@ async function connectDb() {
 }
 connectDb();
 
-const { combine, timestamp, json, align, printf, errors } = winston.format;
-
 // mongodb는 ttl도 활 수 있음.
 
 // Mongodb에는 level 설정할수있으니까 error레벨 로
@@ -40,17 +36,17 @@ const { combine, timestamp, json, align, printf, errors } = winston.format;
 
 // const mongoDBTransport = new winston.transports.MongoDB(transportOptions);
 
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'http',
-  transports: [
-    //transports.console,
-    //new winston.transports.Console({ level: 'http' }),
-    // new winston.transports.Console({
-    //   level: 'error',
-    //   format: combine(errorFilter(), timestamp(), json()),
-    // }),
-    // mongoDBTransport,
-  ]
-});
+// const logger = winston.createLogger({
+//   level: process.env.LOG_LEVEL || 'http',
+//   transports: [
+//     //transports.console,
+//     //new winston.transports.Console({ level: 'http' }),
+//     // new winston.transports.Console({
+//     //   level: 'error',
+//     //   format: combine(errorFilter(), timestamp(), json()),
+//     // }),
+//     // mongoDBTransport,
+//   ]
+// });
 
-export default logger;
+// export default logger;

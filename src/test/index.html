@@ -22,12 +22,17 @@
     <!-- 구글 -->
     <button onclick="requestGoogle()">구글 로그인</button>
     <!-- 파일 첨부 -->
-    <div>
-      <input type="file" name="file" />
-      <button type="submit" onclick="requestFile()">올리기</button>
     </div>
-
+    <form action="/mypages/profile" method="post" enctype="multipart/form-data">
+      <input type="file" id="inputFile" name="profile" />
+      <button type="submit" >올리기</button>
+    </form>
+  </body>
+<!-- onclick="requestFile()" -->
     <script>
+      const file = document.getElementById('inputFile');
+
+
       const requestLocal = async () => {
         const idValue = document.getElementById('id').value;
         const pwValue = document.getElementById('pw').value;
@@ -35,12 +40,12 @@
         const resposne = await fetch('/users/login/local', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             id: idValue,
-            pw: pwValue,
-          }),
+            pw: pwValue
+          })
         });
         //const result  = await response.json() // 이게 res.status(200).send()// 빈 {} 오브젝트 지워주세요 쓰고 안쓰고의 차이가 커
         // 보내주는 값이 없는데 json으로 바꿀수없으므로 에러가 남.
@@ -48,12 +53,18 @@
       };
 
       const requestNaver = async () => {
-        const response = await fetch('/users/login/naver', {
-          method: 'POST',
+        const NaverResponse = await fetch('/users/login/naver', {
+          method: 'POST'
         });
 
-        const naverLoginWindow = await response.text();
+        const naverLoginWindow = await NaverResponse.text();
         window.location.href = naverLoginWindow;
+      };
+
+      const requestFile = async () => {
+        const profileResponse = await fetch('/mypages/profile', {
+          method: 'POST'
+        });
       };
     </script>
   </body>

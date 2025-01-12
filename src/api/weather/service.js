@@ -15,8 +15,8 @@ const weather = async (req, res) => {
     }
   });
   const results = response.data.results;
-  console.log(results[0].region.area1.name);
-  console.log(results[0].region.area2.name);
+  // console.log(results[0].region.area1.name);
+  // console.log(results[0].region.area2.name);
 
   const area1 = region.area1.name;
   const area2 = region.area2.name;
