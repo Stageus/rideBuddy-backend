@@ -2,7 +2,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 import multerS3 from 'multer-s3';
 import multer from 'multer';
 import 'dotenv/config';
-
+import { BadRequestError } from '#utility/customError.js';
 const s3 = new S3Client({
   region: 'ap-northeast-2',
   credentials: {
@@ -10,6 +10,17 @@ const s3 = new S3Client({
     accessKeyId: process.env.S3_ACCESS_KEY
   }
 });
+
+const fileFilter = (req, file, cb) => {
+  const fileType = file.mimetype.split('/')[1];
+  const tureType = ['jpg', 'png', 'jpeg', 'gif', 'webp'];
+  for (let type of tureType) {
+    if (fileType == type) {
+      return cb(null, true);
+    }
+  }
+  return cb(new BadRequestError('잘못된 확장자입니다'), false);
+};
 
 export const upload = multer({
   storage: multerS3({
@@ -20,5 +31,7 @@ export const upload = multer({
     key: function (req, file, cb) {
       cb(null, Date.now().toString());
     }
-  })
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: fileFilter
 });

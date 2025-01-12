@@ -37,6 +37,9 @@ export const getMyInfo = wrap(async (req, res) => {
 
 // 프로필 사진 업로드
 export const uploadProfile = async (req, res) => {
-  console.log(req.file);
+  // console.log(req.file);
+  // req.file.location
+  // db에 req.accountidx에 맞는 곳에 req.file.location내용 넣어주기
+
   res.send();
 };
