@@ -1,6 +1,7 @@
 import wrap from '#utility/wrapper.js';
 import pool from '#config/postgresql.js';
-import { selectLoginType, selectInfo, selectProfile, insertProfile } from './repository.js';
+import { selectLoginType, selectInfo, selectProfile, insertProfile, selectHistory } from './repository.js';
+
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
   const result = await pool.query(selectLoginType, [userIdx]);
@@ -36,5 +37,14 @@ export const uploadProfile = wrap(async (req, res) => {
   res.status(200).send({});
 });
 
-export const getMyProfile = wrap(async (req, res) => {});
+// 사용자가 넣은 프로필 히스토리 불러오기
+export const getMyProfile = wrap(async (req, res) => {
+  const userIdx = req.accountIdx;
+  const historyResult = await pool.query(selectHistory, [userIdx]);
+  const result = historyResult.rows;
+  res.status(200).send({
+    result
+  });
+});
+
 export const deleteProfile = wrap(async (req, res) => {});

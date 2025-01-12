@@ -31,3 +31,10 @@ export const insertProfile = `
     INSERT INTO project.profile_img (account_idx, img_url)
     VALUES ($1,$2)
 `;
+
+export const selectHistory = `
+    SELECT img_idx, img_url, created_at
+    FROM project.profile_img
+    WHERE account_idx = $1
+    ORDER BY created_at DESC
+`;
