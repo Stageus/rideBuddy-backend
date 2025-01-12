@@ -1,8 +1,10 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import multerS3 from 'multer-s3';
 import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
 import 'dotenv/config';
 import { BadRequestError } from '#utility/customError.js';
+
 const s3 = new S3Client({
   region: 'ap-northeast-2',
   credentials: {
@@ -29,7 +31,8 @@ export const upload = multer({
     acl: 'public-read',
     contentType: multerS3.AUTO_CONTENT_TYPE,
     key: function (req, file, cb) {
-      cb(null, Date.now().toString());
+      let uuid = uuidv4();
+      cb(null, `id=${req.accountIdx}_${uuid}`);
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 },

@@ -1,45 +1,40 @@
 import wrap from '#utility/wrapper.js';
 import pool from '#config/postgresql.js';
-import { selectLoginType, selectInfoForLocal, selectInfoForOAuth, selectProfile } from './repository.js';
+import { selectLoginType, selectInfo, selectProfile, insertProfile } from './repository.js';
 export const getMyInfo = wrap(async (req, res) => {
-  //1.  req.accountIdx통해.. 로컬 로그인이면
   const userIdx = req.accountIdx;
   const result = await pool.query(selectLoginType, [userIdx]);
   const userLoginType = result.rows[0].token_type;
-  let infoResult;
-  // 기본 정보 불러오기
-  if (userLoginType == 'local') {
-    infoResult = await pool.query(selectInfoForLocal, [userIdx]);
-    // id, mail , name, profile_img
-    // 조인
+  let img_url;
+
+  // 기본정보
+  const infoResult = await pool.query(selectInfo, [userIdx]);
+  const { account_name, id, mail } = infoResult.rows[0];
+  // 현재 프로필 이미지
+  const profileResult = await pool.query(selectProfile, [userIdx]);
+  if (!profileResult.rows[0]) {
+    // 프로필이미지를 업로드 하지 않았을경우 null반환
+    img_url = null;
   } else {
-    infoResult = await pool.query(selectInfoForOAuth, [userIdx]);
-    // name, profile_img
+    img_url = profileResult.rows[0].img_url;
   }
-  // 현재 프로필 이미지 불러오기
-  const profile = await pool.query(selectProfile, [userIdx]);
-  console.log(userLoginType);
 
-  // profile_img는 가장 최 상단의 img를 주면 됨.
-  // 이게 아니라 조인을 할 수 잇나?
-  //
-
-  //
-
-  // 그럼 회원가입시 기본 이미지 설정해서 테이블에 저장해주어야 겟네.
-  // 현재 프로필 이미지라는거 적어줘야하나?
-  // 이미지 어떻게 했더라?
-
-  // 현재 프로필 이미지 어떻게 넣지????
-  // 일단 어디다가 넣지? -> aws 애다가 넣자
-  //
+  res.status(200).send({
+    account_name: account_name,
+    id: id,
+    mail: mail,
+    img_url: img_url
+  });
 });
 
 // 프로필 사진 업로드
-export const uploadProfile = async (req, res) => {
-  // console.log(req.file);
-  // req.file.location
-  // db에 req.accountidx에 맞는 곳에 req.file.location내용 넣어주기
+export const uploadProfile = wrap(async (req, res) => {
+  const userIdx = req.accountIdx;
+  const fileURL = req.file.location;
+  await pool.query(insertProfile, [userIdx, fileURL]);
 
-  res.send();
-};
+  res.status(200).send({});
+});
+
+export const getMyProfile = wrap(async (req, res) => {});
+export const deleteProfile = wrap(async (req, res) => {});
