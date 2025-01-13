@@ -5,6 +5,7 @@ import { verifyJWT } from '#utility/verifyJWT.js';
 import wrap from '#utility/wrapper.js';
 // 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyLoginToken = wrap(async (req, res, next) => {
+  console.log('?');
   const accessToken = req.headers.authorization.split(' ')[1];
   const accessResult = await verifyJWT('access', accessToken);
 
@@ -16,7 +17,6 @@ export const verifyLoginToken = wrap(async (req, res, next) => {
 
   //(1) access token 비만료, -> 갱신할 필요 없음.
   if (accessResult.errName === null) {
-    console.log('decoded결과', accessResult.decoded);
     req.accountIdx = accessResult.decoded;
     next();
   }
