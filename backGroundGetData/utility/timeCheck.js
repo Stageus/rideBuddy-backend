@@ -1,5 +1,5 @@
 import moment from 'moment';
-import getWeatherData from './pm2.js';
+import getWeatherData from '../src/service.js';
 
 const timeCheck = (req, res) => {
   const currentTime = new Date();

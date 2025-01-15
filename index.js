@@ -4,7 +4,7 @@ import 'dotenv/config';
 
 import morgan from 'morgan';
 
-import timeCheck from './backGroundGetData/timeCheck.js';
+import timeCheck from './backGroundGetData/utility/timeCheck.js';
 const app = express();
 
 // app.use(morgan('dev',{
