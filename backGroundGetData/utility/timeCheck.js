@@ -8,8 +8,9 @@ const timeCheck = (req, res) => {
   var day = currentTime.getDate().toString().padStart(2, '0');
   var date;
   var chooseHours;
-
+  console.log('currentTime', currentTime);
   const currentHours = currentTime.getHours();
+  console.log('currentHours', currentHours);
   if (currentHours < 3) {
     chooseHours = 23;
     date = moment().add(-1, 'days').format('YYYYMMDD');

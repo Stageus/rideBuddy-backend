@@ -6,7 +6,7 @@ import csv from 'csv-parser';
 import timeCheck from '../utility/timeCheck.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const filePath = path.join(__dirname, '../utility/region_list.csv');
+const filePath = path.join(__dirname, '../region_list.csv');
 
 const getWeatherData = async (date, time) => {
   //252번 통신해야함
@@ -15,7 +15,7 @@ const getWeatherData = async (date, time) => {
   //req로 시작과, 설정 시간 전송해줌
   // 252번 돌린다. 파일 list 파일 참고해서 돌리면 된다.
 
-  // console.log(date, time);
+  console.log('날짜와 시간', date, time);
   var rows = [];
   var results = [];
 
