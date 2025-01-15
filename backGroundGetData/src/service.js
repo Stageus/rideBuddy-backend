@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { promises as fs } from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
-import timeCheck from '../utility/timeCheck.js';
+import { weatherTimeCheck } from '../utility/timeCheck.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const filePath = path.join(__dirname, '../region_list.csv');
@@ -38,7 +38,7 @@ const getWeatherData = async (date, time) => {
     // console.log(response);
     // await pool.query();
   }
-  setInterval(timeCheck, 3 * 60 * 60 * 1000);
+  setInterval(weatherTimeCheck, 3 * 60 * 60 * 1000);
 };
 
 const getAirData = async (req, res) => {

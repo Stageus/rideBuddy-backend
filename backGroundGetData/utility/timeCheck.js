@@ -1,7 +1,7 @@
 import moment from 'moment';
 import getWeatherData from '../src/service.js';
 
-const timeCheck = (req, res) => {
+export const weatherTimeCheck = (req, res) => {
   const currentTime = new Date();
   var year = currentTime.getFullYear();
   var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
@@ -40,4 +40,6 @@ const timeCheck = (req, res) => {
   getWeatherData(date, chooseHours);
 };
 
-export default timeCheck;
+export const airTimeCheck = (req, res) => {
+  // 정각이 될때 getAirData 호출
+};
