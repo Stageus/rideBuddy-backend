@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { getWeather } from './repository.js';
 import 'dotenv/config';
-import proj4 from 'proj4';
 import wrap from '#utility/wrapper.js';
 
 const weather = wrap(async (req, res) => {
@@ -94,7 +93,11 @@ const weather = wrap(async (req, res) => {
   const stationName = nearStationResult.response.body.items[0].stationName;
 
   //3. 측정소에 해당하는 값 불러오기
+
   // 여기서부터는 Pm2 필요
+
+  // 일단 pm2 사용법은 안다.
+  //
   res.status(200).send({});
 });
 
