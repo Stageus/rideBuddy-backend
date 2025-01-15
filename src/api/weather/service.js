@@ -98,6 +98,7 @@ const weather = wrap(async (req, res) => {
 
   // 일단 pm2 사용법은 안다.
   //
+
   res.status(200).send({});
 });
 
