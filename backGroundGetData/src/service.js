@@ -5,14 +5,11 @@ import path from 'path';
 import csv from 'csv-parser';
 import pool from '#config/postgresql.js';
 import { insertWeatherData } from './repository.js';
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-
 import { weatherTimeCheck } from '../utility/timeCheck.js';
-
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
-
-const filePath = path.join(__dirname, '../region_list.csv');
-
+const __dirname1 = path.dirname(__filename);
+const filePath = path.join(__dirname1, '../region_list.csv');
 const getWeatherData = async (date, time) => {
   //252번 통신해야함
   //정해진 시간에 통신해야함 (02,05,08,11,14,17,20,23) 8번 통신해야함.
@@ -23,6 +20,7 @@ const getWeatherData = async (date, time) => {
   time = time + '00';
 
   console.log('날짜와 시간', date, time);
+
   var rows = [];
   var results = [];
 
@@ -73,8 +71,6 @@ const getWeatherData = async (date, time) => {
       }
     }
   }
-
-  setInterval(weatherTimeCheck, 3 * 60 * 60 * 1000);
 };
 
 const getAirData = async (req, res) => {

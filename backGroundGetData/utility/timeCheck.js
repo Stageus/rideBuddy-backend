@@ -15,8 +15,10 @@ export const weatherTimeCheck = (req, res) => {
   var chooseHours;
   var timeGap;
   var gapTime;
+
   console.log('currentTime', currentTime);
   console.log('currentHours', currentHours);
+
   if (currentHours < 3) {
     chooseHours = 23;
     date = moment().add(-1, 'days').format('YYYYMMDD');
