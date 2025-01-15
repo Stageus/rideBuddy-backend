@@ -27,35 +27,35 @@ const weather = wrap(async (req, res) => {
   // results[0]은 행정동이고 results[1]은 법정동이라서 내거는 법정동으로 했어
   // 태준이 너도 고민해보고 맞는걸로 해
 
-  // const results = response.data.results;
+  const results = response.data.results;
   // console.log(results[0].region.area1.name);
   // console.log(results[0].region.area2.name);
 
-  console.log('response', response.data.results[1].region);
+  // console.log('response', response.data.results[1].region);
 
-  // const area1 = results[0].region.area1.name;
-  // const area2 = results[0].region.area2.name;
+  const area1 = results[0].region.area1.name;
+  const area2 = results[0].region.area2.name;
 
-  // weatherResult = await pool.query(getWeather, [area1, area2.replace(/ /g, '')]);
-  // const data = {
-  //   data: {
-  //     weather: weatherResult.now_weather,
-  //     temperature: weatherResult.now_temperature,
-  //     nowrain: weatherResult.now_temperature,
-  //     _1h_after_rain: weatherResult._1h_after_rain,
-  //     _2h_after_rain: weatherResult._2h_after_rain,
-  //     _3h_after_rain: weatherResult._3h_after_rain,
-  //     _4h_after_rain: weatherResult._4h_after_rain,
-  //     _1h_after_weather: weatherResult._1h_after_weather,
-  //     _2h_after_weather: weatherResult._2h_after_weather,
-  //     _3h_after_weather: weatherResult._3h_after_weather,
-  //     _4h_after_weather: weatherResult._4h_after_weather,
-  //     _1h_after_temperature: weatherResult._1h_after_temperature,
-  //     _2h_after_temperature: weatherResult._2h_after_temperature,
-  //     _3h_after_temperature: weatherResult._3h_after_temperature,
-  //     _4h_after_temperature: weatherResult._4h_after_temperature
-  //   }
-  // };
+  weatherResult = await pool.query(getWeather, [area1, area2.replace(/ /g, '')]);
+  const data = {
+    data: {
+      weather: weatherResult.now_weather,
+      temperature: weatherResult.now_temperature,
+      nowrain: weatherResult.now_temperature,
+      _1h_after_rain: weatherResult._1h_after_rain,
+      _2h_after_rain: weatherResult._2h_after_rain,
+      _3h_after_rain: weatherResult._3h_after_rain,
+      _4h_after_rain: weatherResult._4h_after_rain,
+      _1h_after_weather: weatherResult._1h_after_weather,
+      _2h_after_weather: weatherResult._2h_after_weather,
+      _3h_after_weather: weatherResult._3h_after_weather,
+      _4h_after_weather: weatherResult._4h_after_weather,
+      _1h_after_temperature: weatherResult._1h_after_temperature,
+      _2h_after_temperature: weatherResult._2h_after_temperature,
+      _3h_after_temperature: weatherResult._3h_after_temperature,
+      _4h_after_temperature: weatherResult._4h_after_temperature
+    }
+  };
 
   // 미세먼지 부분
   const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
