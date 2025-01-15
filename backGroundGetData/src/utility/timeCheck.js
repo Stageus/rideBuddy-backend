@@ -1,5 +1,5 @@
 import moment from 'moment';
-import getWeatherData from '../src/service.js';
+import { getWeatherData, getAirData } from '../service.js';
 
 export const weatherTimeCheck = (req, res) => {
   const currentTime = new Date();
@@ -86,4 +86,24 @@ export const weatherTimeCheck = (req, res) => {
 
 export const airTimeCheck = (req, res) => {
   // 정각이 될때 getAirData 호출
+  // 현재 시간과 다음정각까지 남은 시간을 계산하고 그 시간에 맞춰 작업을 예약한다.
+  const currentTime = new Date(); //.toString();
+  const currentMinutes = currentTime.getMinutes();
+  // 다음 정각까지 남은 시간 계산.
+  // 다음 정각?
+  // 음 만약 12시 어쩌구면
+  // 1시. 만약 12시 정각이면
+  if (currentMinutes == 0) {
+    // getAirData();
+    // 하고 setInterval로 1시간마다 함수 실행
+  } // 정각이 아니면
+  else {
+    // 정각까지 남은시간 계산
+    const leftTime = 60 - currentMinutes;
+    console.log('남은시간', leftTime);
+    console.log('밀리초', 1000 * 60 * leftTime);
+    //  setTimeout(getAirData(), 1000 * 60 * leftTime); 이렇게 하면 프로미스 객체가 전달되서 안된다고 함
+    // 정각까지 남은시간 계산해서 setTimeout 해주고 그이후로 setInterval로 1시간마다 함수 실행
+  }
+  console.log('현재', currentTime, currentMinutes);
 };
