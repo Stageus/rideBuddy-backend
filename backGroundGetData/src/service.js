@@ -8,7 +8,8 @@ import { insertWeatherData } from './repository.js';
 import timeCheck from './timeCheck.js';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
-const filePath = path.join(__dirname, 'region_list.csv');
+const __dirname1 = path.dirname(__filename);
+const filePath = path.join(__dirname1, '../region_list.csv');
 
 const getWeatherData = async (date, time) => {
   //252번 통신해야함
@@ -69,6 +70,17 @@ const getWeatherData = async (date, time) => {
       }
     }
   }
+};
+
+const getAirData = async (req, res) => {
+  //1. 정각마다 데이터 불러와서 저장하기.
+  //2. 근데 만약에 16800번 통신해야할때 좀더 효율적으로 통신할 수 있는 방법이 있을까?
+  //3.
+  // pm2가 필요한 내 나름대로의 결론?
+  // 1. 데이터를 대량으로 통신해서 가져오고 db내용에 있는거 삭제하고 하는데 사용자 요청가지 받으면 너무 느려지지 않을까?
+  // 2. 느려진다면 왜 느려질까?
+  // 3. pm2 클러스터? 사용하면 데이터 통신시 훨씬 효과적으로 할수 있을것같다.
+  // 4.
 };
 
 export default getWeatherData;

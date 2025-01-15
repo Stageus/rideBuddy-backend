@@ -4,7 +4,7 @@ import 'dotenv/config';
 
 import morgan from 'morgan';
 
-import timeCheck from './backGroundGetData/timeCheck.js';
+import timeCheck from './backGroundGetData/utility/timeCheck.js';
 const app = express();
 
 // app.use(morgan('dev',{
@@ -25,8 +25,8 @@ app.use('/users', userRoute);
 import infoRoute from './src/api/info/route.js';
 app.use('/info', infoRoute);
 
-// import mypagesRoute from './src/api/mypages/route.js';
-// app.use('/mypages', mypagesRoute);
+import mypagesRoute from './src/api/mypages/route.js';
+app.use('/mypages', mypagesRoute);
 import weatherRoute from './src/api/weather/route.js';
 app.use('/weather', weatherRoute);
 
