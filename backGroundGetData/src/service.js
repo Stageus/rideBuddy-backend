@@ -4,7 +4,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
 import pool from './config/postgresql.js';
-import { insertWeatherData } from './repository.js';
+import { insertWeatherData, selectAirStation, insertAirData, deleteAirData } from './repository.js';
+import wrap from './utility/wrapper.js';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname1 = path.dirname(__filename);
@@ -64,13 +65,45 @@ export const getWeatherData = async (date, time) => {
   }
 };
 
-export const getAirData = async (req, res) => {
-  //1. 정각마다 데이터 불러와서 저장하기.
-  //2. 근데 만약에 16800번 통신해야할때 좀더 효율적으로 통신할 수 있는 방법이 있을까?
-  //3.
-  // pm2가 필요한 내 나름대로의 결론?
-  // 1. 데이터를 대량으로 통신해서 가져오고 db내용에 있는거 삭제하고 하는데 사용자 요청가지 받으면 너무 느려지지 않을까?
-  // 2. 느려진다면 왜 느려질까?
-  // 3. pm2 클러스터? 사용하면 데이터 통신시 훨씬 효과적으로 할수 있을것같다.
-  //
-};
+export const getAirData = wrap(async (req, res) => {
+  // db에 저장된 서울 측정소 리스트
+
+  const stationResults = await pool.query(selectAirStation);
+  let stationList = stationResults.rows;
+  // 데이터 저장전 db내용 삭제
+  await pool.query(deleteAirData);
+
+  const encodingServiceKey = process.env.AIR_SERVICE_KEY;
+  const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
+  // 40번 통신
+  for (let station of stationList) {
+    const airDataUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`;
+    const airDataParams = {
+      serviceKey: decodingServiceKey,
+      returnType: 'json',
+      stationName: station.station_name,
+      dataTerm: 'DAILY',
+      ver: 1.3
+    };
+    const airDataQuery = new URLSearchParams(airDataParams).toString();
+    const airDataFetch = await fetch(`${airDataUrl}?${airDataQuery}`);
+    const airDataResult = await airDataFetch.json();
+    const airData = airDataResult.response.body.items[0];
+
+    const pm10value = airData.pm10Value;
+    const pm25value = airData.pm25Value;
+    const pm10grade1h = airData.pm10Grade1h;
+    const pm25grade1h = airData.pm25Grade1h;
+    const surveyDateTime = airData.dataTime;
+
+    await pool.query(insertAirData, [
+      station.station_idx,
+      pm10value,
+      pm25value,
+      pm10grade1h,
+      pm25grade1h,
+      surveyDateTime
+    ]);
+  }
+  return;
+});

@@ -84,26 +84,50 @@ export const weatherTimeCheck = (req, res) => {
   // 11 14 17 20 23 2 5 8
 };
 
-export const airTimeCheck = (req, res) => {
-  // 정각이 될때 getAirData 호출
-  // 현재 시간과 다음정각까지 남은 시간을 계산하고 그 시간에 맞춰 작업을 예약한다.
+// 일단 서울만 기능하도록 함. 2시간에 한번씩 호출로 함.
+export const airTimeCheck = async (req, res) => {
   const currentTime = new Date(); //.toString();
+  const currentHours = currentTime.getHours();
   const currentMinutes = currentTime.getMinutes();
-  // 다음 정각까지 남은 시간 계산.
-  // 다음 정각?
-  // 음 만약 12시 어쩌구면
-  // 1시. 만약 12시 정각이면
+  const loadTime = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+  let leftHours;
+  let leftMinutes;
+
+  // 정각일때 남은시간 계산
   if (currentMinutes == 0) {
-    // getAirData();
-    // 하고 setInterval로 1시간마다 함수 실행
-  } // 정각이 아니면
-  else {
-    // 정각까지 남은시간 계산
-    const leftTime = 60 - currentMinutes;
-    console.log('남은시간', leftTime);
-    console.log('밀리초', 1000 * 60 * leftTime);
-    //  setTimeout(getAirData(), 1000 * 60 * leftTime); 이렇게 하면 프로미스 객체가 전달되서 안된다고 함
-    // 정각까지 남은시간 계산해서 setTimeout 해주고 그이후로 setInterval로 1시간마다 함수 실행
+    leftHours = 2; // 2시간 남음
+    leftMinutes = 0;
+  } else {
+    // 정각이 아닐때 남은시간 계산
+    for (let time of loadTime) {
+      if (currentHours > time) {
+        continue;
+      } else if (currentHours == time) {
+        leftHours = 1;
+        leftMinutes = 60 - currentMinutes;
+        break;
+      } else if (currentHours < time) {
+        leftHours = 0;
+        leftMinutes = 60 - currentMinutes;
+        break;
+      }
+    }
+    // 남은시간 후 정해진 시간이되면 함수 호출 , 그 이후 2시간 마다 한번씩 호출
+
+    await getAirData();
+
+    setTimeout(
+      async () => {
+        await getAirData();
+        setInterval(
+          async () => {
+            await getAirData();
+          },
+          1000 * 60 * 60 * 2
+        );
+      },
+      1000 * 60 * (leftMinutes + 60 * leftHours)
+    );
+    res.status(200).send({});
   }
-  console.log('현재', currentTime, currentMinutes);
 };

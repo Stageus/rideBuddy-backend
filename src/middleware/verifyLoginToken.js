@@ -5,7 +5,6 @@ import { verifyJWT } from '#utility/verifyJWT.js';
 import wrap from '#utility/wrapper.js';
 // 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyLoginToken = wrap(async (req, res, next) => {
-  console.log('?');
   const accessToken = req.headers.authorization.split(' ')[1];
   const accessResult = await verifyJWT('access', accessToken);
 
@@ -21,7 +20,7 @@ export const verifyLoginToken = wrap(async (req, res, next) => {
     next();
   }
   //(2) access token 만료-> 로그인 다시
-  else if (refreshResult.errName === 'TokenExpiredError') {
+  else if (accessResult.errName === 'TokenExpiredError') {
     throw new UnauthorizedError('토큰만료, 다시 로그인필요');
   }
 });
