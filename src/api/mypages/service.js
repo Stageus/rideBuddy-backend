@@ -1,6 +1,7 @@
 import wrap from '#utility/wrapper.js';
 import pool from '#config/postgresql.js';
-import { selectLoginType, selectInfo, selectProfile, insertProfile, selectHistory } from './repository.js';
+import { selectLoginType, selectInfo, selectProfile, insertProfile, selectHistory, deleteImg } from './repository.js';
+// 예외처리 아직 안함.
 
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
@@ -47,4 +48,8 @@ export const getMyProfile = wrap(async (req, res) => {
   });
 });
 
-export const deleteProfile = wrap(async (req, res) => {});
+export const deleteProfile = wrap(async (req, res) => {
+  const imgIdx = req.body.img_idx;
+  const deleteResult = await pool.query(deleteImg, [imgIdx]);
+  res.status(200).send({});
+});

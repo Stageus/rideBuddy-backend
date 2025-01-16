@@ -1,0 +1,17 @@
+{
+  "name": "backgroundgetdata",
+  "version": "1.0.0",
+  "description": "\"공공데이터 받아오는 백그라운드 프로젝트\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "\"BE: 이태준, 정이령\"",
+  "type": "module",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "moment": "^2.30.1",
+    "pg": "^8.13.1"
+  }
+}
