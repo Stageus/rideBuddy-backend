@@ -60,7 +60,7 @@ export const checkMailToken_True = `
 
 export const deleteaccount = `
     DELETE FROM project.account
-    WHERE idx = $1;
+    WHERE account_idx = $1;
 `;
 
 export const correctaccount = `

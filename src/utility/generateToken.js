@@ -8,11 +8,11 @@ const mailSecretKey = process.env.JWT_MAIL_SECRET;
 export const genAccessToken = (account_idx) => {
   const accessToken = jwt.sign(
     {
-      accountIdx: account_idx,
+      accountIdx: account_idx
     },
     accessSecretKey,
     {
-      expiresIn: '24h',
+      expiresIn: '24h'
     }
   );
   return accessToken;
@@ -21,11 +21,11 @@ export const genAccessToken = (account_idx) => {
 export const genMailToken = (mail) => {
   const mailToken = jwt.sign(
     {
-      mail: mail,
+      mail: mail
     },
     mailSecretKey,
     {
-      expiresIn: '3m',
+      expiresIn: '3m'
     }
   );
   return mailToken;

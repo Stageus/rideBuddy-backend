@@ -1,5 +1,5 @@
 import wrap from '#utility/wrapper.js';
-
+import { BadRequestError } from '#utility/customError.js';
 export const validateRegx = (params) => {
   return wrap(async (req, res, next) => {
     for (let param of params) {

@@ -5,7 +5,7 @@ import {
   deleteuser,
   register,
   duplicateId,
-  mailSendregister,
+  mailSendRegister,
   mailSendChangePw,
   mailCheck,
   duplicateMail
@@ -23,20 +23,20 @@ const router = express.Router();
 router.post('/login/local',validateRegx([['id', idRegx],['pw', pwRegx]]),localCreateToken);
 router.post('/login/naver', naverLogin);
 router.get('/login/naver/callback', naverCreateToken);
-router.get('/login/google', userGoogleLogin);
-router.get('/google/callback', googleCreateToken);
+router.get('/login/google', userGoogleLogin); //완료
+router.get('/google/callback', googleCreateToken); //완료
 // prettier-ignore
 router.get('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
 router.put('/change-pw', validateRegx([['pw', pwRegx]]), checkMailStatus, changePw);
 router.put('/change-pw/mypages', verifyLoginToken, validateRegx([['pw', pwRegx]]), changePw);
-router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId);
-router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail);
+router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId); //완료
+router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail); //완료
 // prettier-ignore
 router.post('/register',validateRegx([['id', idRegx],['pw', pwRegx],['name', nameRegx],['mail', mailRegx]]),
   checkMailStatus,
   register
-);
-router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendregister);
+); //완료
+router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendRegister);
 // prettier-ignore
 router.post('/mail/withId',validateRegx([['mail', mailRegx],['id', idRegx]]),mailSendChangePw);
 router.get('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck);
