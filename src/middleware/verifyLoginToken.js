@@ -21,7 +21,7 @@ export const verifyLoginToken = wrap(async (req, res, next) => {
     next();
   }
   //(2) access token 만료-> 로그인 다시
-  else if (refreshResult.errName === 'TokenExpiredError') {
+  else if (accessResult.errName === 'TokenExpiredError') {
     throw new UnauthorizedError('토큰만료, 다시 로그인필요');
   }
 });

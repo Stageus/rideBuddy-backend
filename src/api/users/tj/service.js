@@ -1,6 +1,7 @@
 import axios from 'axios';
 import pool from '#config/postgresql.js';
 import qs from 'qs';
+import sendMailUtil from '../utility/mail.js';
 import {
   checkGoogleId,
   selectGoogleAccountIdx,
@@ -12,11 +13,13 @@ import {
   correctaccount,
   checkMail,
   insertMailToken,
-  transMailToken_True
+  transMailToken_True,
+  deleteaccount
 } from './repository.js';
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
 import smtpTransport from '#config/email.js';
+import wrap from '#utility/wrapper.js';
 import { genAccessToken, genMailToken } from '#utility/generateToken.js'; //genRefreshToken 삭제함
 import {
   BadRequestError,
@@ -29,17 +32,12 @@ import {
 // 외부 도메인에 있는건 절대경로 shared같은 공용파일들 가져올때 절대경로로 많이 씀.
 
 //구글 oauth
-export const userGoogleLogin = (req, res, next) => {
-  const url =
-    'https://accounts.google.com/o/oauth2/v2/auth' +
-    `?client_id=${process.env.GOOGLE_CLIENT_ID}` +
-    `&redirect_uri=${process.env.GOOGLE_REDIRECT_URL}` +
-    '&response_type=code' +
-    '&scope=email profile';
+export const userGoogleLogin = wrap((req, res) => {
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URL}&response_type=code&scope=email profile`;
   res.redirect(url);
-};
+});
 
-export const googleCreateToken = async (req, res, next) => {
+export const googleCreateToken = wrap(async (req, res) => {
   //google로부터 코드 발급
   const code = req.query.code;
   //google로 발급받은 코드 전송
@@ -58,6 +56,7 @@ export const googleCreateToken = async (req, res, next) => {
       }
     }
   );
+
   //access_token 받음.
   const googleaccessToken = resp.data.access_token;
 
@@ -67,6 +66,7 @@ export const googleCreateToken = async (req, res, next) => {
       Authorization: `Bearer ${googleaccessToken}`
     }
   });
+
   //name id 습득
   const googleName = userInfo.data.name;
   const googleId = userInfo.data.id;
@@ -83,68 +83,56 @@ export const googleCreateToken = async (req, res, next) => {
   const DbAccountIdx = idxResults.rows[0].account_idx;
 
   const accessToken = genAccessToken(DbAccountIdx);
-  const refreshToken = genRefreshToken(DbAccountIdx);
+
+  // 프론트 전달
   res.status(200).json({
     access_token: accessToken,
-    refresh_token: refreshToken
+    OAuth: true
   });
-  console.log('accessToken', accessToken, 'refreshToken', refreshToken);
-};
+  console.log('accessToken', accessToken);
+});
 
 // 이거 고쳐
-export const duplicateId = async (req, res, next) => {
+export const duplicateId = wrap(async (req, res, next) => {
   // 정규표현식 완료 후
   const id = req.body.id;
-
   const checkResults = await pool.query(checkDuplicateId, [id]);
   if (checkResults.rows.length > 0) {
     return next(new ConflictError('이미 사용중인 id'));
   }
-  res.status(200).send();
-  next(); //지워
-};
+  res.status(200).send({});
+});
+
 //이것도 고쳐
-export const duplicateMail = async (req, res, next) => {
+export const duplicateMail = wrap(async (req, res, next) => {
   // 정규표현식 완료 후
   const mail = req.body.mail;
-
   const checkResults = await pool.query(checkDuplicateMail, [mail]);
   if (checkResults.rows.length > 0) {
     return next(new ConflictError('이미 사용중인 mail'));
   }
-  res.status(200);
-  next(); //지워
-  // 태준
-  //1. 테스트 하기
-  //2. 능동적으로 생각하기
-  // 200 201 차이
-  // 200 응답바디 있으면 201 응답바디가 없으면.
-  // 빈오브젝트라도 보내라고 res.send({}) 이렇게 보내라고 얘기했었어.
-};
+  res.status(200).send({});
+});
 
-export const register = async (req, res, next) => {
-  // 정규표현식 완료 후
-  // 중복여부 id,mail 체크 완료 후
+export const register = wrap(async (req, res, next) => {
   const id = req.body.id;
-  // 몰아줘 제발~~~
+  const mail = req.body.mail;
+  const account_name = req.body.name;
+  const pw = req.body.pw;
   // destructuring이란??? id변수에 req.body.id 만들어놓으면
   // const {id, pw, mail} = req.body 이거
-  //
 
   const checkResultsId = await pool.query(checkDuplicateId, [id]);
-  if (checkResults.rows.length > 0) {
+  if (checkResultsId.rows.length > 0) {
     return next(new ConflictError('이미 사용중인 id'));
   }
-  const mail = req.body.mail;
 
   const checkResultsMail = await pool.query(checkDuplicateMail, [mail]);
-  if (checkResults.rows.length > 0) {
+  if (checkResultsMail.rows.length > 0) {
     return next(new ConflictError('이미 사용중인 mail'));
   }
 
   // token 여부 확인 후
-  const account_name = req.body.name;
-  const pw = req.body.pw;
 
   console.log(id);
   console.log(account_name);
@@ -153,56 +141,18 @@ export const register = async (req, res, next) => {
 
   //db에 값 넣기기
   await pool.query(registerdb, [id, account_name, pw, mail]);
-  return res.status(201);
-  // 200으로ㅓ 바꿔
-};
+  res.status(200).send({});
+});
+
 // Register로 대문자 바꿔
-export const mailSendregister = async (req, res, next) => {
+export const mailSendRegister = wrap(async (req, res, next) => {
   const number = randomNumber;
   const mail = req.body.mail;
   console.log(mail);
+  sendMailUtil(number, mail, res);
+});
 
-  // 여기부터
-
-  const mailOptions = {
-    from: process.env.MAIL_ID + '@naver.com',
-    to: mail,
-    subject: '인증 관련 메일 입니다.',
-    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number
-  };
-  smtpTransport.sendMail(mailOptions, async (err, response) => {
-    //try catch 여기서 해야해 그래야 안에 에러를 잡을 수 있음.
-    console.log('response', response);
-    console.log('response', mail);
-    if (err) {
-      res.json({ ok: false, msg: err });
-      smtpTransport.close();
-      return;
-    } else {
-      const token = genMailToken(mail);
-      res.status(200).send({ mail_token: token });
-      // 이 내용을 함수안에 넣어서 콜백함수로 넘겨줘
-      // res를 매개변수로 넘기지마
-
-      //저장
-      // console.log;
-      // console.log('test');
-      await pool.query(insertMailToken, [token, number, 'FALSE']);
-
-      smtpTransport.close();
-      return;
-    }
-  });
-  // 이건 유틸하는게 맞아 . 추상화 하는게 맞아. 메일전송기능이 추가될수도 있고 .
-  // 유저 안의 utility에 넣음 되겠다.
-  // 콜백함수 넣어서 만들기.
-
-  // res.send를 여기서 할 수 있어. 비동기를
-  // 비동기는 try catch를 따로 해줘야해 . 래퍼가 못잡잖아.
-  //
-};
-
-export const mailSendChangePw = async (req, res, next) => {
+export const mailSendChangePw = wrap(async (req, res, next) => {
   const number = randomNumber;
   const mail = req.body.mail;
   const id = req.body.id;
@@ -212,37 +162,14 @@ export const mailSendChangePw = async (req, res, next) => {
     return next(new NotFoundError('해당하는 계정이 없음.'));
   }
 
-  const mailOptions = {
-    from: process.env.MAIL_ID + '@naver.com',
-    to: mail,
-    subject: '인증 관련 메일 입니다.',
-    html: '<h1>인증번호를 입력해주세요 \n\n\n\n\n\n</h1>' + number
-  };
-  smtpTransport.sendMail(mailOptions, async (err, response) => {
-    console.log('response', response);
-    console.log('response', mail);
-    if (err) {
-      res.json({ ok: false, msg: '메일 전송 실패' });
-      smtpTransport.close();
-      return;
-    } else {
-      const token = genMailToken(mail);
-      res.status(200).send({ mail_token: token });
-      //저장
-      await pool.query(insertMailToken, [token, number, 'FALSE']);
+  sendMailUtil(number, mail, res);
+});
 
-      smtpTransport.close();
-      return;
-    }
-  });
-};
-
-export const mailCheck = async (req, res, next) => {
+export const mailCheck = wrap(async (req, res, next) => {
   const mail_token = req.body.mail_token;
   const code = req.body.code;
   console.log('mail 토큰 : ', mail_token);
   console.log('code : ', code);
-  console.log('mailCheck 통과중');
 
   const correctResult = await pool.query(mailVerifyDB, [mail_token, code]);
   if (correctResult.rows.length == 0) {
@@ -252,7 +179,7 @@ export const mailCheck = async (req, res, next) => {
   console.log('mailCheck 통과중2');
   await pool.query(transMailToken_True, ['TRUE', mail_token, code]);
   return res.status(200).send({ message: 'finish' });
-};
+});
 
 export const verifyToken = (token, secret) => {
   try {
@@ -263,13 +190,22 @@ export const verifyToken = (token, secret) => {
   }
 };
 // verifyJWT로 코드 고치기
-export const deleteuser = async (req, res, next) => {
+
+export const deleteuser = wrap(async (req, res, next) => {
   //올바른 jwt 토큰인지 확인
+  console.log(req.cookies);
+  console.log(process.env.JWT_ACCESSTOKEN_SECRET);
 
-  //누구꺼 refreshtoken 인지 인식
-  const idx = verifyToken(res.cookie('access_token'));
-  console.log(idx);
+  try {
+    const decoded = jwt.verify(req.cookies['access_token'], process.env.JWT_ACCESSTOKEN_SECRET);
+    const idx = decoded.accountIdx;
+    console.log(idx);
+    await pool.query(deleteaccount, [idx]);
+  } catch (error) {
+    throw new Error('Invalid Token');
+  }
 
-  await pool.query(deleteaccount, [idx]);
-  res.status(200);
-};
+  // 누구꺼 refreshtoken 인지 인식
+
+  return res.status(200).send({});
+});

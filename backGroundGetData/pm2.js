@@ -33,7 +33,7 @@ const getWeatherData = async (date, time) => {
   var response;
 
   // console.log(cleanData);
-  for (let i = 1; i <= 1; i++) {
+  for (let i = 1; i <= 0; i++) {
     nx = cleanData[i][2];
     ny = cleanData[i][3];
 

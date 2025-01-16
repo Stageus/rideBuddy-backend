@@ -3,6 +3,7 @@ import path from 'path';
 import 'dotenv/config';
 
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 import timeCheck from './backGroundGetData/timeCheck.js';
 const app = express();
@@ -12,7 +13,7 @@ const app = express();
 // }));
 app.use(express.json());
 // josn 형식 -> js객체 형식으로 바꾼다.
-
+app.use(cookieParser());
 //로그인기능 테스트용
 const __dirname = path.resolve();
 app.get('/', (req, res) => {
