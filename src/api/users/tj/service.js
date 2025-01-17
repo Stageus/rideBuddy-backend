@@ -193,19 +193,13 @@ export const verifyToken = (token, secret) => {
 
 export const deleteuser = wrap(async (req, res, next) => {
   //올바른 jwt 토큰인지 확인
-  console.log(req.cookies);
-  console.log(process.env.JWT_ACCESSTOKEN_SECRET);
-
+  const accessToken = req.headers.authorization.split(' ')[1];
   try {
-    const decoded = jwt.verify(req.cookies['access_token'], process.env.JWT_ACCESSTOKEN_SECRET);
+    const decoded = jwt.verify(accessToken, process.env.JWT_ACCESSTOKEN_SECRET);
     const idx = decoded.accountIdx;
-    console.log(idx);
     await pool.query(deleteaccount, [idx]);
   } catch (error) {
-    throw new Error('Invalid Token');
+    throw new Error(error);
   }
-
-  // 누구꺼 refreshtoken 인지 인식
-
   return res.status(200).send({});
 });
