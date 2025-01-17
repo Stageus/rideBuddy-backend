@@ -71,11 +71,11 @@ export const getWeatherData = async (date, time) => {
     }
   }
 };
-export const getAirData = wrap(async (req, res) => {
+export const getAirData = async (req, res) => {
   // db에 저장된 서울 측정소 리스트
 
   const stationResults = await pool.query(selectAirStation);
-  let stationList = stationResults.rows;
+  const stationList = stationResults.rows;
   // 데이터 저장전 db내용 삭제
   await pool.query(deleteAirData);
 
@@ -103,7 +103,7 @@ export const getAirData = wrap(async (req, res) => {
     const surveyDateTime = airData.dataTime;
 
     await pool.query(insertAirData, [
-      station.station_idx,
+      station.station_name,
       pm10value,
       pm25value,
       pm10grade1h,
@@ -112,4 +112,4 @@ export const getAirData = wrap(async (req, res) => {
     ]);
   }
   return;
-});
+};

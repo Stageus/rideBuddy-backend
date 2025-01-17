@@ -2,30 +2,18 @@ import axios from 'axios';
 
 import { getWeather, getData } from './repository.js';
 import pool from '#config/postgresql.js';
+import 'dotenv/config';
+import wrap from '#utility/wrapper.js';
 
-const weather = async (req, res) => {
-  const nx = req.body.nx;
-  const ny = req.body.ny;
+const weather = wrap(async (req, res) => {
+  const nx = req.body.nx; // 37~
+  const ny = req.body.ny; // 126~
   console.log('weather 실행중');
   console.log('nx : ', nx);
   console.log('ny : ', ny);
 
-  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${nx},${ny}&output=JSON`;
-
-  // 여기 내가 코드 수정했던것
-  // import { getWeather, getData } from './repository.js';
-  // import pool from '#config/postgresql.js';
-
-  // import 'dotenv/config';
-  // import wrap from '#utility/wrapper.js';
-
-  // const weather = wrap(async (req, res) => {
-  //   const ny = req.body.ny; // 경도 126 어쩌구
-  //   const nx = req.body.nx; // 위도 37 어쩌구
-
-  //   // 법정동 불러오기
-  //   const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?
-  //                 request=coordsToaddr&coords=${ny},${nx}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
+  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?
+                  request=coordsToaddr&coords=${ny},${nx}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
 
   const response = await axios({
     url: url,
@@ -103,9 +91,8 @@ const weather = async (req, res) => {
 
   // 여기서부터는 Pm2 필요
 
-  // 일단 pm2 사용법은 안다.
   //
   res.status(200).send({});
-};
+});
 
 export default weather;

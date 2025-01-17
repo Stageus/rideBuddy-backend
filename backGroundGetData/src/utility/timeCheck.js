@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { getWeatherData, getAirData } from '../service.js';
-
+import wrap from './wrapper.js';
 export const weatherTimeCheck = (req, res) => {
   const currentTime = new Date();
   var year = currentTime.getFullYear();
@@ -97,6 +97,7 @@ export const airTimeCheck = async (req, res) => {
   if (currentMinutes == 0) {
     leftHours = 2; // 2시간 남음
     leftMinutes = 0;
+    await getAirData();
   } else {
     // 정각이 아닐때 남은시간 계산
     for (let time of loadTime) {
@@ -112,10 +113,7 @@ export const airTimeCheck = async (req, res) => {
         break;
       }
     }
-    // 남은시간 후 정해진 시간이되면 함수 호출 , 그 이후 2시간 마다 한번씩 호출
-
-    await getAirData();
-
+    // 남은시간이 지나면 getAirData 호출 하고, 그 이후 2시간 마다 한번씩 호출
     setTimeout(
       async () => {
         await getAirData();
@@ -128,6 +126,7 @@ export const airTimeCheck = async (req, res) => {
       },
       1000 * 60 * (leftMinutes + 60 * leftHours)
     );
+
     res.status(200).send({});
   }
 };

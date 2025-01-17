@@ -12,7 +12,7 @@ export const selectAirStation = `
 `;
 
 export const insertAirData = `
-    INSERT INTO project.current_air (station_idx, pm10value, pm25value, pm10grade1h, pm25grade1h, survey_date_time)
+    INSERT INTO project.current_air (station_name, pm10value, pm25value, pm10grade1h, pm25grade1h, survey_date_time)
     VALUES ($1,$2,$3,$4,$5,$6)
 `;
 
