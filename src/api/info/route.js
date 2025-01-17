@@ -8,9 +8,9 @@ router.get('/centers', verifyLoginToken);
 router.get('/', verifyLoginToken);
 router.put('/roads/:road-idx/like', verifyLoginToken);
 router.put('/centers/:center-idx/like', verifyLoginToken);
-router.get('/roads/:roadIdx', giveInformationRoad);
-router.get('/centers/:centerIdx', giveInformationCenter);
-router.get('/search', search);
-router.get('/position', position);
+router.get('/roads/:roadIdx', verifyLoginToken, giveInformationRoad);
+router.get('/centers/:centerIdx', verifyLoginToken, giveInformationCenter);
+router.get('/search', verifyLoginToken, search);
+router.get('/position', verifyLoginToken, position);
 
 export default router;

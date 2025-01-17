@@ -1,89 +1,101 @@
 import moment from 'moment';
 import { getWeatherData, getAirData } from './utility/getData.js';
 import wrap from './utility/wrapper.js';
+import axios from 'axios';
+import { fileURLToPath } from 'url';
+import { promises as fs } from 'fs';
+import path from 'path';
+import csv from 'csv-parser';
+import {
+  insertWeatherData,
+  selectAirStation,
+  insertAirData,
+  deleteAirData,
+  deleteWeatherDatadb,
+  selectWeatherData
+} from './repository.js';
+import wrap from './utility/wrapper.js';
+import pool from './config/postgresql.js';
 
-export const weatherTimeCheck = wrap((req, res, next) => {
-  const currentTime = new Date();
-  var year = currentTime.getFullYear();
-  var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
-  var day = currentTime.getDate().toString().padStart(2, '0');
-  const currentHours = currentTime.getHours();
-  const currentMinutes = currentTime.getMinutes();
-  console.log('currentHours : ', currentHours, 'currentMinutes : ', currentMinutes);
-  var nowTime = currentHours * 60 + currentMinutes;
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
 
-  var date;
-  var chooseHours;
-  var timeGap;
-  var gapTime;
+export const getWeatherData = async (date, time, next) => {
+  //252번 통신해야함
+  //정해진 시간에 통신해야함 (02,05,08,11,14,17,20,23) 8번 통신해야함.
+  //타겟 타임 설정후 그 시간이 되면 프로그램 시작.
+  //req로 시작과, 설정 시간 전송해줌
+  // 252번 돌린다. 파일 list 파일 참고해서 돌리면 된다.
 
-  console.log('currentTime', currentTime);
-  console.log('currentHours', currentHours);
+  // console.log(date, time);
 
-  if (currentHours < 3) {
-    chooseHours = 23;
-    date = moment().add(-1, 'days').format('YYYYMMDD');
-  } else if (currentHours < 6) {
-    chooseHours = 2;
-    date = `${year}${month}${day}`;
-  } else if (currentHours < 9) {
-    chooseHours = 5;
-    date = `${year}${month}${day}`;
-  } else if (currentHours < 12) {
-    chooseHours = 8;
-    date = `${year}${month}${day}`;
-  } else if (currentHours < 15) {
-    chooseHours = 11;
-    date = `${year}${month}${day}`;
-  } else if (currentHours < 18) {
-    chooseHours = 14;
-    date = `${year}${month}${day}`;
-  } else if (currentHours < 21) {
-    chooseHours = 17;
-    date = `${year}${month}${day}`;
-  } else {
-    chooseHours = 20;
-    date = `${year}${month}${day}`;
+  try {
+    const data = await pool.query(selectWeatherData);
+    const rows = data.rows;
+    const results = rows.map((row) => ({
+      xp: row.region_line_xp,
+      yp: row.region_line_yp
+    }));
+    console.log(results[0]);
+
+    if (time == 0) {
+      time = '0000';
+    } else if (time <= 9) {
+      time = '0' + time + '00';
+    } else {
+      time = time + '00';
+    }
+
+    console.log(time);
+
+    var ny;
+    var nx;
+    var url;
+    var response;
+
+    for (let i = 1; i <= 252; i++) {
+      nx = results[i - 1]['xp'];
+      ny = results[i - 1]['yp'];
+
+      console.log(nx, ny, process.env.DATA_API_KEY, date, time);
+
+      url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${process.env.DATA_API_KEY}&numOfRows=100&pageNo=1&base_date=${date}&base_time=${time}&nx=${nx}&ny=${ny}&dataType=JSON`;
+      console.log(url);
+      response = await axios.get(url);
+      var weatherData = response.data.response.body.items;
+      weatherData = Object.values(weatherData);
+      const flattenedWeatherData = weatherData.flat();
+      const filteredTMP = flattenedWeatherData.filter((item) => item.category === 'TMP');
+      const filteredPCP = flattenedWeatherData.filter((item) => item.category === 'PCP');
+      const filteredPTY = flattenedWeatherData.filter((item) => item.category === 'PTY');
+
+      console.log(filteredPTY);
+      console.log(filteredPCP);
+
+      for (let j = 0; j < 7; j++) {
+        if (filteredPCP[j]['fcstValue'] === '강수없음') {
+          await pool.query(insertWeatherData, [
+            i,
+            filteredTMP[j]['fcstTime'],
+            0,
+            filteredTMP[j]['fcstValue'],
+            filteredPTY[j]['fcstValue']
+          ]);
+        } else if (filteredPCP[j]['fcstValue'] === '50.0mm 이상') {
+          await pool.query(insertWeatherData, [
+            i,
+            filteredTMP[j]['fcstTime'],
+            '50',
+            filteredTMP[j]['fcstValue'],
+            filteredPTY[j]['fcstValue']
+          ]);
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err);
   }
-  console.log('현재 날짜: ', date, '불러올 시간: ', chooseHours);
-  if (nowTime < 2 * 60) {
-    timeGap = 2 * 60 - nowTime;
-    gapTime = 2;
-  } else if (nowTime < 5 * 60) {
-    timeGap = 5 * 60 - nowTime;
-    gapTime = 5;
-  } else if (nowTime < 8 * 60) {
-    timeGap = 8 * 60 - nowTime;
-    gapTime = 8;
-  } else if (nowTime < 11 * 60) {
-    timeGap = 11 * 60 - nowTime;
-    gapTime = 11;
-  } else if (nowTime < 14 * 60) {
-    timeGap = 14 * 60 - nowTime;
-    gapTime = 14;
-  } else if (nowTime < 17 * 60) {
-    timeGap = 17 * 60 - nowTime;
-    gapTime = 17;
-  } else if (nowTime < 20 * 60) {
-    timeGap = 20 * 60 - nowTime;
-    gapTime = 20;
-  } else if (nowTime < 23 * 60) {
-    timeGap = 23 * 60 - nowTime;
-    gapTime = 23;
-  }
-  getWeatherData(date, chooseHours);
-  gapTime = gapTime + 3;
-  console.log('몇분후에 함수 gap 함수 실행 : ', timeGap, '실행할 함수 시간:', gapTime);
-  setTimeout(
-    () => {
-      getWeatherData(date, gapTime);
-      setInterval(timeCheck, 3 * 60 * 60 * 1000);
-    },
-    timeGap * 60 * 1000
-  );
-
-  next();
-});
+};
 
 // 일단 서울만 기능하도록 함. 2시간에 한번씩 호출로 함.
 export const airTimeCheck = wrap(async (req, res) => {
@@ -130,3 +142,8 @@ export const airTimeCheck = wrap(async (req, res) => {
     res.status(200).send({});
   }
 });
+
+export const deleteWeatherData = async (time, req, res) => {
+  const hour = time + '00';
+  await pool.query(deleteWeatherDatadb, [hour]);
+}
