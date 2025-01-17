@@ -19,3 +19,12 @@ export const insertAirData = `
 export const deleteAirData = `
     DELETE FROM project.current_air
 `;
+
+export const deleteWeatherDatadb = `
+    DELETE FROM project.weather
+    WHERE time =$1;
+`;
+
+export const selectWeatherData = `
+    SELECT * FROM project.weather_region_list
+`;
