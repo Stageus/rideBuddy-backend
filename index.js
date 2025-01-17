@@ -39,7 +39,6 @@ app.use((err, req, res, next) => {
 });
 
 const startServer = async () => {
-  timeCheck();
   app.listen(process.env.PORT, () => {
     console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
   });
