@@ -1,10 +1,11 @@
+import moment from 'moment';
+import { getWeatherData, getAirData } from './utility/getData.js';
+import wrap from './utility/wrapper.js';
 import axios from 'axios';
 import { fileURLToPath } from 'url';
 import { promises as fs } from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
-import moment from 'moment';
-import { getWeatherData, getAirData } from './utility/getData.js';
 import {
   insertWeatherData,
   selectAirStation,
@@ -14,6 +15,7 @@ import {
   selectWeatherData
 } from './repository.js';
 import wrap from './utility/wrapper.js';
+import pool from './config/postgresql.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
@@ -95,6 +97,7 @@ export const getWeatherData = async (date, time, next) => {
   }
 };
 
+// 일단 서울만 기능하도록 함. 2시간에 한번씩 호출로 함.
 export const airTimeCheck = wrap(async (req, res) => {
   const currentTime = new Date(); //.toString();
   const currentHours = currentTime.getHours();
@@ -137,7 +140,8 @@ export const airTimeCheck = wrap(async (req, res) => {
       1000 * 60 * (leftMinutes + 60 * leftHours)
     );
     res.status(200).send({});
-  }});
+  }
+});
 
 export const deleteWeatherData = async (time, req, res) => {
   const hour = time + '00';
