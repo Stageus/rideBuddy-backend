@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { getWeather, getData } from './repository.js';
+import { getWeather, getData, selectAirData } from './repository.js';
 import pool from '#config/postgresql.js';
 import 'dotenv/config';
 import wrap from '#utility/wrapper.js';
@@ -31,25 +31,19 @@ const weather = wrap(async (req, res) => {
   // results[0]은 행정동이고 results[1]은 법정동이라서 내거는 법정동으로 했어
   // 태준이 너도 고민해보고 맞는걸로 해
 
-  const results = response.data.results;
+  // const results = response.data.results;
 
-  const area1 = results[0].region.area1.name;
-  const area2 = results[0].region.area2.name;
+  // const area1 = results[0].region.area1.name;
+  // const area2 = results[0].region.area2.name;
 
-  const weatherResult = await pool.query(getWeather, [area1, area2.replace(/ /g, '')]);
-  console.log(area1, area2);
-  const getResult = await pool.query(getData, [weatherResult.rows[0]['region_idx']]);
+  // const weatherResult = await pool.query(getWeather, [area1, area2.replace(/ /g, '')]);
+  // console.log(area1, area2);
+  // const getResult = await pool.query(getData, [weatherResult.rows[0]['region_idx']]);
 
-  console.log(getResult.rows[0]['time']);
-  console.log(getResult.rows[0]['weather']);
-  console.log(getResult.rows[0]['temperature']);
-  console.log(getResult.rows[0]['rain']);
-
-  const data = {
-    weather: getResult.rows[0]['weather'],
-    temperature: getResult.rows[0]['temperature'],
-    nowrain: getResult.rows[0]['rain']
-  };
+  // console.log(getResult.rows[0]['time']);
+  // console.log(getResult.rows[0]['weather']);
+  // console.log(getResult.rows[0]['temperature']);
+  // console.log(getResult.rows[0]['rain']);
 
   // 미세먼지 부분
   const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
@@ -88,11 +82,20 @@ const weather = wrap(async (req, res) => {
   const stationName = nearStationResult.response.body.items[0].stationName;
 
   //3. 측정소에 해당하는 값 불러오기
+  const airData = await pool.query(selectAirData, [stationName]);
+  const data = {
+    // weather: getResult.rows[0]['weather'],
+    // temperature: getResult.rows[0]['temperature'],
+    // nowrain: getResult.rows[0]['rain']
 
-  // 여기서부터는 Pm2 필요
-
-  //
-  res.status(200).send({});
+    stationName: airData.rows[0].station_name,
+    pm10Value: airData.rows[0].pm10value,
+    pm25Value: airData.rows[0].pm25value,
+    pm10Grade1h: airData.rows[0].pm10grade1h,
+    pm25Grade1h: airData.rows[0].pm25grade1h,
+    dateTime: airData.rows[0].survey_date_time.toString()
+  };
+  res.status(200).send(data);
 });
 
 export default weather;

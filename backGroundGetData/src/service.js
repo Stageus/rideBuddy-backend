@@ -1,8 +1,7 @@
 import moment from 'moment';
 import { getWeatherData, getAirData } from './utility/getData.js';
-import wrap from './utility/wrapper.js';
 
-export const weatherTimeCheck = wrap((req, res, next) => {
+export const weatherTimeCheck = (req, res, next) => {
   const currentTime = new Date();
   var year = currentTime.getFullYear();
   var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
@@ -81,12 +80,10 @@ export const weatherTimeCheck = wrap((req, res, next) => {
     },
     timeGap * 60 * 1000
   );
-
-  next();
-});
+};
 
 // 일단 서울만 기능하도록 함. 2시간에 한번씩 호출로 함.
-export const airTimeCheck = wrap(async (req, res) => {
+export const airTimeCheck = async (req, res) => {
   const currentTime = new Date(); //.toString();
   const currentHours = currentTime.getHours();
   const currentMinutes = currentTime.getMinutes();
@@ -117,9 +114,11 @@ export const airTimeCheck = wrap(async (req, res) => {
     // 남은시간이 지나면 getAirData 호출 하고, 그 이후 2시간 마다 한번씩 호출
     setTimeout(
       async () => {
+        console.log('주기적으로 함수실행중');
         await getAirData();
         setInterval(
           async () => {
+            console.log('주기적으로 함수실행중');
             await getAirData();
           },
           1000 * 60 * 60 * 2
@@ -127,6 +126,6 @@ export const airTimeCheck = wrap(async (req, res) => {
       },
       1000 * 60 * (leftMinutes + 60 * leftHours)
     );
-    res.status(200).send({});
+    // res.status(200).send({});
   }
-});
+};
