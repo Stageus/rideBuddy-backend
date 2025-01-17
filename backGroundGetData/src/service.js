@@ -112,20 +112,27 @@ export const airTimeCheck = async (req, res) => {
       }
     }
     // 남은시간이 지나면 getAirData 호출 하고, 그 이후 2시간 마다 한번씩 호출
-    setTimeout(
-      async () => {
-        console.log('주기적으로 함수실행중');
-        await getAirData();
-        setInterval(
-          async () => {
-            console.log('주기적으로 함수실행중');
-            await getAirData();
-          },
-          1000 * 60 * 60 * 2
-        );
-      },
-      1000 * 60 * (leftMinutes + 60 * leftHours)
-    );
-    // res.status(200).send({});
+    try {
+      setTimeout(
+        async () => {
+          console.log('주기적으로 함수실행중');
+          await getAirData();
+          try {
+            setInterval(
+              async () => {
+                console.log('주기적으로 함수실행중');
+                await getAirData();
+              },
+              1000 * 60 * 60 * 2
+            );
+          } catch (err) {
+            console.log('error 발생');
+          }
+        },
+        1000 * 60 * (leftMinutes + 60 * leftHours)
+      );
+    } catch (err) {
+      console.log('error 발생');
+    }
   }
 };
