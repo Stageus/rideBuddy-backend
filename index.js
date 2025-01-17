@@ -4,8 +4,6 @@ import 'dotenv/config';
 
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-
-import { weatherTimeCheck } from './backGroundGetData/src/utility/timeCheck.js';
 const app = express();
 
 // app.use(morgan('dev',{

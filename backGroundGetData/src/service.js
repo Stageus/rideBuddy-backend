@@ -1,115 +1,132 @@
-import axios from 'axios';
-import { fileURLToPath } from 'url';
-import { promises as fs } from 'fs';
-import path from 'path';
-import csv from 'csv-parser';
-import { insertWeatherData, selectAirStation, insertAirData, deleteAirData } from './repository.js';
+import moment from 'moment';
+import { getWeatherData, getAirData } from './utility/getData.js';
 import wrap from './utility/wrapper.js';
-import pool from './config/postgresql.js';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const __filename = fileURLToPath(import.meta.url);
-const filePath = path.join(__dirname, '../region_list.csv');
+export const weatherTimeCheck = wrap((req, res, next) => {
+  const currentTime = new Date();
+  var year = currentTime.getFullYear();
+  var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
+  var day = currentTime.getDate().toString().padStart(2, '0');
+  const currentHours = currentTime.getHours();
+  const currentMinutes = currentTime.getMinutes();
+  console.log('currentHours : ', currentHours, 'currentMinutes : ', currentMinutes);
+  var nowTime = currentHours * 60 + currentMinutes;
 
-export const getWeatherData = async (date, time) => {
-  //252번 통신해야함
-  //정해진 시간에 통신해야함 (02,05,08,11,14,17,20,23) 8번 통신해야함.
-  //타겟 타임 설정후 그 시간이 되면 프로그램 시작.
-  //req로 시작과, 설정 시간 전송해줌
-  // 252번 돌린다. 파일 list 파일 참고해서 돌리면 된다.
+  var date;
+  var chooseHours;
+  var timeGap;
+  var gapTime;
 
-  // console.log(date, time);
-  time = time + '00';
-  var rows = [];
-  var results = [];
+  console.log('currentTime', currentTime);
+  console.log('currentHours', currentHours);
 
-  const data = await fs.readFile(filePath, 'utf8');
-  rows = data.split('\n');
-  results = rows.map((row) => row.split(','));
-  let cleanData = results.map((row) => row.map((item) => item.replace(/\r/g, '')));
+  if (currentHours < 3) {
+    chooseHours = 23;
+    date = moment().add(-1, 'days').format('YYYYMMDD');
+  } else if (currentHours < 6) {
+    chooseHours = 2;
+    date = `${year}${month}${day}`;
+  } else if (currentHours < 9) {
+    chooseHours = 5;
+    date = `${year}${month}${day}`;
+  } else if (currentHours < 12) {
+    chooseHours = 8;
+    date = `${year}${month}${day}`;
+  } else if (currentHours < 15) {
+    chooseHours = 11;
+    date = `${year}${month}${day}`;
+  } else if (currentHours < 18) {
+    chooseHours = 14;
+    date = `${year}${month}${day}`;
+  } else if (currentHours < 21) {
+    chooseHours = 17;
+    date = `${year}${month}${day}`;
+  } else {
+    chooseHours = 20;
+    date = `${year}${month}${day}`;
+  }
+  console.log('현재 날짜: ', date, '불러올 시간: ', chooseHours);
+  if (nowTime < 2 * 60) {
+    timeGap = 2 * 60 - nowTime;
+    gapTime = 2;
+  } else if (nowTime < 5 * 60) {
+    timeGap = 5 * 60 - nowTime;
+    gapTime = 5;
+  } else if (nowTime < 8 * 60) {
+    timeGap = 8 * 60 - nowTime;
+    gapTime = 8;
+  } else if (nowTime < 11 * 60) {
+    timeGap = 11 * 60 - nowTime;
+    gapTime = 11;
+  } else if (nowTime < 14 * 60) {
+    timeGap = 14 * 60 - nowTime;
+    gapTime = 14;
+  } else if (nowTime < 17 * 60) {
+    timeGap = 17 * 60 - nowTime;
+    gapTime = 17;
+  } else if (nowTime < 20 * 60) {
+    timeGap = 20 * 60 - nowTime;
+    gapTime = 20;
+  } else if (nowTime < 23 * 60) {
+    timeGap = 23 * 60 - nowTime;
+    gapTime = 23;
+  }
+  getWeatherData(date, chooseHours);
+  gapTime = gapTime + 3;
+  console.log('몇분후에 함수 gap 함수 실행 : ', timeGap, '실행할 함수 시간:', gapTime);
+  setTimeout(
+    () => {
+      getWeatherData(date, gapTime);
+      setInterval(timeCheck, 3 * 60 * 60 * 1000);
+    },
+    timeGap * 60 * 1000
+  );
 
-  var ny;
-  var nx;
-  var url;
-  var response;
+  next();
+});
 
-  // console.log(cleanData);
-  for (let i = 1; i <= 0; i++) {
-    nx = cleanData[i][2];
-    ny = cleanData[i][3];
+// 일단 서울만 기능하도록 함. 2시간에 한번씩 호출로 함.
+export const airTimeCheck = wrap(async (req, res) => {
+  const currentTime = new Date(); //.toString();
+  const currentHours = currentTime.getHours();
+  const currentMinutes = currentTime.getMinutes();
+  const loadTime = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
+  let leftHours;
+  let leftMinutes;
 
-    url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${process.env.DATA_API_KEY}&numOfRows=100&pageNo=1&base_date=${date}&base_time=${time}&nx=${nx}&ny=${ny}&dataType=JSON`;
-    response = await axios.get(url);
-    var weatherData = response.data.response.body.items;
-    weatherData = Object.values(weatherData);
-    const flattenedWeatherData = weatherData.flat();
-    const filteredTMP = flattenedWeatherData.filter((item) => item.category === 'TMP');
-    const filteredPCP = flattenedWeatherData.filter((item) => item.category === 'PCP');
-    const filteredPTY = flattenedWeatherData.filter((item) => item.category === 'PTY');
-
-    console.log(filteredPTY);
-    console.log(filteredPCP);
-
-    for (let j = 0; j < 7; j++) {
-      if (filteredPCP[j]['fcstValue'] === '강수없음') {
-        await pool.query(insertWeatherData, [
-          i,
-          filteredTMP[j]['fcstTime'],
-          0,
-          filteredTMP[j]['fcstValue'],
-          filteredPTY[j]['fcstValue']
-        ]);
-      } else if (filteredPCP[j]['fcstValue'] === '50.0mm 이상') {
-        await pool.query(insertWeatherData, [
-          i,
-          filteredTMP[j]['fcstTime'],
-          '50',
-          filteredTMP[j]['fcstValue'],
-          filteredPTY[j]['fcstValue']
-        ]);
+  // 정각일때 남은시간 계산
+  if (currentMinutes == 0) {
+    leftHours = 2; // 2시간 남음
+    leftMinutes = 0;
+    await getAirData();
+  } else {
+    // 정각이 아닐때 남은시간 계산
+    for (let time of loadTime) {
+      if (currentHours > time) {
+        continue;
+      } else if (currentHours == time) {
+        leftHours = 1;
+        leftMinutes = 60 - currentMinutes;
+        break;
+      } else if (currentHours < time) {
+        leftHours = 0;
+        leftMinutes = 60 - currentMinutes;
+        break;
       }
     }
+    // 남은시간이 지나면 getAirData 호출 하고, 그 이후 2시간 마다 한번씩 호출
+    setTimeout(
+      async () => {
+        await getAirData();
+        setInterval(
+          async () => {
+            await getAirData();
+          },
+          1000 * 60 * 60 * 2
+        );
+      },
+      1000 * 60 * (leftMinutes + 60 * leftHours)
+    );
+    res.status(200).send({});
   }
-};
-export const getAirData = async (req, res) => {
-  // db에 저장된 서울 측정소 리스트
-
-  const stationResults = await pool.query(selectAirStation);
-  const stationList = stationResults.rows;
-  // 데이터 저장전 db내용 삭제
-  await pool.query(deleteAirData);
-
-  const encodingServiceKey = process.env.AIR_SERVICE_KEY;
-  const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
-  // 40번 통신
-  for (let station of stationList) {
-    const airDataUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`;
-    const airDataParams = {
-      serviceKey: decodingServiceKey,
-      returnType: 'json',
-      stationName: station.station_name,
-      dataTerm: 'DAILY',
-      ver: 1.3
-    };
-    const airDataQuery = new URLSearchParams(airDataParams).toString();
-    const airDataFetch = await fetch(`${airDataUrl}?${airDataQuery}`);
-    const airDataResult = await airDataFetch.json();
-    const airData = airDataResult.response.body.items[0];
-
-    const pm10value = airData.pm10Value;
-    const pm25value = airData.pm25Value;
-    const pm10grade1h = airData.pm10Grade1h;
-    const pm25grade1h = airData.pm25Grade1h;
-    const surveyDateTime = airData.dataTime;
-
-    await pool.query(insertAirData, [
-      station.station_name,
-      pm10value,
-      pm25value,
-      pm10grade1h,
-      pm25grade1h,
-      surveyDateTime
-    ]);
-  }
-  return;
-};
+});

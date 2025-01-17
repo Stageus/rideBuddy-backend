@@ -1,11 +1,11 @@
 import express from 'express';
-import { weatherTimeCheck, airTimeCheck } from './src/utility/timeCheck.js';
+import { weatherTimeCheck, airTimeCheck } from './src/service.js';
 import 'dotenv/config';
 
 const app = express();
 
 app.use(express.json());
-app.use('/', airTimeCheck);
+app.use('/', weatherTimeCheck, airTimeCheck);
 
 app.use((err, req, res, next) => {
   console.log('에러', err);
