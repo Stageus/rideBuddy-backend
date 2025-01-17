@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { genAccessToken } from '../utility/generateToken.js';
 import { verifyJWT } from '#utility/verifyJWT.js';
 import wrap from '#utility/wrapper.js';
+import { UnauthorizedError } from '../utility/customError.js';
 // 토큰이 유효한지 체크 ,로컬 액세스 토큰 만료시 갱신후 반환
 export const verifyLoginToken = wrap(async (req, res, next) => {
   const accessToken = req.headers.authorization.split(' ')[1];
@@ -11,7 +12,8 @@ export const verifyLoginToken = wrap(async (req, res, next) => {
   //토큰 만료가 아닌 다른에러라면
   const errorName = ['JsonWebTokenError', 'NotBeforeError'];
   for (const error of errorName) {
-    if (accessResult.errName === error) next(accessResult.err);
+    //if (accessResult.errName === error) next(accessResult.err);
+    if (accessResult.errName === error) next(new UnauthorizedError('올바른 access token이 아님'));
   }
 
   //(1) access token 비만료, -> 갱신할 필요 없음.
