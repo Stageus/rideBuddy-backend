@@ -6,10 +6,6 @@ import csv from 'csv-parser';
 import { insertWeatherData, selectAirStation, insertAirData, deleteAirData } from '../repository.js';
 import pool from '../config/postgresql.js';
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const __filename = fileURLToPath(import.meta.url);
-const filePath = path.join(__dirname, '../region_list.csv');
-
 export const getAirData = async () => {
   // db에 저장된 서울 측정소 리스트
 

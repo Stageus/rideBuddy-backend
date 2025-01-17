@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { getWeatherData, getAirData } from './utility/getData.js';
+import { getAirData } from './utility/getData.js';
 import wrap from './utility/wrapper.js';
 import axios from 'axios';
 import { fileURLToPath } from 'url';
