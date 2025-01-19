@@ -129,12 +129,14 @@ export const airTimeCheck = async (req, res) => {
     try {
       setTimeout(
         async () => {
-          console.log('주기적으로 함수실행중');
+          const time = new Date().toString();
+          console.log('주기적으로 함수실행중, 현재시간 :', time);
           await getAirData();
           try {
             setInterval(
               async () => {
-                console.log('주기적으로 함수실행중');
+                const time = new Date().toString();
+                console.log('주기적으로 함수실행중, 현재시간: ', time);
                 await getAirData();
               },
               1000 * 60 * 60 * 2
