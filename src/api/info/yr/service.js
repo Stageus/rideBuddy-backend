@@ -62,7 +62,14 @@ export const getCentersList = wrap(async (req, res) => {
 });
 
 export const getRoadsList = async (req, res) => {
-  // 시작점과 끝점?
-  // 시작점과 끝점이.. 필요한가? 그럼 좋아요가 문제가 되는데
-  // 이건 천천히 가면서 새악해봐야겠다.
+  // db에 테이블이 하나라면 시작점과 끝점을 구별해주기해서 주기가 어려움. idx상에도 연관관계가 없기 때문.
+  // 일단 데이터 올려놔야겠다 쟤도 할수있게
+  // 지도 표시 반경..? 알아야하나?
+  // road관련 기능이 일단 getRoadList , 그다음에 /info (엔터쳤을때 검색), 그다음에 좋아요.
+  // 내일 center 데이터도 파이썬으로 csv 파일 만들어서 올려놓기.
 };
+
+export const searchEnter = async (req, res) => {};
+export const roadLike = async (req, res) => {};
+export const centerLike = async (req, res) => {};
+export const getPin = async (req, res) => {};
