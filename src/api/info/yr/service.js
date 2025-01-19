@@ -3,9 +3,18 @@ import axios from 'axios';
 import { selectXp, selectYp, insertAddress, selectCenter } from './repository.js';
 import { calcDistance } from '../utility/harversine.js';
 import { sortCompare } from '../utility/sortCompareFunc.js';
-export const getCentersList = async (req, res) => {
+import wrap from '#utility/wrapper.js';
+import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
+
+export const getCentersList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
+  if (!page || !nx || !ny) {
+    throw new BadRequestError('올바른 req값이 아님');
+  }
+  if (!(nx >= 33 && nx <= 43 && ny >= 124 && ny <= 132)) {
+    throw new BadRequestError('올바른 위경도값이 아님');
+  }
   let sortedByDistance = [];
   const currentLocation = {
     nx: nx,
@@ -38,10 +47,19 @@ export const getCentersList = async (req, res) => {
     let startPoint = 20 * (page - 1);
     resultData.push(sortedByDistance[startPoint + i]);
   }
+  // 만약 모든 resultData의 모든 값이 Null 일 경우 (더 이상 페이지가 존재하지 않을경우)
+  const isNull = (value) => value == null;
+  if (resultData.every(isNull)) {
+    res.status(200).send({
+      message: '더 이상 페이지가 존재하지 않습니다.'
+    });
+    return;
+  }
+
   res.status(200).send({
     resultData
   });
-};
+});
 
 export const getRoadsList = async (req, res) => {
   // 시작점과 끝점?
