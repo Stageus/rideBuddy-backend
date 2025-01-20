@@ -1,6 +1,14 @@
 import pool from '#config/postgresql.js';
-import axios from 'axios';
-import { searchCenter, searchRoad } from './repository.js';
+import {
+  searchCenter,
+  searchRoad,
+  insertAccountLike,
+  selectAccountLike,
+  deleteAccountLike,
+  plusLikeNum,
+  minusLikeNum,
+  selectLikeNum
+} from './repository.js';
 import { calcDistance } from '../utility/harversine.js';
 import { sortCompare } from '../utility/sortCompareFunc.js';
 import { getData } from '../utility/getData.js';
@@ -129,9 +137,49 @@ export const searchEnter = wrap(async (req, res) => {
 export const roadLike = async (req, res) => {
   // 자전거길 좋아요. 자전거길 기준으로 좋아요가 되고.
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
+  const userIdx = req.accountIdx;
+  const roadName = req.params['roadName'];
+
+  // 해당 유저가 해당 길을 좋아요 했는지 여부
+  const likeStatus = await pool.query(selectAccountLike, [userIdx, roadName]);
+
+  // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
+  if (likeStatus.rows.length == 0) {
+    await pool.query(insertAccountLike, [userIdx, roadName]);
+    await pool.query(plusLikeNum, [roadName]);
+  } else {
+    // 좋아요 했었으면 좋아요 테이블에서 삭제하고 좋아요수 업데이트
+    await pool.query(deleteAccountLike, [userIdx, roadName]);
+    await pool.query(minusLikeNum, [roadName]);
+  }
+
+  const likeCount = await pool.query(selectLikeNum, [roadName]);
+  res.status(200).send({
+    'road likeCount': likeCount.rows[0].road_like
+  });
 };
 export const centerLike = async (req, res) => {
   // 센터 좋아요. 센터 기준으로 좋아요가 되고.
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
+  const userIdx = req.accountIdx;
+  const centerIdx = req.params['centerIdx'];
+
+  // 해당 유저가 해당 길을 좋아요 했는지 여부
+  // const likeStatus = await pool.query(selectAccountLike, [userIdx, roadName]);
+
+  // // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
+  // if (likeStatus.rows.length == 0) {
+  //   await pool.query(insertAccountLike, [userIdx, roadName]);
+  //   await pool.query(plusLikeNum, [roadName]);
+  // } else {
+  //   // 좋아요 했었으면 좋아요 테이블에서 삭제하고 좋아요수 업데이트
+  //   await pool.query(deleteAccountLike, [userIdx, roadName]);
+  //   await pool.query(minusLikeNum, [roadName]);
+  // }
+
+  // const likeCount = await pool.query(selectLikeNum, [roadName]);
+  // res.status(200).send({
+  //   'road likeCount': likeCount.rows[0].road_like
+  // });
 };
 export const getPin = async (req, res) => {};
