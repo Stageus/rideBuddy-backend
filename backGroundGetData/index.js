@@ -2,7 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import cron from 'node-cron';
 import wrap from './src/utility/wrapper.js';
-import { getWeatherData, deleteWeatherData } from './src/service.js';
+import { getWeatherData, deleteWeatherData, airTimeCheck } from './src/service.js';
 const app = express();
 
 for (let i = 2; i < 24; i += 3) {
@@ -28,16 +28,8 @@ for (let i = 0; i < 24; i++) {
   );
 }
 
-// app.use('/', airTimeCheck);
+airTimeCheck();
 
-// const time = app.use((err, req, res, next) => {
-//   console.log('에러', err);
-//   res.status(err.statusCode || 500).json({ message: err.message });
-// });
+console.log('background program is going');
 
-// app.listen(process.env.PORT, () => {
-//   console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
-// });
-
-// getWeatherData(20250117, 2);
-// pm2
+getWeatherData(20250120, 14);

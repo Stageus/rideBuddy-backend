@@ -1,31 +1,24 @@
 import axios from 'axios';
 
-import { getWeather, getData } from './repository.js';
+import { getWeather, getData, selectAirData } from './repository.js';
 import pool from '#config/postgresql.js';
+import 'dotenv/config';
+import wrap from '#utility/wrapper.js';
 
-const weather = async (req, res) => {
-  const nx = req.body.nx;
-  const ny = req.body.ny;
+const weather = wrap(async (req, res) => {
+  const nx = req.body.nx; // 37~
+  const ny = req.body.ny; // 126~
   console.log('weather 실행중');
   console.log('nx : ', nx);
   console.log('ny : ', ny);
 
-  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${nx},${ny}&output=JSON`;
+  var data = {};
+  const currentTime = new Date();
+  var hours = currentTime.getHours();
 
-  // 여기 내가 코드 수정했던것
-  // import { getWeather, getData } from './repository.js';
-  // import pool from '#config/postgresql.js';
+  console.log('시간 : ', hours);
 
-  // import 'dotenv/config';
-  // import wrap from '#utility/wrapper.js';
-
-  // const weather = wrap(async (req, res) => {
-  //   const ny = req.body.ny; // 경도 126 어쩌구
-  //   const nx = req.body.nx; // 위도 37 어쩌구
-
-  //   // 법정동 불러오기
-  //   const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?
-  //                 request=coordsToaddr&coords=${ny},${nx}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
+  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${nx},${ny}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
 
   const response = await axios({
     url: url,
@@ -36,34 +29,18 @@ const weather = async (req, res) => {
     }
   });
 
-  // 미세먼지용 법정동
+  // ============================여기까지가 시간 설정 + reversegeocode ==========================================================
+
+  // reversegeocode 로부터 한글 위치 추출
   const legalSido = response.data.results[1].region.area1.name;
   const legalDong = response.data.results[1].region.area3.name;
+  const legalSigungu = response.data.results[1].region.area2.name;
 
-  // results[0]은 행정동이고 results[1]은 법정동이라서 내거는 법정동으로 했어
-  // 태준이 너도 고민해보고 맞는걸로 해
+  //해당 하는 idx 값 추출 (웨더)
+  const weatherResult = await pool.query(getWeather, [legalSido, legalSigungu.replace(/ /g, '')]);
+  const region_idx = weatherResult.rows[0]['region_idx'];
 
-  const results = response.data.results;
-
-  const area1 = results[0].region.area1.name;
-  const area2 = results[0].region.area2.name;
-
-  const weatherResult = await pool.query(getWeather, [area1, area2.replace(/ /g, '')]);
-  console.log(area1, area2);
-  const getResult = await pool.query(getData, [weatherResult.rows[0]['region_idx']]);
-
-  console.log(getResult.rows[0]['time']);
-  console.log(getResult.rows[0]['weather']);
-  console.log(getResult.rows[0]['temperature']);
-  console.log(getResult.rows[0]['rain']);
-
-  const data = {
-    weather: getResult.rows[0]['weather'],
-    temperature: getResult.rows[0]['temperature'],
-    nowrain: getResult.rows[0]['rain']
-  };
-
-  // 미세먼지 부분
+  // ===================================미세먼지 부분==========================================================
   const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
   const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
 
@@ -99,13 +76,33 @@ const weather = async (req, res) => {
   const nearStationResult = await nearStationFetch.json();
   const stationName = nearStationResult.response.body.items[0].stationName;
 
-  //3. 측정소에 해당하는 값 불러오기
+  // 3. 측정소에 해당하는 값 불러오기
+  const airData = await pool.query(selectAirData, [stationName]);
+  data = {
+    stationName: airData.rows[0].station_name,
+    pm10Value: airData.rows[0].pm10value,
+    pm25Value: airData.rows[0].pm25value,
+    pm10Grade1h: airData.rows[0].pm10grade1h,
+    pm25Grade1h: airData.rows[0].pm25grade1h,
+    dateTime: airData.rows[0].survey_date_time.toString()
+  };
+  // ===================================웨더 부분==========================================================
 
-  // 여기서부터는 Pm2 필요
+  for (let i = 0; i <= 4; i++) {
+    if (hours + i >= 24) {
+      formHours = hours + i - 24 + '00';
+    } else {
+      var formHours = hours + i + '00';
+    }
 
-  // 일단 pm2 사용법은 안다.
-  //
-  res.status(200).send({});
-};
+    const getResult = await pool.query(getData, [region_idx, formHours]);
+
+    data[`${i}_rain`] = getResult.rows[0]['rain'];
+    data[`${i}_weather`] = getResult.rows[0]['weather'];
+    data[`${i}_temperature`] = getResult.rows[0]['temperature'];
+  }
+
+  res.status(200).send(data);
+});
 
 export default weather;

@@ -4,8 +4,6 @@ import 'dotenv/config';
 
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-
-import { weatherTimeCheck } from './backGroundGetData/src/utility/timeCheck.js';
 const app = express();
 
 // app.use(morgan('dev',{
@@ -38,10 +36,6 @@ app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({ message: err.message });
 });
 
-const startServer = async () => {
-  app.listen(process.env.PORT, () => {
-    console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
-  });
-};
-
-startServer();
+app.listen(process.env.PORT, () => {
+  console.log(`${process.env.PORT}포트에서 웹서버 실행중`);
+});
