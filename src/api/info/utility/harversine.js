@@ -1,8 +1,8 @@
-export const calcDistance = (curObj, destObj, center_idx) => {
-  const currX = curObj['nx']; // 출발지 위도
-  const currY = curObj['ny']; // 출발지 경도
-  const destX = destObj['nx']; // 목적지 위도
-  const destY = destObj['ny']; // 목적지 경도
+export const calcDistance = (curObj, destObj) => {
+  const currX = curObj['nx']; // 출발지 경도
+  const currY = curObj['ny']; // 출발지 위도
+  const destX = destObj['nx']; // 목적지 경도
+  const destY = destObj['ny']; // 목적지 위도
 
   const radius = 6371; // 지구 반지름(km)
   const toRadian = Math.PI / 180; // 도를 라디안으로 바꾸기
