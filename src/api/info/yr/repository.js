@@ -14,6 +14,10 @@ export const insertAddress = `
     WHERE center_idx = $2
 `;
 
-export const selectCenter = `
+export const selectCenters = `
     SELECT * FROM project.center
+`;
+
+export const selectRoads = `
+    SELECT * FROM project.road
 `;
