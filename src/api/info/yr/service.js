@@ -1,6 +1,6 @@
 import pool from '#config/postgresql.js';
 import axios from 'axios';
-import { selectXp, selectYp, insertAddress, selectCenters, selectRoads } from './repository.js';
+import { searchCenter, searchRoad } from './repository.js';
 import { calcDistance } from '../utility/harversine.js';
 import { sortCompare } from '../utility/sortCompareFunc.js';
 import { getData } from '../utility/getData.js';
@@ -69,7 +69,24 @@ export const getRoadsList = wrap(async (req, res) => {
   // 내일 center 데이터도 파이썬으로 csv 파일 만들어서 올려놓기.
 });
 
-export const searchEnter = async (req, res) => {};
-export const roadLike = async (req, res) => {};
-export const centerLike = async (req, res) => {};
+export const searchEnter = async (req, res) => {
+  const { search, page, nx, ny } = req.body;
+  // 인증센터랑 자전거길일단 search 기준으로 select 하고
+  // 테이블 합쳐?서 그.. 거리순으로 정렬하고
+  // 20개씩 출력 히발~
+
+  // 1. search LIKE 기준으로 select 한다.
+  const centerList = await pool(searchCenter, search);
+  const roadList = await pool(searchRoad, search);
+  // 2. select 한거 nx ny기준으로 getData한다.
+  // 3. getData 한거를
+};
+export const roadLike = async (req, res) => {
+  // 자전거길 좋아요. 자전거길 기준으로 좋아요가 되고.
+  // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
+};
+export const centerLike = async (req, res) => {
+  // 센터 좋아요. 센터 기준으로 좋아요가 되고.
+  // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
+};
 export const getPin = async (req, res) => {};

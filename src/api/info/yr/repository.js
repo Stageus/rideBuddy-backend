@@ -1,10 +1,10 @@
 export const selectXp = `
-    SELECT center_line_xp FROM project.center
+    SELECT line_xp FROM project.center
     WHERE center_idx = $1
 `;
 
 export const selectYp = `
-    SELECT center_line_yp FROM project.center
+    SELECT line_yp FROM project.center
     WHERE center_idx = $1
 `;
 
@@ -20,4 +20,14 @@ export const selectCenters = `
 
 export const selectRoads = `
     SELECT * FROM project.road
+`;
+
+export const searchCenter = `
+    SELECT * FRPM project.center
+    WHRER center_name LIKE $1
+`;
+
+export const searchRoad = `
+    SELECT * FRPM project.road
+    WHRER road_name LIKE $1
 `;

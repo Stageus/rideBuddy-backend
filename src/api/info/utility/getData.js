@@ -1,7 +1,7 @@
 import { selectXp, selectYp, insertAddress, selectCenters, selectRoads } from '../yr/repository.js';
 import { calcDistance } from './harversine.js';
 import { sortCompare } from './sortCompareFunc.js';
-// import pool from '#config/postgresql.js';
+import pool from '#config/postgresql.js';
 
 export const getData = async (page, nx, ny, type) => {
   //1. 현재 nx ,ny, 페이지네이션 오면
@@ -27,8 +27,8 @@ export const getData = async (page, nx, ny, type) => {
   // 2. 현재 위치를 기준으로 거리계산하여
   for (let info of list) {
     const destNxNy = {
-      nx: info[`${type}_line_xp`],
-      ny: info[`${type}_line_yp`]
+      nx: info[`line_xp`],
+      ny: info[`line_yp`]
     };
     const distance = calcDistance(currentLocation, destNxNy);
 
