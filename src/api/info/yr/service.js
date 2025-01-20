@@ -2,13 +2,20 @@ import pool from '#config/postgresql.js';
 import {
   searchCenter,
   searchRoad,
-  insertAccountLike,
-  selectAccountLike,
-  deleteAccountLike,
-  plusLikeNum,
-  minusLikeNum,
-  selectLikeNum,
-  selectRoadName
+  insertAccountRoadLike,
+  selectAccountRoadLike,
+  deleteAccountRoadLike,
+  plusRoadLikeNum,
+  minusRoadLikeNum,
+  selectRoadLikeNum,
+  selectRoadName,
+  selectCenterIdx,
+  selectAccountCenterLike,
+  insertAccountCenterLike,
+  plusCenterLikeNum,
+  deleteAccountCenterLike,
+  minusCenterLikeNum,
+  selectCenterLikeNum
 } from './repository.js';
 import { calcDistance } from '../utility/harversine.js';
 import { sortCompare } from '../utility/sortCompareFunc.js';
@@ -149,19 +156,19 @@ export const roadLike = wrap(async (req, res) => {
     throw new NotFoundError('알맞은 param값이 아님');
   }
   // 해당 유저가 해당 길을 좋아요 했는지 여부
-  const likeStatus = await pool.query(selectAccountLike, [userIdx, roadName]);
+  const likeStatus = await pool.query(selectAccountRoadLike, [userIdx, roadName]);
 
   // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
   if (likeStatus.rows.length == 0) {
-    await pool.query(insertAccountLike, [userIdx, roadName]);
-    await pool.query(plusLikeNum, [roadName]);
+    await pool.query(insertAccountRoadLike, [userIdx, roadName]);
+    await pool.query(plusRoadLikeNum, [roadName]);
   } else {
     // 좋아요 했었으면 좋아요 테이블에서 삭제하고 좋아요수 업데이트
-    await pool.query(deleteAccountLike, [userIdx, roadName]);
-    await pool.query(minusLikeNum, [roadName]);
+    await pool.query(deleteAccountRoadLike, [userIdx, roadName]);
+    await pool.query(minusRoadLikeNum, [roadName]);
   }
 
-  const likeCount = await pool.query(selectLikeNum, [roadName]);
+  const likeCount = await pool.query(selectRoadLikeNum, [roadName]);
   res.status(200).send({
     'road likeCount': likeCount.rows[0].road_like
   });
@@ -171,24 +178,31 @@ export const centerLike = async (req, res) => {
   // 센터 좋아요. 센터 기준으로 좋아요가 되고.
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
   const userIdx = req.accountIdx;
+  console.log('userIdx', userIdx);
   const centerIdx = req.params['centerIdx'];
+  if (!centerIdx) {
+    throw new BadRequestError('올바른 req값이 아님.');
+  }
+  const testCenterIdx = await pool.query(selectCenterIdx, [centerIdx]);
+  if (testCenterIdx.rows.length == 0) {
+    throw new NotFoundError('알맞은 param값이 아님');
+  }
+  // 해당 유저가 해당 센터를 좋아요 했는지 여부
+  const likeStatus = await pool.query(selectAccountCenterLike, [userIdx, centerIdx]);
 
-  // 해당 유저가 해당 길을 좋아요 했는지 여부
-  // const likeStatus = await pool.query(selectAccountLike, [userIdx, roadName]);
+  // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
+  if (likeStatus.rows.length == 0) {
+    await pool.query(insertAccountCenterLike, [userIdx, centerIdx]);
+    await pool.query(plusCenterLikeNum, [centerIdx]);
+  } else {
+    // 좋아요 했었으면 좋아요 테이블에서 삭제하고 좋아요수 업데이트
+    await pool.query(deleteAccountCenterLike, [userIdx, centerIdx]);
+    await pool.query(minusCenterLikeNum, [centerIdx]);
+  }
 
-  // // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
-  // if (likeStatus.rows.length == 0) {
-  //   await pool.query(insertAccountLike, [userIdx, roadName]);
-  //   await pool.query(plusLikeNum, [roadName]);
-  // } else {
-  //   // 좋아요 했었으면 좋아요 테이블에서 삭제하고 좋아요수 업데이트
-  //   await pool.query(deleteAccountLike, [userIdx, roadName]);
-  //   await pool.query(minusLikeNum, [roadName]);
-  // }
-
-  // const likeCount = await pool.query(selectLikeNum, [roadName]);
-  // res.status(200).send({
-  //   'road likeCount': likeCount.rows[0].road_like
-  // });
+  const likeCount = await pool.query(selectCenterLikeNum, [centerIdx]);
+  res.status(200).send({
+    'center likeCount': likeCount.rows[0].center_like
+  });
 };
 export const getPin = async (req, res) => {};
