@@ -29,3 +29,7 @@ for (let i = 0; i < 24; i++) {
 }
 
 airTimeCheck();
+
+console.log('background program is going');
+
+getWeatherData(20250120, 14);
