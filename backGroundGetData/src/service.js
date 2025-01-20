@@ -35,7 +35,6 @@ export const getWeatherData = async (date, time, next) => {
       xp: row.region_line_xp,
       yp: row.region_line_yp
     }));
-    console.log(results[0]);
 
     if (time == 0) {
       time = '0000';
@@ -45,31 +44,26 @@ export const getWeatherData = async (date, time, next) => {
       time = time + '00';
     }
 
-    console.log(time);
-
     var ny;
     var nx;
     var url;
     var response;
-
     for (let i = 1; i <= 252; i++) {
       nx = results[i - 1]['xp'];
       ny = results[i - 1]['yp'];
 
-      console.log(nx, ny, process.env.DATA_API_KEY, date, time);
+      // console.log(nx, ny, process.env.DATA_API_KEY, date, time);
 
       url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${process.env.DATA_API_KEY}&numOfRows=100&pageNo=1&base_date=${date}&base_time=${time}&nx=${nx}&ny=${ny}&dataType=JSON`;
-      console.log(url);
       response = await axios.get(url);
+      console.log('데이터 삽입 idx : ', i, '/252)완료');
       var weatherData = response.data.response.body.items;
+
       weatherData = Object.values(weatherData);
       const flattenedWeatherData = weatherData.flat();
       const filteredTMP = flattenedWeatherData.filter((item) => item.category === 'TMP');
       const filteredPCP = flattenedWeatherData.filter((item) => item.category === 'PCP');
       const filteredPTY = flattenedWeatherData.filter((item) => item.category === 'PTY');
-
-      console.log(filteredPTY);
-      console.log(filteredPCP);
 
       for (let j = 0; j < 7; j++) {
         if (filteredPCP[j]['fcstValue'] === '강수없음') {
@@ -156,4 +150,5 @@ export const airTimeCheck = async (req, res) => {
 export const deleteWeatherData = async (time, req, res) => {
   const hour = time + '00';
   await pool.query(deleteWeatherDatadb, [hour]);
+  console.log('데이터 삭제', hour, '완료');
 };

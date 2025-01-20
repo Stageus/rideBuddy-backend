@@ -9,9 +9,9 @@ router.get('/centers', getCentersList);
 router.get('/', searchEnter);
 router.put('/roads/:road-idx/like', roadLike);
 router.put('/centers/:center-idx/like', centerLike);
-router.get('/roads/:roadIdx', verifyLoginToken, giveInformationRoad);
-router.get('/centers/:centerIdx', verifyLoginToken, giveInformationCenter);
-router.get('/search', verifyLoginToken, search);
-router.get('/position', verifyLoginToken, position);
+router.get('/roads/:roadIdx', verifyLoginToken, giveInformationRoad); //완료
+router.get('/centers/:centerIdx', verifyLoginToken, giveInformationCenter); //완료
+router.get('/search', verifyLoginToken, search); //완료
+router.get('/position', verifyLoginToken, position); //완료
 router.get('/pin', getPin);
 export default router;

@@ -4,7 +4,7 @@ export const getWeather = `
 `;
 export const getData = `
     SELECT * FROM project.weather
-    WHERE region_idx2 = $1;
+    WHERE region_idx2 = $1 AND time =$2;
 `;
 
 export const selectAirData = `

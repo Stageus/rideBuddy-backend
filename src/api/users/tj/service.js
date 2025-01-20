@@ -11,23 +11,14 @@ import {
   checkDuplicateMail,
   mailVerifyDB,
   correctaccount,
-  checkMail,
-  insertMailToken,
   transMailToken_True,
   deleteaccount
 } from './repository.js';
 import randomNumber from '#utility/randomNumber.js';
 import jwt from 'jsonwebtoken';
-import smtpTransport from '#config/email.js';
 import wrap from '#utility/wrapper.js';
-import { genAccessToken, genMailToken } from '#utility/generateToken.js'; //genRefreshToken 삭제함
-import {
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError
-} from '#utility/customError.js';
+import { genAccessToken } from '#utility/generateToken.js';
+import { NotFoundError, ConflictError } from '#utility/customError.js';
 // 같은 도메인내에있는건 상대경로 (서비스에서 레포 참조한다 이럴때 )
 // 외부 도메인에 있는건 절대경로 shared같은 공용파일들 가져올때 절대경로로 많이 씀.
 
@@ -70,7 +61,6 @@ export const googleCreateToken = wrap(async (req, res) => {
   //name id 습득
   const googleName = userInfo.data.name;
   const googleId = userInfo.data.id;
-  console.log(googleName, googleId);
 
   const checkResults = await pool.query(checkGoogleId, [googleId]);
 
@@ -89,10 +79,8 @@ export const googleCreateToken = wrap(async (req, res) => {
     access_token: accessToken,
     OAuth: true
   });
-  console.log('accessToken', accessToken);
 });
 
-// 이거 고쳐
 export const duplicateId = wrap(async (req, res, next) => {
   // 정규표현식 완료 후
   const id = req.body.id;
@@ -103,7 +91,6 @@ export const duplicateId = wrap(async (req, res, next) => {
   res.status(200).send({});
 });
 
-//이것도 고쳐
 export const duplicateMail = wrap(async (req, res, next) => {
   // 정규표현식 완료 후
   const mail = req.body.mail;
@@ -146,14 +133,13 @@ export const register = wrap(async (req, res, next) => {
 
 // Register로 대문자 바꿔
 export const mailSendRegister = wrap(async (req, res, next) => {
-  const number = randomNumber;
+  var number = randomNumber();
   const mail = req.body.mail;
-  console.log(mail);
   sendMailUtil(number, mail, res);
 });
 
 export const mailSendChangePw = wrap(async (req, res, next) => {
-  const number = randomNumber;
+  const number = randomNumber();
   const mail = req.body.mail;
   const id = req.body.id;
   //id 와 email 일치 여부 확인
