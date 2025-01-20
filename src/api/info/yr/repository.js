@@ -23,11 +23,11 @@ export const selectRoads = `
 `;
 
 export const searchCenter = `
-    SELECT * FRPM project.center
-    WHRER center_name LIKE $1
+    SELECT * FROM project.center
+    WHERE center_name LIKE $1
 `;
 
 export const searchRoad = `
-    SELECT * FRPM project.road
-    WHRER road_name LIKE $1
+    SELECT * FROM project.road
+    WHERE road_name LIKE $1
 `;

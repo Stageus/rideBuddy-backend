@@ -6,16 +6,13 @@ import { sortCompare } from '../utility/sortCompareFunc.js';
 import { getData } from '../utility/getData.js';
 import wrap from '#utility/wrapper.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
-
+import { verifyReq } from '../utility/verifyReq.js';
 export const getCentersList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
-  if (!page || !nx || !ny) {
-    throw new BadRequestError('올바른 req값이 아님');
-  }
-  if (!(nx >= 33 && nx <= 43 && ny >= 124 && ny <= 132)) {
-    throw new BadRequestError('올바른 위경도값이 아님');
-  }
+  // 유효성 검증
+  verifyReq(page, nx, ny);
+
   const resultData = await getData(page, nx, ny, 'center');
   // 중간에 에러가 났으면 에러 메시지 반환됨
   if (resultData.message) {
@@ -38,12 +35,7 @@ export const getCentersList = wrap(async (req, res) => {
 export const getRoadsList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
-  if (!page || !nx || !ny) {
-    throw new BadRequestError('올바른 req값이 아님');
-  }
-  if (!(nx >= 33 && nx <= 43 && ny >= 124 && ny <= 132)) {
-    throw new BadRequestError('올바른 위경도값이 아님');
-  }
+  verifyReq(page, nx, ny);
 
   const resultData = await getData(page, nx, ny, 'road');
   // 중간에 에러가 났으면 에러 메시지 반환됨
@@ -62,25 +54,78 @@ export const getRoadsList = wrap(async (req, res) => {
   res.status(200).send({
     resultData
   });
-  // db에 테이블이 하나라면 시작점과 끝점을 구별해주기해서 주기가 어려움. idx상에도 연관관계가 없기 때문.
-  // 일단 데이터 올려놔야겠다 쟤도 할수있게
+
   // 지도 표시 반경..? 알아야하나?
-  // road관련 기능이 일단 getRoadList , 그다음에 /info (엔터쳤을때 검색), 그다음에 좋아요.
   // 내일 center 데이터도 파이썬으로 csv 파일 만들어서 올려놓기.
 });
 
-export const searchEnter = async (req, res) => {
+export const searchEnter = wrap(async (req, res) => {
   const { search, page, nx, ny } = req.body;
-  // 인증센터랑 자전거길일단 search 기준으로 select 하고
-  // 테이블 합쳐?서 그.. 거리순으로 정렬하고
-  // 20개씩 출력 히발~
-
+  verifyReq(page, nx, ny);
   // 1. search LIKE 기준으로 select 한다.
-  const centerList = await pool(searchCenter, search);
-  const roadList = await pool(searchRoad, search);
-  // 2. select 한거 nx ny기준으로 getData한다.
-  // 3. getData 한거를
-};
+  const centerList = await pool.query(searchCenter, [`%${search}%`]);
+  const roadList = await pool.query(searchRoad, [`%${search}%`]);
+  let sortedtData = [];
+  let resultObject;
+  let placeLocation;
+  // 현재 위치
+  const currentLocation = {
+    nx: nx,
+    ny: ny
+  };
+  // 2. 현재위치기준 인증센터와 자전거길 거리 구해서 push
+  for (let list of centerList.rows) {
+    placeLocation = {
+      nx: list.line_xp,
+      ny: list.line_yp
+    };
+    let distance = calcDistance(currentLocation, placeLocation);
+    resultObject = {
+      center_idx: list.center_idx,
+      center_name: list.center_name,
+      center_address: list.center_address,
+      distance: distance
+    };
+    sortedtData.push(resultObject);
+  }
+
+  for (let list of roadList.rows) {
+    placeLocation = {
+      nx: list.line_xp,
+      ny: list.line_yp
+    };
+    let distance = calcDistance(currentLocation, placeLocation);
+    resultObject = {
+      road_idx: list.road_idx,
+      road_name: list.road_name,
+      road_type: list.road_type,
+      road_address: list.road_address,
+      distance: distance
+    };
+    sortedtData.push(resultObject);
+  }
+  // 3. 최종적으로 Push 한거 거리순으로 분류
+  sortedtData.sort(sortCompare);
+
+  // 4. 20개씩 나눠서 전달
+  let resultData = [];
+  for (let i = 0; i < 20; i++) {
+    let startPoint = 20 * (page - 1);
+    resultData.push(sortedtData[startPoint + i]);
+  }
+  const isNull = (value) => value == null;
+  if (resultData.every(isNull)) {
+    res.status(200).send({
+      message: '더 이상 페이지가 존재하지 않습니다.'
+    });
+    return;
+  }
+
+  res.status(200).send({
+    resultData
+  });
+});
+
 export const roadLike = async (req, res) => {
   // 자전거길 좋아요. 자전거길 기준으로 좋아요가 되고.
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소

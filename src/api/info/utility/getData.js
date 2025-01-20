@@ -3,7 +3,7 @@ import { calcDistance } from './harversine.js';
 import { sortCompare } from './sortCompareFunc.js';
 import pool from '#config/postgresql.js';
 
-export const getData = async (page, nx, ny, type) => {
+export const getData = async (page, nx, ny, dataType) => {
   //1. 현재 nx ,ny, 페이지네이션 오면
   let sortedByDistance = [];
   const currentLocation = {
@@ -13,9 +13,9 @@ export const getData = async (page, nx, ny, type) => {
   let results; //db에서 받아온 값 넣는 변수
   let resultObject; // 최종 값 넣기위한 객체
   try {
-    if (type == 'center') {
+    if (dataType == 'center') {
       results = await pool.query(selectCenters);
-    } else if (type == 'road') {
+    } else if (dataType == 'road') {
       results = await pool.query(selectRoads);
     }
   } catch (err) {
@@ -32,19 +32,19 @@ export const getData = async (page, nx, ny, type) => {
     };
     const distance = calcDistance(currentLocation, destNxNy);
 
-    if (type == 'center') {
+    if (dataType == 'center') {
       resultObject = {
-        center_idx: info[`${type}_idx`],
-        center_name: info[`${type}_name`],
-        center_address: info[`${type}_address`],
+        center_idx: info[`${dataType}_idx`],
+        center_name: info[`${dataType}_name`],
+        center_address: info[`${dataType}_address`],
         distance: distance
       };
-    } else {
+    } else if (dataType == 'road') {
       resultObject = {
-        road_idx: info[`${type}_idx`],
-        road_name: info[`${type}_name`],
-        road_type: info[`${type}_type`], // road는 타입이 추가됨.
-        road_address: info[`${type}_address`],
+        road_idx: info[`${dataType}_idx`],
+        road_name: info[`${dataType}_name`],
+        road_type: info[`${dataType}_type`], // road는 타입이 추가됨.
+        road_address: info[`${dataType}_address`],
         distance: distance
       };
     }
