@@ -7,7 +7,8 @@ import {
   deleteAccountLike,
   plusLikeNum,
   minusLikeNum,
-  selectLikeNum
+  selectLikeNum,
+  selectRoadName
 } from './repository.js';
 import { calcDistance } from '../utility/harversine.js';
 import { sortCompare } from '../utility/sortCompareFunc.js';
@@ -134,12 +135,19 @@ export const searchEnter = wrap(async (req, res) => {
   });
 });
 
-export const roadLike = async (req, res) => {
+export const roadLike = wrap(async (req, res) => {
   // 자전거길 좋아요. 자전거길 기준으로 좋아요가 되고.
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
   const userIdx = req.accountIdx;
   const roadName = req.params['roadName'];
-
+  // roadName param값 안오면 안되고
+  if (!roadName) {
+    throw new BadRequestError('올바른 req값이 아님.');
+  }
+  const testRoadName = await pool.query(selectRoadName, [roadName]);
+  if (testRoadName.rows.length == 0) {
+    throw new NotFoundError('알맞은 param값이 아님');
+  }
   // 해당 유저가 해당 길을 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountLike, [userIdx, roadName]);
 
@@ -157,7 +165,8 @@ export const roadLike = async (req, res) => {
   res.status(200).send({
     'road likeCount': likeCount.rows[0].road_like
   });
-};
+});
+
 export const centerLike = async (req, res) => {
   // 센터 좋아요. 센터 기준으로 좋아요가 되고.
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소

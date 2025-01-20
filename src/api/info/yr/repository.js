@@ -60,3 +60,8 @@ export const selectLikeNum = `
     SELECT road_like FROM project.road_like_count
     WHERE road_name = $1
 `;
+
+export const selectRoadName = `
+    SELECT * FROM project.road_like_count
+    WHERE road_name = $1
+`;
