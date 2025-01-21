@@ -1,5 +1,7 @@
 import pool from '#config/postgresql.js';
 import {
+  selectCenters,
+  selectRoads,
   searchCenter,
   searchRoad,
   insertAccountRoadLike,
@@ -70,9 +72,6 @@ export const getRoadsList = wrap(async (req, res) => {
   res.status(200).send({
     resultData
   });
-
-  // 지도 표시 반경..? 알아야하나?
-  // 내일 center 데이터도 파이썬으로 csv 파일 만들어서 올려놓기.
 });
 
 export const searchEnter = wrap(async (req, res) => {
@@ -205,4 +204,31 @@ export const centerLike = async (req, res) => {
     'center likeCount': likeCount.rows[0].center_like
   });
 };
-export const getPin = async (req, res) => {};
+export const getPin = async (req, res) => {
+  //1. 지도 좌표경계 좌표를 받는다.
+  const { sw, ne } = req.body;
+  if (!sw || !ne) {
+    throw new BadRequestError('올바른 req값이 아님');
+  }
+
+  let centerList = await pool.query(selectCenters);
+  let roadList = await pool.query(selectRoads);
+  centerList = centerList.rows;
+  roadList = roadList.rows;
+  //2. 지도좌표 범위에 맞는 center와 road선별해서 push
+  let result = [];
+  for (let elem of centerList) {
+    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp) {
+      result.push(elem);
+    }
+  }
+  for (let elem of roadList) {
+    if (sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
+      result.push(elem);
+    }
+  }
+
+  res.status(200).send({
+    result
+  });
+};
