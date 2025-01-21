@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=tbx3xib9nr"></script>
   </head>
   <body>
     <h1>로그인테스트</h1>
@@ -22,50 +23,78 @@
     <!-- 구글 -->
     <button onclick="requestGoogle()">구글 로그인</button>
     <!-- 파일 첨부 -->
-    </div>
     <form action="/mypages/profile" method="post" enctype="multipart/form-data">
       <input type="file" id="inputFile" name="profile" />
-      <button type="submit" >올리기</button>
+      <button type="submit">올리기</button>
     </form>
+
+    <div id="map" style="width: 70%; height: 800px; margin: auto"></div>
   </body>
-<!-- onclick="requestFile()" -->
-    <script>
-      const file = document.getElementById('inputFile');
+  <!-- onclick="requestFile()" -->
 
+  <script>
+    // JavaScript 코드 실행 시 DOMContentLoaded 이벤트를 기다림
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('DOM fully loaded and parsed');
 
-      const requestLocal = async () => {
-        const idValue = document.getElementById('id').value;
-        const pwValue = document.getElementById('pw').value;
-
-        const resposne = await fetch('/users/login/local', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            id: idValue,
-            pw: pwValue
+      const mapOptions = {
+        center: new naver.maps.LatLng(37.3595704, 127.105399),
+        zoom: 10,
+        mapTypes: new naver.maps.MapTypeRegistry({
+          normal: naver.maps.NaverStyleMapTypeOptions.getNormalMap({
+            overlayType: 'bg.br.ol.lko'
           })
-        });
-        //const result  = await response.json() // 이게 res.status(200).send()// 빈 {} 오브젝트 지워주세요 쓰고 안쓰고의 차이가 커
-        // 보내주는 값이 없는데 json으로 바꿀수없으므로 에러가 남.
-        // 그래서 api 명세서 정확하게 써줘야해.
+        })
       };
 
-      const requestNaver = async () => {
-        const NaverResponse = await fetch('/users/login/naver', {
-          method: 'POST'
-        });
+      const map = new naver.maps.Map('map', mapOptions);
+      console.log('초기 지도 sw:', map.getBounds().getSW());
+      console.log('초기 지도 ne', map.getBounds().getNE());
 
-        const naverLoginWindow = await NaverResponse.text();
-        window.location.href = naverLoginWindow;
-      };
+      naver.maps.Event.addListener(map, 'bounds_changed', function () {
+        const sw = map.getBounds().getSW();
+        const ne = map.getBounds().getNE();
+        window.setTimeout(function () {
+          console.log('변경된 지도 sw:', sw);
+          console.log('변경된 지도 ne', ne);
+        }, 500);
+      });
+    });
 
-      const requestFile = async () => {
-        const profileResponse = await fetch('/mypages/profile', {
-          method: 'POST'
-        });
-      };
-    </script>
-  </body>
+    const file = document.getElementById('inputFile');
+
+    const requestLocal = async () => {
+      const idValue = document.getElementById('id').value;
+      const pwValue = document.getElementById('pw').value;
+
+      const resposne = await fetch('/users/login/local', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: idValue,
+          pw: pwValue
+        })
+      });
+      //const result  = await response.json() // 이게 res.status(200).send()// 빈 {} 오브젝트 지워주세요 쓰고 안쓰고의 차이가 커
+      // 보내주는 값이 없는데 json으로 바꿀수없으므로 에러가 남.
+      // 그래서 api 명세서 정확하게 써줘야해.
+    };
+
+    const requestNaver = async () => {
+      const NaverResponse = await fetch('/users/login/naver', {
+        method: 'POST'
+      });
+
+      const naverLoginWindow = await NaverResponse.text();
+      window.location.href = naverLoginWindow;
+    };
+
+    const requestFile = async () => {
+      const profileResponse = await fetch('/mypages/profile', {
+        method: 'POST'
+      });
+    };
+  </script>
 </html>

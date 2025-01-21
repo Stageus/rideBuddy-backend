@@ -4,14 +4,14 @@ import { position, search, giveInformationRoad, giveInformationCenter } from './
 import { getCentersList, getRoadsList, searchEnter, roadLike, centerLike, getPin } from './yr/service.js';
 const router = express.Router();
 
-router.get('/roads', getRoadsList); //verifyLoginToken,
-router.get('/centers', getCentersList);
-router.get('/', searchEnter);
+router.get('/roads', verifyLoginToken, getRoadsList);
+router.get('/centers', verifyLoginToken, getCentersList);
+router.get('/', verifyLoginToken, searchEnter);
 router.put('/roads/:roadName/like', verifyLoginToken, roadLike);
 router.put('/centers/:centerIdx/like', verifyLoginToken, centerLike);
-router.get('/roads/:roadIdx', verifyLoginToken, giveInformationRoad); //완료
-router.get('/centers/:centerIdx', verifyLoginToken, giveInformationCenter); //완료
-router.get('/search', verifyLoginToken, search); //완료
-router.get('/position', verifyLoginToken, position); //완료
-router.get('/pin', getPin);
+router.get('/roads/:roadIdx', verifyLoginToken, giveInformationRoad);
+router.get('/centers/:centerIdx', verifyLoginToken, giveInformationCenter);
+router.get('/search', verifyLoginToken, search);
+router.get('/position', verifyLoginToken, position);
+router.get('/pin', verifyLoginToken, getPin);
 export default router;

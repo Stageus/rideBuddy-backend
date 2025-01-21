@@ -43,3 +43,18 @@ export const deleteImg = `
     DELETE FROM project.profile_img
     WHERE img_idx = $1
 `;
+export const selectUserRoad = `
+    SELECT road_name, line_xp, line_yp 
+    FROM project.road
+    WHERE road_type = 'start' AND 
+    road_name IN (
+    SELECT road_name FROM project.account_road_like
+    WHERE account_idx = $1) 
+`;
+export const selectUserCenter = `
+    SELECT center_name, line_xp, line_yp 
+    FROM project.center
+    WHERE center_idx IN
+    (SELECT center_idx FROM project.account_center_like
+    WHERE account_idx = $1) 
+`;

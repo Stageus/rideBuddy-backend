@@ -1,5 +1,7 @@
 import pool from '#config/postgresql.js';
 import {
+  selectCenters,
+  selectRoads,
   searchCenter,
   searchRoad,
   insertAccountRoadLike,
@@ -70,9 +72,6 @@ export const getRoadsList = wrap(async (req, res) => {
   res.status(200).send({
     resultData
   });
-
-  // 지도 표시 반경..? 알아야하나?
-  // 내일 center 데이터도 파이썬으로 csv 파일 만들어서 올려놓기.
 });
 
 export const searchEnter = wrap(async (req, res) => {
@@ -189,7 +188,7 @@ export const centerLike = async (req, res) => {
   }
   // 해당 유저가 해당 센터를 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountCenterLike, [userIdx, centerIdx]);
-
+  console.log('좋아했는지 여부', likeStatus);
   // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
   if (likeStatus.rows.length == 0) {
     await pool.query(insertAccountCenterLike, [userIdx, centerIdx]);
@@ -205,4 +204,31 @@ export const centerLike = async (req, res) => {
     'center likeCount': likeCount.rows[0].center_like
   });
 };
-export const getPin = async (req, res) => {};
+export const getPin = wrap(async (req, res) => {
+  //1. 지도 좌표경계 좌표를 받는다.
+  const { sw, ne } = req.body;
+  if (!sw || !ne) {
+    throw new BadRequestError('올바른 req값이 아님');
+  }
+
+  let centerList = await pool.query(selectCenters);
+  let roadList = await pool.query(selectRoads);
+  centerList = centerList.rows;
+  roadList = roadList.rows;
+  //2. 지도좌표 범위에 맞는 center와 road선별해서 push
+  let result = [];
+  for (let elem of centerList) {
+    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp) {
+      result.push(elem);
+    }
+  }
+  for (let elem of roadList) {
+    if (sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
+      result.push(elem);
+    }
+  }
+
+  res.status(200).send({
+    result
+  });
+});
