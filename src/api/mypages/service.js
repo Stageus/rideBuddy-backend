@@ -1,8 +1,16 @@
 import wrap from '#utility/wrapper.js';
 import pool from '#config/postgresql.js';
-import { selectLoginType, selectInfo, selectProfile, insertProfile, selectHistory, deleteImg } from './repository.js';
-// 예외처리 아직 안함.
-
+import {
+  selectLoginType,
+  selectInfo,
+  selectProfile,
+  insertProfile,
+  selectHistory,
+  deleteImg,
+  selectUserRoad,
+  selectUserCenter
+} from './repository.js';
+import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
   const result = await pool.query(selectLoginType, [userIdx]);
@@ -50,6 +58,28 @@ export const getMyProfile = wrap(async (req, res) => {
 
 export const deleteProfile = wrap(async (req, res) => {
   const imgIdx = req.body.img_idx;
+  if (!img_idx) {
+    throw new BadRequestError('올바른 req값이 아님');
+  }
   const deleteResult = await pool.query(deleteImg, [imgIdx]);
   res.status(200).send({});
+});
+
+export const getRoadsLikeList = wrap(async (req, res) => {
+  // 회원이 좋아요 한 리스트 출력
+  const userIdx = req.accountIdx;
+  const roadLike = await pool.query(selectUserRoad, [userIdx]);
+  const result = roadLike.rows;
+  res.status(200).send({
+    result
+  });
+});
+export const getCentersLikeList = wrap(async (req, res) => {
+  //회원이 좋아요 한 리스트 출력
+  const userIdx = req.accountIdx;
+  const centerLike = await pool.query(selectUserCenter, [userIdx]);
+  const result = centerLike.rows;
+  res.status(200).send({
+    result
+  });
 });

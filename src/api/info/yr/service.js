@@ -188,7 +188,7 @@ export const centerLike = async (req, res) => {
   }
   // 해당 유저가 해당 센터를 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountCenterLike, [userIdx, centerIdx]);
-
+  console.log('좋아했는지 여부', likeStatus);
   // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
   if (likeStatus.rows.length == 0) {
     await pool.query(insertAccountCenterLike, [userIdx, centerIdx]);
@@ -204,7 +204,7 @@ export const centerLike = async (req, res) => {
     'center likeCount': likeCount.rows[0].center_like
   });
 };
-export const getPin = async (req, res) => {
+export const getPin = wrap(async (req, res) => {
   //1. 지도 좌표경계 좌표를 받는다.
   const { sw, ne } = req.body;
   if (!sw || !ne) {
@@ -231,4 +231,4 @@ export const getPin = async (req, res) => {
   res.status(200).send({
     result
   });
-};
+});
