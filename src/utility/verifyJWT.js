@@ -3,9 +3,11 @@ import jwt from 'jsonwebtoken';
 
 function PromiseJwtVeriy(token, secretKey) {
   return new Promise((resolve, reject) => {
+    console.log('token', token);
     jwt.verify(token, secretKey, (err, decoded) => {
       if (err) reject(err);
       resolve(decoded);
+      console.log('decoded', decoded);
     });
   });
 }
@@ -18,11 +20,12 @@ export const verifyJWT = async (tokenType, token) => {
   };
 
   const secretKey = secretKeys[tokenType];
-
+  console.log('secretIKey', secretKey);
   try {
     const result = await PromiseJwtVeriy(token, secretKey);
     // result 안에 accountIdx가 있으면 result.accountIdx (loginToken일 경우)
     // result 안에 mail 있으면 result.mail (mailToken일 경우)
+    console.log('result', result);
     if (result.accountIdx) {
       return {
         errName: null,

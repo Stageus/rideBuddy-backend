@@ -1,4 +1,4 @@
-import { checkNaverId, insertNaverId, selectNaverAccountIdx } from '../yr/repository.js';
+import { checkNaverId, insertNaverId, selectNaverAccountIdx } from '../repository.js';
 
 import axios from 'axios';
 import pool from '#config/postgresql.js';
@@ -11,14 +11,13 @@ export const userNaverProfile = async (naverAccessToken) => {
     method: 'GET',
     url: identifierURL,
     headers: {
-      Authorization: `Bearer ${naverAccessToken}`,
-    },
+      Authorization: `Bearer ${naverAccessToken}`
+    }
   });
-
   const naverName = personalInfo.data.response.name;
   const naverId = personalInfo.data.response.id;
 
-  const DbAccountIdx = userNaverDBCheck(naverName, naverId);
+  const DbAccountIdx = await userNaverDBCheck(naverName, naverId);
   return DbAccountIdx;
 };
 
@@ -38,6 +37,6 @@ export const userNaverDBCheck = async (naverName, naverId) => {
   // 네이버 식별자 아이디에 해당하는 account_idx 가져오기
   const idxResults = await pool.query(selectNaverAccountIdx, [userAuthId]);
   const DbAccountIdx = idxResults.rows[0].account_idx;
-
+  console.log('dbAccountIdx', DbAccountIdx);
   return DbAccountIdx;
 };

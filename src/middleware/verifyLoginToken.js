@@ -8,7 +8,7 @@ import { UnauthorizedError } from '../utility/customError.js';
 export const verifyLoginToken = wrap(async (req, res, next) => {
   const accessToken = req.headers.authorization.split(' ')[1];
   const accessResult = await verifyJWT('access', accessToken);
-
+  console.log('accessresult', accessResult);
   //토큰 만료가 아닌 다른에러라면
   const errorName = ['JsonWebTokenError', 'NotBeforeError'];
   for (const error of errorName) {
