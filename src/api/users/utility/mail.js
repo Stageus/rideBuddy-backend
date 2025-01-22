@@ -1,7 +1,7 @@
 import smtpTransport from '#config/email.js';
 import pool from '#config/postgresql.js';
 import { genMailToken } from '#utility/generateToken.js';
-import { insertMailToken } from '../tj/repository.js';
+import { insertMailToken } from '../repository.js';
 
 const sendMailUtil = (number, mail, res) => {
   const mailOptions = {

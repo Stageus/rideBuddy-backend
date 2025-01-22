@@ -137,7 +137,6 @@ export const register = wrap(async (req, res, next) => {
   res.status(200).send({});
 });
 
-// Register로 대문자 바꿔
 export const mailSendRegister = wrap(async (req, res, next) => {
   var number = randomNumber();
   const mail = req.body.mail;
@@ -243,12 +242,6 @@ export const localCreateToken = wrap(async (req, res) => {
   const { id, pw } = req.body;
   const saltRounds = 10;
 
-  // id나 pw키 자체가 안 넘어올 경우
-  if (!id || !pw) {
-    throw new BadRequestError('id또는 pw가 안넘어옴');
-  }
-
-  //id에 해당하는 해싱된 pw 불러오기
   const pwResults = await pool.query(selectUserPw, [id]); // pw bcrypt돌려가지구 select에 바로 넣으면 되는거.
   // db의 결과로는 true,/false만 받아온다고 생각하자.
   // js로 후처리하지말고 다 sql로 하자.
@@ -280,10 +273,6 @@ export const changePw = wrap(async (req, res, next) => {
   let updateResult;
   const newPw = req.body.pw;
 
-  if (!newPw) {
-    throw new BadRequestError('id나 pw를 받지못함');
-  }
-
   const hashPw = await bcrypt.hash(newPw, 10);
   // 라우터를 나누는 기준? 하나의 라우터는 하나의 목적만 가지게 해라
   // 테스트할때도 두개를 같이 해야하는거고 뻑나고 두개가 같이 해야함.
@@ -311,9 +300,6 @@ export const changePw = wrap(async (req, res, next) => {
 
 export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
-  if (!name || !mail) {
-    throw new BadRequestError('name또는 mail이 안넘어옴');
-  } // 지우자 undefined나 null 이나
   // 그림그려놓고 구조에 맞게 돌아가는지 좀 보고,.
 
   const result = await pool.query(findAccountId, [name, mail]);

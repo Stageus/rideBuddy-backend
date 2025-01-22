@@ -59,9 +59,7 @@ export const getMyProfile = wrap(async (req, res) => {
 
 export const deleteProfile = wrap(async (req, res) => {
   const imgIdx = req.body.img_idx;
-  if (!img_idx) {
-    throw new BadRequestError('올바른 req값이 아님');
-  } // 이거 없애
+
   // 이젠 개념이 중요. 쿼리문호출, 응답만 하는게 맞아.
   // 목적가지게 코딩을 해라. .........
   const deleteResult = await pool.query(deleteImg, [imgIdx]);
@@ -74,7 +72,7 @@ export const getRoadsLikeList = wrap(async (req, res) => {
   const page = req.body.page;
   const roadLike = await pool.query(selectUserRoad, [userIdx]);
   const result = roadLike.rows;
-  // 20개씩 출력
+  // 20개씩 출력 -> 여기를 sql로 가능
   const resultData = push20(page, result);
   if (resultData.every(isNull)) {
     res.status(200).send({

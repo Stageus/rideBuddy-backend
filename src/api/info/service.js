@@ -217,9 +217,6 @@ export const centerLike = async (req, res) => {
 export const getPin = wrap(async (req, res) => {
   //1. 지도 좌표경계 좌표를 받는다.
   const { sw, ne } = req.body;
-  if (!sw || !ne) {
-    throw new BadRequestError('올바른 req값이 아님');
-  }
 
   let centerList = await pool.query(selectCenters);
   let roadList = await pool.query(selectRoads);
