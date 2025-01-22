@@ -1,10 +1,15 @@
-import express from 'express';
+import express from 'express'; // 지우기
 import 'dotenv/config';
 import cron from 'node-cron';
 import wrap from './src/utility/wrapper.js';
 import { getWeatherData, deleteWeatherData, airTimeCheck } from './src/service.js';
-const app = express();
-
+const app = express(); //지우기
+// 반복문을 이렇게 쓰는건 잘못되었음.
+// foreach해서 list만들어서 돌리기.
+// 의도파악을 해야하는 코드는 좋은 코드가 아님.
+// src안에 module폴더 만들고 repo는 그냥 두구
+// 여기는 프로그램 시작파일.
+// 배포 해오기 백엔드 배포를 해와라라라라랄
 for (let i = 2; i < 24; i += 3) {
   cron.schedule(
     `2 ${i} * * *`,
@@ -18,7 +23,7 @@ for (let i = 2; i < 24; i += 3) {
     })
   );
 }
-
+// 하나씩 함수를 만들어라.
 for (let i = 0; i < 24; i++) {
   cron.schedule(
     `5 ${i} * * *`,
@@ -29,7 +34,3 @@ for (let i = 0; i < 24; i++) {
 }
 
 airTimeCheck();
-
-console.log('background program is going');
-
-getWeatherData(20250120, 14);

@@ -8,7 +8,6 @@ import { UnauthorizedError } from '../utility/customError.js';
 export const verifyLoginToken = wrap(async (req, res, next) => {
   const accessToken = req.headers.authorization.split(' ')[1];
   const accessResult = await verifyJWT('access', accessToken);
-  console.log('accessresult', accessResult);
   //토큰 만료가 아닌 다른에러라면
   const errorName = ['JsonWebTokenError', 'NotBeforeError'];
   for (const error of errorName) {
@@ -16,6 +15,8 @@ export const verifyLoginToken = wrap(async (req, res, next) => {
     if (accessResult.errName === error) next(new UnauthorizedError('올바른 access token이 아님'));
   }
 
+  // 엔터 잘 쳐주고 코드 정리 해주기
+  // 여기도 수정해주기-> 추상화
   //(1) access token 비만료, -> 갱신할 필요 없음.
   if (accessResult.errName === null) {
     req.accountIdx = accessResult.decoded;

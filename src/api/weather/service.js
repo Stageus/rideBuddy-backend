@@ -47,6 +47,10 @@ const weather = wrap(async (req, res) => {
     umdName: legalDong,
     returnType: 'json'
   };
+  // axios 원인파악하기.
+  // axios 파싱두번되는게 문제 .
+  // 어떤질문을 해도 대답할 수 있어야함.
+  // axios 로 다시 해보기
   const TMQuery = new URLSearchParams(TMParams).toString();
   let tmX, tmY;
   const TMFetch = await fetch(`${TMurl}?${TMQuery}`);
@@ -100,5 +104,6 @@ const weather = wrap(async (req, res) => {
 
   res.status(200).send(data);
 });
-
+// 둘다 써있는 거는 안됨.
+// 논의 가 필요 했음.
 export default weather;

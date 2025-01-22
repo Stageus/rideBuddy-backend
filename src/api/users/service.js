@@ -122,20 +122,15 @@ export const register = wrap(async (req, res, next) => {
 
   const checkResultsId = await pool.query(checkDuplicateId, [id]);
   if (checkResultsId.rows.length > 0) {
-    return next(new ConflictError('이미 사용중인 id'));
+    throw new ConflictError('이미 사용중인 id');
   }
 
   const checkResultsMail = await pool.query(checkDuplicateMail, [mail]);
   if (checkResultsMail.rows.length > 0) {
-    return next(new ConflictError('이미 사용중인 mail'));
+    throw new ConflictError('이미 사용중인 mail');
   }
 
   // token 여부 확인 후
-
-  console.log(id);
-  console.log(account_name);
-  console.log(pw);
-  console.log(mail);
 
   //db에 값 넣기기
   await pool.query(registerdb, [id, account_name, pw, mail]);
@@ -177,7 +172,8 @@ export const mailCheck = wrap(async (req, res, next) => {
   await pool.query(transMailToken_True, ['TRUE', mail_token, code]);
   return res.status(200).send({ message: 'finish' });
 });
-
+//지우기
+// verify 동기로 그냥 쓰기
 export const verifyToken = (token, secret) => {
   try {
     const decoded = jwt.verify(token, secret);
@@ -192,6 +188,7 @@ export const deleteuser = wrap(async (req, res, next) => {
   //올바른 jwt 토큰인지 확인
   const accessToken = req.headers.authorization.split(' ')[1];
   try {
+    // try-catch 필요없음. wrap으로 감싸져 있으니까
     const decoded = jwt.verify(accessToken, process.env.JWT_ACCESSTOKEN_SECRET);
     const idx = decoded.accountIdx;
     await pool.query(deleteaccount, [idx]);
@@ -252,15 +249,10 @@ export const localCreateToken = wrap(async (req, res) => {
   }
 
   //id에 해당하는 해싱된 pw 불러오기
-  const pwResults = await pool.query(selectUserPw, [id]);
+  const pwResults = await pool.query(selectUserPw, [id]); // pw bcrypt돌려가지구 select에 바로 넣으면 되는거.
+  // db의 결과로는 true,/false만 받아온다고 생각하자.
+  // js로 후처리하지말고 다 sql로 하자.
   const pwHash = pwResults.rows[0].pw;
-
-  //로깅 테스트
-  // try {
-  //   throw new Error('응~');
-  // } catch (err) {
-  //   logger.error(err);
-  // }
 
   //db의 pw와 userPw가 같은지 검증한다.
   const bcryptResult = await bcrypt.compare(pw, pwHash);
@@ -291,10 +283,12 @@ export const changePw = wrap(async (req, res, next) => {
   if (!newPw) {
     throw new BadRequestError('id나 pw를 받지못함');
   }
-  const saltRounds = 10;
 
-  const hashPw = await bcrypt.hash(newPw, saltRounds);
-
+  const hashPw = await bcrypt.hash(newPw, 10);
+  // 라우터를 나누는 기준? 하나의 라우터는 하나의 목적만 가지게 해라
+  // 테스트할때도 두개를 같이 해야하는거고 뻑나고 두개가 같이 해야함.
+  // 심지어 두코드는 겹치는 것도 없음.
+  // 나누기
   // 마이페이지에서 비밀번호 변경시
   if (userIdx) {
     //oAuth로그인시 403 에러
@@ -319,7 +313,8 @@ export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
   if (!name || !mail) {
     throw new BadRequestError('name또는 mail이 안넘어옴');
-  }
+  } // 지우자 undefined나 null 이나
+  // 그림그려놓고 구조에 맞게 돌아가는지 좀 보고,.
 
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];

@@ -1,6 +1,5 @@
 import pool from '#config/postgresql.js';
 import wrap from '#utility/wrapper.js';
-import { BadRequestError, NotFoundError } from '#utility/customError.js';
 
 import { calcDistance } from './utility/harversine.js';
 import { sortCompare } from './utility/sortCompareFunc.js';
@@ -32,22 +31,27 @@ import {
   giveInformationCenterDB
 } from './repository.js';
 
-import wrap from '#utility/wrapper.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
 import { push20, isNull } from '#utility/pagenation.js';
 
 export const getCentersList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
-  // 유효성 검증
+  // 유효성 검증 // 지워라
   verifyReq(page, nx, ny);
 
   const resultData = await getData(page, nx, ny, 'center');
   // 중간에 에러가 났으면 에러 메시지 반환됨
+  // 여기 왜 굳이 message가있음? 고치기
+  // getData안에서 처리할 수도 있음. 에러처리가 너무 허술함.
+  // 에러가 어디로 가는지 통일을 해줘야 함.
+  // 여기 점검
   if (resultData.message) {
     throw Error('getData내부에러');
   }
   // 만약 모든 resultData의 모든 값이 Null 일 경우 (더 이상 페이지가 존재하지 않을경우)
+  // offset 쓰면 알아서
+  // 프론트에서는 그거 두개를 구분하지 않음.
   if (resultData.every(isNull)) {
     res.status(200).send({
       message: '더 이상 페이지가 존재하지 않습니다.'
@@ -63,7 +67,7 @@ export const getCentersList = wrap(async (req, res) => {
 export const getRoadsList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
-  verifyReq(page, nx, ny);
+  verifyReq(page, nx, ny); //
 
   const resultData = await getData(page, nx, ny, 'road');
   // 중간에 에러가 났으면 에러 메시지 반환됨
@@ -86,6 +90,8 @@ export const getRoadsList = wrap(async (req, res) => {
 export const searchEnter = wrap(async (req, res) => {
   const { search, page, nx, ny } = req.body;
   verifyReq(page, nx, ny);
+  // sql로 짜보자.
+
   // 1. search LIKE 기준으로 select 한다.
   const centerList = await pool.query(searchCenter, [`%${search}%`]);
   const roadList = await pool.query(searchRoad, [`%${search}%`]);

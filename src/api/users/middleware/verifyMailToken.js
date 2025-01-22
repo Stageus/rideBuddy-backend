@@ -12,12 +12,16 @@ export const verifyMailToken = wrap(async (req, res, next) => {
   const mailToken = req.body['mail_token'];
 
   const mailResult = await verifyJWT('mail', mailToken);
+  // verifyJWT가 동기이면 wrap으로 다 처리 가능.
 
   //토큰 만료가 아닌 다른에러라면
-  const errorName = ['JsonWebTokenError', 'NotBeforeError'];
-  for (const error of errorName) {
-    if (mailResult.errName === error) next(mailResult.err);
-  }
+  // const errorName = ['JsonWebTokenError', 'NotBeforeError'];
+  // for (const error of errorName) {
+  if (mailResult.errName) next(mailResult.err);
+  // }
+
+  //if 모두 필요없음. .. 다 없어야함. verifyJWT 돌려서 decodeed 받아오고 후처리만 여기서 한다.
+  // a 가 주는 리턴ㅇ값으로 b가 할일을 해야지. a의 값을 가지고 b의 후처리를 해줘야 그게 맞는 추상화이다.
 
   //1. 만료되었다면 만료되었다고
   if (mailResult.errName == 'TokenExpiredError') {

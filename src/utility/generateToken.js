@@ -2,7 +2,6 @@ import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 
 const accessSecretKey = process.env.JWT_ACCESSTOKEN_SECRET;
-const refreshSecretKey = process.env.JWT_REFRESHTOKEN_SECRET;
 const mailSecretKey = process.env.JWT_MAIL_SECRET;
 
 export const genAccessToken = (account_idx) => {

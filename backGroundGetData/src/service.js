@@ -120,6 +120,9 @@ export const airTimeCheck = async (req, res) => {
       }
     }
     // 남은시간이 지나면 getAirData 호출 하고, 그 이후 2시간 마다 한번씩 호출
+    // 같은기능인데 다른 로직을 쓸 이유가 없음. 하나로 통일하기.
+    // 지워주는거, getAirdata하나씩 하기
+
     try {
       setTimeout(
         async () => {

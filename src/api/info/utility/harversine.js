@@ -21,3 +21,4 @@ export const calcDistance = (curObj, destObj) => {
   const result = 2 * radius * Math.asin(squareRoot);
   return result;
 };
+// 텍스트파일 형식으로 저장해놓기.

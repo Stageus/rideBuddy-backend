@@ -5,6 +5,10 @@ import pool from '#config/postgresql.js';
 
 export const getData = async (page, nx, ny, dataType) => {
   //1. 현재 nx ,ny, 페이지네이션 오면
+
+  // sql로 다 계산가능함. sql로 고치기. 왠만하면 sql로 고치기.
+  // 후처리로 하지말고 왠만하면 sql로. 반영해보기 . sql 하나로 끝날수 있게 .
+  // 가까운 거리순으로 출력 구글링해보기.
   let sortedByDistance = [];
   const currentLocation = {
     nx: nx,

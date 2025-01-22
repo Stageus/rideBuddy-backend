@@ -12,6 +12,8 @@ function PromiseJwtVeriy(token, secretKey) {
   });
 }
 
+//** 여기 너무 복잡함.  */
+// 서로 상관이 없어야하는게 추상화
 //jwt를 검증하는 로직
 export const verifyJWT = async (tokenType, token) => {
   const secretKeys = {
