@@ -96,3 +96,23 @@ export const selectCenterLikeNum = `
     SELECT center_like FROM project.center
     WHERE center_idx = $1
 `;
+
+export const giveInformationRoadDB = `
+    SELECT road_name, road_line_xp, road_line_yp, road_address, road_like FROM project.road
+    WHERE road_idx = $1;
+`;
+
+export const giveInformationCenterDB = `
+    SELECT center_name, center_line_xp, center_line_yp, center_address, center_like FROM project.center
+    WHERE center_idx = $1;
+`;
+
+export const givePositionRoad = `
+    SELECT road_line_xp, road_line_yp FROM project.road
+    WHERE road_idx = $1;
+`;
+
+export const givePositionCenter = `
+    SELECT center_line_xp, center_line_yp FROM project.center
+    WHERE center_idx = $1;
+`;

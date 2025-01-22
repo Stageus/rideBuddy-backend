@@ -1,4 +1,4 @@
-import { selectXp, selectYp, insertAddress, selectCenters, selectRoads } from '../yr/repository.js';
+import { selectCenters, selectRoads } from '../repository.js';
 import { calcDistance } from './harversine.js';
 import { sortCompare } from './sortCompareFunc.js';
 import pool from '#config/postgresql.js';

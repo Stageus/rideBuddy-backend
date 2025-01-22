@@ -1,7 +1,18 @@
 import express from 'express';
 import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
-import { position, search, giveInformationRoad, giveInformationCenter } from './tj/service.js';
-import { getCentersList, getRoadsList, searchEnter, roadLike, centerLike, getPin } from './yr/service.js';
+import {
+  position,
+  search,
+  giveInformationRoad,
+  giveInformationCenter,
+  getCentersList,
+  getRoadsList,
+  searchEnter,
+  roadLike,
+  centerLike,
+  getPin
+} from './service.js';
+
 const router = express.Router();
 
 router.get('/roads', verifyLoginToken, getRoadsList);

@@ -1,8 +1,11 @@
 import express from 'express';
-// import weather from
+
 const router = express.Router();
+
 import weather from './service.js';
 
-router.get('/', weather);
+import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
+
+router.get('/', verifyLoginToken, weather);
 
 export default router;

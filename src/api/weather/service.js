@@ -1,22 +1,17 @@
 import axios from 'axios';
 
-import { getWeather, getData, selectAirData } from './repository.js';
-import pool from '#config/postgresql.js';
-import 'dotenv/config';
 import wrap from '#utility/wrapper.js';
+import pool from '#config/postgresql.js';
+
+import { getWeather, getData, selectAirData } from './repository.js';
 
 const weather = wrap(async (req, res) => {
   const nx = req.body.nx; // 37~
   const ny = req.body.ny; // 126~
-  console.log('weather 실행중');
-  console.log('nx : ', nx);
-  console.log('ny : ', ny);
 
   var data = {};
   const currentTime = new Date();
   var hours = currentTime.getHours();
-
-  console.log('시간 : ', hours);
 
   const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${nx},${ny}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
 
@@ -89,7 +84,7 @@ const weather = wrap(async (req, res) => {
   };
   // ===================================웨더 부분==========================================================
 
-  for (let i = 0; i <= 3; i++) {
+  for (let i = 0; i <= 4; i++) {
     if (hours + i >= 24) {
       formHours = hours + i - 24 + '00';
     } else {
@@ -97,8 +92,6 @@ const weather = wrap(async (req, res) => {
     }
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
-
-    console.log(getResult.rows[0]);
 
     data[`${i}_rain`] = getResult.rows[0]['rain'];
     data[`${i}_weather`] = getResult.rows[0]['weather'];
