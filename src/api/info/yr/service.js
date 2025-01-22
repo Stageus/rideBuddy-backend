@@ -25,6 +25,8 @@ import { getData } from '../utility/getData.js';
 import wrap from '#utility/wrapper.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
 import { verifyReq } from '../utility/verifyReq.js';
+import { push20, isNull } from '#utility/pagenation.js';
+
 export const getCentersList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
@@ -37,7 +39,6 @@ export const getCentersList = wrap(async (req, res) => {
     throw Error('getData내부에러');
   }
   // 만약 모든 resultData의 모든 값이 Null 일 경우 (더 이상 페이지가 존재하지 않을경우)
-  const isNull = (value) => value == null;
   if (resultData.every(isNull)) {
     res.status(200).send({
       message: '더 이상 페이지가 존재하지 않습니다.'
@@ -61,7 +62,6 @@ export const getRoadsList = wrap(async (req, res) => {
     throw Error('getData내부에러');
   }
   // 만약 모든 resultData의 모든 값이 Null 일 경우 (더 이상 페이지가 존재하지 않을경우)
-  const isNull = (value) => value == null;
   if (resultData.every(isNull)) {
     res.status(200).send({
       message: '더 이상 페이지가 존재하지 않습니다.'
@@ -123,12 +123,8 @@ export const searchEnter = wrap(async (req, res) => {
   sortedtData.sort(sortCompare);
 
   // 4. 20개씩 나눠서 전달
-  let resultData = [];
-  for (let i = 0; i < 20; i++) {
-    let startPoint = 20 * (page - 1);
-    resultData.push(sortedtData[startPoint + i]);
-  }
-  const isNull = (value) => value == null;
+  const resultData = push20(page, sortedtData);
+
   if (resultData.every(isNull)) {
     res.status(200).send({
       message: '더 이상 페이지가 존재하지 않습니다.'
@@ -188,7 +184,6 @@ export const centerLike = async (req, res) => {
   }
   // 해당 유저가 해당 센터를 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountCenterLike, [userIdx, centerIdx]);
-  console.log('좋아했는지 여부', likeStatus);
   // 좋아요를 하지 않았으면 좋아요테이블에 추가하고 좋아요수 업데이트
   if (likeStatus.rows.length == 0) {
     await pool.query(insertAccountCenterLike, [userIdx, centerIdx]);
@@ -218,12 +213,12 @@ export const getPin = wrap(async (req, res) => {
   //2. 지도좌표 범위에 맞는 center와 road선별해서 push
   let result = [];
   for (let elem of centerList) {
-    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp) {
+    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp && sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
       result.push(elem);
     }
   }
   for (let elem of roadList) {
-    if (sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
+    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp && sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
       result.push(elem);
     }
   }

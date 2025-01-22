@@ -11,6 +11,7 @@ import {
   selectUserCenter
 } from './repository.js';
 import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
+import { push20, isNull } from '#utility/pagenation.js';
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
   const result = await pool.query(selectLoginType, [userIdx]);
@@ -68,18 +69,36 @@ export const deleteProfile = wrap(async (req, res) => {
 export const getRoadsLikeList = wrap(async (req, res) => {
   // 회원이 좋아요 한 리스트 출력
   const userIdx = req.accountIdx;
+  const page = req.body.page;
   const roadLike = await pool.query(selectUserRoad, [userIdx]);
   const result = roadLike.rows;
+  // 20개씩 출력
+  const resultData = push20(page, result);
+  if (resultData.every(isNull)) {
+    res.status(200).send({
+      message: '더 이상 페이지가 존재하지 않습니다.'
+    });
+    return;
+  }
   res.status(200).send({
-    result
+    resultData
   });
 });
 export const getCentersLikeList = wrap(async (req, res) => {
   //회원이 좋아요 한 리스트 출력
   const userIdx = req.accountIdx;
+  const page = req.body.page;
   const centerLike = await pool.query(selectUserCenter, [userIdx]);
   const result = centerLike.rows;
+  // 20개씩 출력
+  const resultData = push20(page, result);
+  if (resultData.every(isNull)) {
+    res.status(200).send({
+      message: '더 이상 페이지가 존재하지 않습니다.'
+    });
+    return;
+  }
   res.status(200).send({
-    result
+    resultData
   });
 });
