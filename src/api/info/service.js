@@ -1,11 +1,9 @@
 import pool from '#config/postgresql.js';
 import wrap from '#utility/wrapper.js';
 
-import { calcDistance } from './utility/harversine.js';
-import { sortCompare } from './utility/sortCompareFunc.js';
-import { getData } from './utility/getData.js';
-
 import {
+  CenterByDistance,
+  roadByDistance,
   selectCenters,
   selectRoads,
   searchCenter,
@@ -31,31 +29,16 @@ import {
 } from './repository.js';
 
 import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
-import { push20, isNull } from '#utility/pagenation.js';
 
 export const getCentersList = wrap(async (req, res) => {
   // 1. 현재 longitude ,latitude, 페이지네이션 오면
   const { page, longitude, latitude } = req.body;
 
-  const resultData = await getData(page, longitude, latitude, 'center');
-  // 중간에 에러가 났으면 에러 메시지 반환됨
-  // 여기 왜 굳이 message가있음? 고치기
-  // getData안에서 처리할 수도 있음. 에러처리가 너무 허술함.
-  // 에러가 어디로 가는지 통일을 해줘야 함.
-  // 여기 점검
-  if (resultData.message) {
-    throw Error('getData내부에러');
-  }
-  // 만약 모든 resultData의 모든 값이 Null 일 경우 (더 이상 페이지가 존재하지 않을경우)
-  // offset 쓰면 알아서
-  // 프론트에서는 그거 두개를 구분하지 않음.
-  if (resultData.every(isNull)) {
-    res.status(200).send({
-      message: '더 이상 페이지가 존재하지 않습니다.'
-    });
-    return;
-  }
+  // 1. sql 문에서 거리계산해서, 가까운 순서대로 정렬한결과값을 page값에 따라 반환받는다.
+  const result = await pool.query(CenterByDistance, [page, latitude, longitude]);
+  const resultData = result.rows;
 
+  // 에러가 어디로 가는지 확인해야함. wrap
   res.status(200).send({
     resultData
   });
@@ -64,23 +47,9 @@ export const getCentersList = wrap(async (req, res) => {
 export const getRoadsList = wrap(async (req, res) => {
   // 1. 현재 longitude ,latitude, 페이지네이션 오면
   const { page, longitude, latitude } = req.body;
+  const result = await pool.query(roadByDistance, [page, latitude, longitude]);
 
-  const resultData = await getData(page, longitude, latitude, 'road');
-  // 중간에 에러가 났으면 에러 메시지 반환됨
-  if (resultData.message) {
-    throw Error('getData내부에러');
-  }
-  // 만약 모든 resultData의 모든 값이 Null 일 경우 (더 이상 페이지가 존재하지 않을경우)
-  if (resultData.every(isNull)) {
-    res.status(200).send({
-      message: '더 이상 페이지가 존재하지 않습니다.'
-    });
-    return;
-  }
-
-  res.status(200).send({
-    resultData
-  });
+  res.status(200).send({});
 });
 
 export const searchEnter = wrap(async (req, res) => {
@@ -101,8 +70,8 @@ export const searchEnter = wrap(async (req, res) => {
   // 2. 현재위치기준 인증센터와 자전거길 거리 구해서 push
   for (let list of centerList.rows) {
     placeLocation = {
-      longitude: list.line_xp,
-      latitude: list.line_yp
+      longitude: list.longitude,
+      latitude: list.latitude
     };
     let distance = calcDistance(currentLocation, placeLocation);
     resultObject = {
@@ -116,8 +85,8 @@ export const searchEnter = wrap(async (req, res) => {
 
   for (let list of roadList.rows) {
     placeLocation = {
-      longitude: list.line_xp,
-      latitude: list.line_yp
+      longitude: list.longitude,
+      latitude: list.latitude
     };
     let distance = calcDistance(currentLocation, placeLocation);
     resultObject = {
@@ -213,6 +182,9 @@ export const getPin = wrap(async (req, res) => {
   //1. 지도 좌표경계 좌표를 받는다.
   const { sw, ne } = req.body;
   // 이거 정규표현식 추가
+  console.log(
+    calcDistance({ longitude: 126.548544, latitude: 37.1686903 }, { longitude: 127.1047839, latitude: 37.634975 })
+  );
   let centerList = await pool.query(selectCenters);
   let roadList = await pool.query(selectRoads);
   centerList = centerList.rows;
@@ -221,20 +193,20 @@ export const getPin = wrap(async (req, res) => {
   let result = [];
   for (let elem of centerList) {
     if (
-      sw.latitude < elem.line_yp &&
-      ne.latitude > elem.line_yp &&
-      sw.longitude < elem.line_xp &&
-      ne.longitude > elem.line_xp
+      sw.latitude < elem.latitude &&
+      ne.latitude > elem.latitude &&
+      sw.longitude < elem.longitude &&
+      ne.longitude > elem.longitude
     ) {
       result.push(elem);
     }
   }
   for (let elem of roadList) {
     if (
-      sw.latitude < elem.line_yp &&
-      ne.latitude > elem.line_yp &&
-      sw.longitude < elem.line_xp &&
-      ne.longitude > elem.line_xp
+      sw.latitude < elem.latitude &&
+      ne.latitude > elem.latitude &&
+      sw.longitude < elem.longitude &&
+      ne.longitude > elem.longitude
     ) {
       result.push(elem);
     }
@@ -252,7 +224,7 @@ export const giveInformationRoad = wrap(async (req, res, next) => {
     return next(new NotFoundError('roadIdx가 유효하지 않음.'));
   }
   res.status(200).json({
-    roads_lat_lng: [roadResults.rows[0].road_line_xp, roadResults.rows[0].road_line_yp],
+    roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
     roads_idx: roadIdx,
     roads_name: roadResults.rows[0].road_name,
     roads_address: roadResults.rows[0].road_address,
@@ -267,7 +239,7 @@ export const giveInformationCenter = wrap(async (req, res, next) => {
     return next(new NotFoundError('centerIdx가 유효하지 않음.'));
   }
   res.status(200).json({
-    centers_lat_lng: [centerResults.rows[0].center_line_xp, centerResults.rows[0].center_line_yp],
+    centers_lat_lng: [centerResults.rows[0].longitude, centerResults.rows[0].latitude],
     centers_idx: centerIdx,
     centers_name: centerResults.rows[0].center_name,
     centers_address: centerResults.rows[0].center_address,
@@ -314,8 +286,8 @@ export const position = wrap(async (req, res, next) => {
     }
     res.status(200).json({
       location: {
-        longitude: checkResults.rows[0].road_line_xp,
-        latitude: checkResults.rows[0].road_line_yp
+        longitude: checkResults.rows[0].longitude,
+        latitude: checkResults.rows[0].latitude
       }
     });
   } else if (centerIdx) {
@@ -325,8 +297,8 @@ export const position = wrap(async (req, res, next) => {
     }
     res.status(200).json({
       location: {
-        longitude: checkResults.rows[0].center_line_xp,
-        latitude: checkResults.rows[0].center_line_yp
+        longitude: checkResults.rows[0].longitude,
+        latitude: checkResults.rows[0].latitude
       }
     });
   }
