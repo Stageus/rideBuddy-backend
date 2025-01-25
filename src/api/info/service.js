@@ -4,7 +4,6 @@ import wrap from '#utility/wrapper.js';
 import { calcDistance } from './utility/harversine.js';
 import { sortCompare } from './utility/sortCompareFunc.js';
 import { getData } from './utility/getData.js';
-import { verifyReq } from './utility/verifyReq.js';
 
 import {
   selectCenters,
@@ -37,8 +36,6 @@ import { push20, isNull } from '#utility/pagenation.js';
 export const getCentersList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
-  // 유효성 검증 // 지워라
-  verifyReq(page, nx, ny);
 
   const resultData = await getData(page, nx, ny, 'center');
   // 중간에 에러가 났으면 에러 메시지 반환됨
@@ -67,7 +64,6 @@ export const getCentersList = wrap(async (req, res) => {
 export const getRoadsList = wrap(async (req, res) => {
   // 1. 현재 nx ,ny, 페이지네이션 오면
   const { page, nx, ny } = req.body;
-  verifyReq(page, nx, ny); //
 
   const resultData = await getData(page, nx, ny, 'road');
   // 중간에 에러가 났으면 에러 메시지 반환됨
@@ -89,7 +85,6 @@ export const getRoadsList = wrap(async (req, res) => {
 
 export const searchEnter = wrap(async (req, res) => {
   const { search, page, nx, ny } = req.body;
-  verifyReq(page, nx, ny);
   // sql로 짜보자.
 
   // 1. search LIKE 기준으로 select 한다.
