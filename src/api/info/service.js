@@ -217,7 +217,7 @@ export const centerLike = async (req, res) => {
 export const getPin = wrap(async (req, res) => {
   //1. 지도 좌표경계 좌표를 받는다.
   const { sw, ne } = req.body;
-
+  // 이거 정규표현식 추가
   let centerList = await pool.query(selectCenters);
   let roadList = await pool.query(selectRoads);
   centerList = centerList.rows;
