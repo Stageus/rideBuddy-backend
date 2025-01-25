@@ -34,10 +34,10 @@ import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customE
 import { push20, isNull } from '#utility/pagenation.js';
 
 export const getCentersList = wrap(async (req, res) => {
-  // 1. 현재 nx ,ny, 페이지네이션 오면
-  const { page, nx, ny } = req.body;
+  // 1. 현재 longitude ,latitude, 페이지네이션 오면
+  const { page, longitude, latitude } = req.body;
 
-  const resultData = await getData(page, nx, ny, 'center');
+  const resultData = await getData(page, longitude, latitude, 'center');
   // 중간에 에러가 났으면 에러 메시지 반환됨
   // 여기 왜 굳이 message가있음? 고치기
   // getData안에서 처리할 수도 있음. 에러처리가 너무 허술함.
@@ -62,10 +62,10 @@ export const getCentersList = wrap(async (req, res) => {
 });
 
 export const getRoadsList = wrap(async (req, res) => {
-  // 1. 현재 nx ,ny, 페이지네이션 오면
-  const { page, nx, ny } = req.body;
+  // 1. 현재 longitude ,latitude, 페이지네이션 오면
+  const { page, longitude, latitude } = req.body;
 
-  const resultData = await getData(page, nx, ny, 'road');
+  const resultData = await getData(page, longitude, latitude, 'road');
   // 중간에 에러가 났으면 에러 메시지 반환됨
   if (resultData.message) {
     throw Error('getData내부에러');
@@ -84,7 +84,7 @@ export const getRoadsList = wrap(async (req, res) => {
 });
 
 export const searchEnter = wrap(async (req, res) => {
-  const { search, page, nx, ny } = req.body;
+  const { search, page, longitude, latitude } = req.body;
   // sql로 짜보자.
 
   // 1. search LIKE 기준으로 select 한다.
@@ -95,14 +95,14 @@ export const searchEnter = wrap(async (req, res) => {
   let placeLocation;
   // 현재 위치
   const currentLocation = {
-    nx: nx,
-    ny: ny
+    longitude: longitude,
+    latitude: latitude
   };
   // 2. 현재위치기준 인증센터와 자전거길 거리 구해서 push
   for (let list of centerList.rows) {
     placeLocation = {
-      nx: list.line_xp,
-      ny: list.line_yp
+      longitude: list.line_xp,
+      latitude: list.line_yp
     };
     let distance = calcDistance(currentLocation, placeLocation);
     resultObject = {
@@ -116,8 +116,8 @@ export const searchEnter = wrap(async (req, res) => {
 
   for (let list of roadList.rows) {
     placeLocation = {
-      nx: list.line_xp,
-      ny: list.line_yp
+      longitude: list.line_xp,
+      latitude: list.line_yp
     };
     let distance = calcDistance(currentLocation, placeLocation);
     resultObject = {
@@ -220,12 +220,22 @@ export const getPin = wrap(async (req, res) => {
   //2. 지도좌표 범위에 맞는 center와 road선별해서 push
   let result = [];
   for (let elem of centerList) {
-    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp && sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
+    if (
+      sw.latitude < elem.line_yp &&
+      ne.latitude > elem.line_yp &&
+      sw.longitude < elem.line_xp &&
+      ne.longitude > elem.line_xp
+    ) {
       result.push(elem);
     }
   }
   for (let elem of roadList) {
-    if (sw.lat < elem.line_yp && ne.lat > elem.line_yp && sw.lng < elem.line_xp && ne.lng > elem.line_xp) {
+    if (
+      sw.latitude < elem.line_yp &&
+      ne.latitude > elem.line_yp &&
+      sw.longitude < elem.line_xp &&
+      ne.longitude > elem.line_xp
+    ) {
       result.push(elem);
     }
   }
@@ -304,8 +314,8 @@ export const position = wrap(async (req, res, next) => {
     }
     res.status(200).json({
       location: {
-        nx: checkResults.rows[0].road_line_xp,
-        ny: checkResults.rows[0].road_line_yp
+        longitude: checkResults.rows[0].road_line_xp,
+        latitude: checkResults.rows[0].road_line_yp
       }
     });
   } else if (centerIdx) {
@@ -315,8 +325,8 @@ export const position = wrap(async (req, res, next) => {
     }
     res.status(200).json({
       location: {
-        nx: checkResults.rows[0].center_line_xp,
-        ny: checkResults.rows[0].center_line_yp
+        longitude: checkResults.rows[0].center_line_xp,
+        latitude: checkResults.rows[0].center_line_yp
       }
     });
   }
