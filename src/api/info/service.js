@@ -68,7 +68,7 @@ export const roadLike = wrap(async (req, res) => {
   const roadName = req.params['roadName'];
   const testRoadName = await pool.query(selectRoadName, [roadName]);
   if (testRoadName.rows.length == 0) {
-    throw new NotFoundError('알맞은 param값이 아님');
+    throw new NotFoundError('알맞은 roadName이 아님');
   }
   // 해당 유저가 해당 길을 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountRoadLike, [userIdx, roadName]);
@@ -96,7 +96,7 @@ export const centerLike = async (req, res) => {
   const centerIdx = req.params['centerIdx'];
   const testCenterIdx = await pool.query(selectCenterIdx, [centerIdx]);
   if (testCenterIdx.rows.length == 0) {
-    throw new NotFoundError('알맞은 param값이 아님');
+    throw new NotFoundError('알맞은 centerIdx값이 아님');
   }
   // 해당 유저가 해당 센터를 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountCenterLike, [userIdx, centerIdx]);
