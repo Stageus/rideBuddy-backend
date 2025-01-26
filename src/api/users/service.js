@@ -266,35 +266,32 @@ export const localCreateToken = wrap(async (req, res) => {
   });
 });
 
+// 비밀번호 변경모달창에서 변경시
 export const changePw = wrap(async (req, res, next) => {
-  let userIdx = req.accountIdx; // 마이페이지에서 비밀번호 변경시 사용
-  console.log('userIdx', userIdx);
-  let userId = req.body.id; // 비밀번호 변경모달창에서 변경시 사용
-  let updateResult;
+  let userId = req.body.id;
   const newPw = req.body.pw;
-
   const hashPw = await bcrypt.hash(newPw, 10);
-  // 라우터를 나누는 기준? 하나의 라우터는 하나의 목적만 가지게 해라
-  // 테스트할때도 두개를 같이 해야하는거고 뻑나고 두개가 같이 해야함.
-  // 심지어 두코드는 겹치는 것도 없음.
-  // 나누기
-  // 마이페이지에서 비밀번호 변경시
-  if (userIdx) {
-    //oAuth로그인시 403 에러
-    const result = await pool.query(selectTokenType, [userIdx]);
-    const token_type = result.rows[0].token_type;
-    if (!(token_type == 'local')) {
-      throw new ForbiddenError('OAuth 로그인은 changePw불가 ');
-    }
 
-    updateResult = await pool.query(updatePwFromIdx, [hashPw, userIdx]);
-  }
   // 비밀번호 변경모달창에서 변경시
-  else if (userId) {
-    updateResult = await pool.query(updatePwFromId, [hashPw, userId]);
-  } else {
-    throw new BadRequestError('id를 받지못함');
+  await pool.query(updatePwFromId, [hashPw, userId]);
+
+  res.status(200).send({});
+});
+
+// 마이페이지에서 비밀번호 변경시
+export const changePwInMypages = wrap(async (req, res) => {
+  const userIdx = req.accountIdx;
+  const newPw = req.body.pw;
+  const hashPw = await bcrypt.hash(newPw, 10);
+
+  //oAuth로그인시 403 에러
+  const result = await pool.query(selectTokenType, [userIdx]);
+  const token_type = result.rows[0].token_type;
+  if (!(token_type == 'local')) {
+    throw new ForbiddenError('OAuth 로그인은 changePw불가 ');
   }
+
+  await pool.query(updatePwFromIdx, [hashPw, userIdx]);
   res.status(200).send({});
 });
 
