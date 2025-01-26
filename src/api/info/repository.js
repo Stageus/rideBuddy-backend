@@ -14,29 +14,31 @@ export const roadByDistance = `
 `;
 
 export const searchData = `
-    (select center_idx as idx, center_name as name, latitude, longitude, center_address as address , 'center_point' as type , calcDistance($3, $4, latitude, longitude) AS cal 
+    (select center_idx as idx, center_name as name, latitude, longitude, center_address as address , 'center_point' as type , calcDistance($3, $4, latitude, longitude) AS distance 
     from project.center 
     where center_name like $1)
     union all
-    (select road_idx as idx, road_name as name, latitude, longitude, road_address as address , road_type as type ,calcDistance($3, $4, latitude, longitude) AS cal 
+    (select road_idx as idx, road_name as name, latitude, longitude, road_address as address , road_type as type ,calcDistance($3, $4, latitude, longitude) AS distance
     from project.road 
     where road_name like $1) 
     order by cal ASC
     limit 20 offset $2;
 `;
 
+export const selectPin = `
+    select *
+    from ((select center_idx as idx, center_name as name, latitude, longitude, center_address as address , 'center_point' as type 
+    from project.center )
+    union all
+    (select road_idx as idx, road_name as name, latitude, longitude, road_address as address , road_type as type 
+    from project.road )) as foo
+    where $1 < latitude AND $2 >latitude AND $3<longitude AND $4 >longitude
+`;
+
 export const insertAddress = `
     UPDATE project.center
     SET center_address = $1
     WHERE center_idx = $2
-`;
-
-export const selectCenters = `
-    SELECT * FROM project.center
-`;
-
-export const selectRoads = `
-    SELECT * FROM project.road
 `;
 
 export const searchCenter = `

@@ -5,8 +5,7 @@ import {
   CenterByDistance,
   roadByDistance,
   searchData,
-  selectCenters,
-  selectRoads,
+  selectPin,
   searchCenter,
   searchRoad,
   insertAccountRoadLike,
@@ -117,41 +116,12 @@ export const centerLike = async (req, res) => {
 };
 
 export const getPin = wrap(async (req, res) => {
-  //1. 지도 좌표경계 좌표를 받는다.
   const { sw, ne } = req.body;
-  // 이거 정규표현식 추가
-  console.log(
-    calcDistance({ longitude: 126.548544, latitude: 37.1686903 }, { longitude: 127.1047839, latitude: 37.634975 })
-  );
-  let centerList = await pool.query(selectCenters);
-  let roadList = await pool.query(selectRoads);
-  centerList = centerList.rows;
-  roadList = roadList.rows;
-  //2. 지도좌표 범위에 맞는 center와 road선별해서 push
-  let result = [];
-  for (let elem of centerList) {
-    if (
-      sw.latitude < elem.latitude &&
-      ne.latitude > elem.latitude &&
-      sw.longitude < elem.longitude &&
-      ne.longitude > elem.longitude
-    ) {
-      result.push(elem);
-    }
-  }
-  for (let elem of roadList) {
-    if (
-      sw.latitude < elem.latitude &&
-      ne.latitude > elem.latitude &&
-      sw.longitude < elem.longitude &&
-      ne.longitude > elem.longitude
-    ) {
-      result.push(elem);
-    }
-  }
+  const result = await pool.query(selectPin, [sw.latitude, ne.latitude, sw.longitude, ne.longitude]);
+  const resultData = result.rows;
 
   res.status(200).send({
-    result
+    resultData
   });
 });
 
