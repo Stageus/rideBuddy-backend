@@ -70,35 +70,20 @@ export const getRoadsLikeList = wrap(async (req, res) => {
   // 회원이 좋아요 한 리스트 출력
   const userIdx = req.accountIdx;
   const page = req.body.page;
-  const roadLike = await pool.query(selectUserRoad, [userIdx]);
+  const roadLike = await pool.query(selectUserRoad, [userIdx, page]);
   const result = roadLike.rows;
-  // 20개씩 출력 -> 여기를 sql로 가능
-  const resultData = push20(page, result);
-  if (resultData.every(isNull)) {
-    res.status(200).send({
-      message: '더 이상 페이지가 존재하지 않습니다.'
-    });
-    return;
-  }
   res.status(200).send({
-    resultData
+    result
   });
 });
 export const getCentersLikeList = wrap(async (req, res) => {
   //회원이 좋아요 한 리스트 출력
   const userIdx = req.accountIdx;
   const page = req.body.page;
-  const centerLike = await pool.query(selectUserCenter, [userIdx]);
+  const centerLike = await pool.query(selectUserCenter, [userIdx, page]);
   const result = centerLike.rows;
-  // 20개씩 출력 -> sql로 바꾸기. off set 추가
-  const resultData = push20(page, result);
-  if (resultData.every(isNull)) {
-    res.status(200).send({
-      message: '더 이상 페이지가 존재하지 않습니다.'
-    });
-    return;
-  }
+
   res.status(200).send({
-    resultData
+    result
   });
 });

@@ -44,17 +44,19 @@ export const deleteImg = `
     WHERE img_idx = $1
 `;
 export const selectUserRoad = `
-    SELECT road_name, line_xp, line_yp 
+    SELECT road_name, latitude, longitude 
     FROM project.road
     WHERE road_type = 'start' AND 
     road_name IN (
     SELECT road_name FROM project.account_road_like
     WHERE account_idx = $1) 
+    limit 20 offset $2 * 20;
 `;
 export const selectUserCenter = `
-    SELECT center_name, line_xp, line_yp 
+    SELECT center_name, latitude, longitude 
     FROM project.center
     WHERE center_idx IN
     (SELECT center_idx FROM project.account_center_like
     WHERE account_idx = $1) 
+    limit 20 offset $2 * 20;
 `;

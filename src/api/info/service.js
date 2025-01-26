@@ -6,8 +6,6 @@ import {
   roadByDistance,
   searchData,
   selectPin,
-  searchCenter,
-  searchRoad,
   insertAccountRoadLike,
   selectAccountRoadLike,
   deleteAccountRoadLike,
