@@ -10,8 +10,7 @@ import {
   selectUserRoad,
   selectUserCenter
 } from './repository.js';
-import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
-import { push20, isNull } from '#utility/pagenation.js';
+
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
   const result = await pool.query(selectLoginType, [userIdx]);
@@ -61,7 +60,7 @@ export const deleteProfile = wrap(async (req, res) => {
   const imgIdx = req.body.img_idx;
 
   // 이젠 개념이 중요. 쿼리문호출, 응답만 하는게 맞아.
-  // 목적가지게 코딩을 해라. .........
+  // ** 목적가지게 코딩을 해라. .........
   const deleteResult = await pool.query(deleteImg, [imgIdx]);
   res.status(200).send({});
 });

@@ -26,7 +26,7 @@ import {
   giveInformationCenterDB
 } from './repository.js';
 
-import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
+import { BadRequestError, NotFoundError } from '#utility/customError.js';
 
 export const getCentersList = wrap(async (req, res) => {
   const { page, longitude, latitude } = req.body;

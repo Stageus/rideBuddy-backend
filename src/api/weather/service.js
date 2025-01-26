@@ -1,8 +1,6 @@
 import axios from 'axios';
-
 import wrap from '#utility/wrapper.js';
 import pool from '#config/postgresql.js';
-
 import { getWeather, getData, selectAirData } from './repository.js';
 
 const weather = wrap(async (req, res) => {

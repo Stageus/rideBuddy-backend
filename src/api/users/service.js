@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import randomNumber from '#utility/randomNumber.js';
 import wrap from '#utility/wrapper.js';
 import { genAccessToken } from '#utility/generateToken.js';
-import { BadRequestError, NotFoundError, ConflictError, ForbiddenError } from '#utility/customError.js';
+import { NotFoundError, ConflictError, ForbiddenError } from '#utility/customError.js';
 import pool from '#config/postgresql.js';
 import {
   checkGoogleId,
@@ -242,9 +242,7 @@ export const localCreateToken = wrap(async (req, res) => {
   const { id, pw } = req.body;
   const saltRounds = 10;
 
-  const pwResults = await pool.query(selectUserPw, [id]); // pw bcrypt돌려가지구 select에 바로 넣으면 되는거.
-  // db의 결과로는 true,/false만 받아온다고 생각하자.
-  // js로 후처리하지말고 다 sql로 하자.
+  const pwResults = await pool.query(selectUserPw, [id]);
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
@@ -266,13 +264,12 @@ export const localCreateToken = wrap(async (req, res) => {
   });
 });
 
-// 비밀번호 변경모달창에서 변경시
+// 비밀번호 변경모달창에서 비밀번호 변경시
 export const changePw = wrap(async (req, res, next) => {
   let userId = req.body.id;
   const newPw = req.body.pw;
   const hashPw = await bcrypt.hash(newPw, 10);
 
-  // 비밀번호 변경모달창에서 변경시
   await pool.query(updatePwFromId, [hashPw, userId]);
 
   res.status(200).send({});
@@ -297,7 +294,7 @@ export const changePwInMypages = wrap(async (req, res) => {
 
 export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
-  // 그림그려놓고 구조에 맞게 돌아가는지 좀 보고,.
+  // ** 그림그려놓고 구조에 맞게 돌아가는지 좀 보고
 
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
