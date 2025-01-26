@@ -2,7 +2,7 @@ import express from 'express'; // 지우기
 import 'dotenv/config';
 import cron from 'node-cron';
 import wrap from './src/utility/wrapper.js';
-import { getWeatherData, deleteWeatherData, airTimeCheck } from './src/service.js';
+import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
 const app = express(); //지우기
 // 반복문을 이렇게 쓰는건 잘못되었음.
 // foreach해서 list만들어서 돌리기.
@@ -33,4 +33,12 @@ for (let i = 0; i < 24; i++) {
   );
 }
 
-airTimeCheck();
+// 2시간에 한번씩 getAirData 호출
+cron.schedule(
+  '0 20 */2 * * *',
+  wrap(async () => {
+    const currentTime = new Date().toString();
+    console.log(`주기적으로 함수 실행중, 현재시각 ${currentTime}`);
+    await getAirData();
+  })
+);

@@ -4,10 +4,8 @@ import wrap from '#utility/wrapper.js';
 import {
   CenterByDistance,
   roadByDistance,
-  selectCenters,
-  selectRoads,
-  searchCenter,
-  searchRoad,
+  searchData,
+  selectPin,
   insertAccountRoadLike,
   selectAccountRoadLike,
   deleteAccountRoadLike,
@@ -28,89 +26,33 @@ import {
   giveInformationCenterDB
 } from './repository.js';
 
-import { BadRequestError, NotFoundError, ForbiddenError } from '#utility/customError.js';
+import { BadRequestError, NotFoundError } from '#utility/customError.js';
 
 export const getCentersList = wrap(async (req, res) => {
-  // 1. 현재 longitude ,latitude, 페이지네이션 오면
   const { page, longitude, latitude } = req.body;
 
-  // 1. sql 문에서 거리계산해서, 가까운 순서대로 정렬한결과값을 page값에 따라 반환받는다.
   const result = await pool.query(CenterByDistance, [page, latitude, longitude]);
   const resultData = result.rows;
-
-  // 에러가 어디로 가는지 확인해야함. wrap
   res.status(200).send({
     resultData
   });
 });
 
 export const getRoadsList = wrap(async (req, res) => {
-  // 1. 현재 longitude ,latitude, 페이지네이션 오면
   const { page, longitude, latitude } = req.body;
-  const result = await pool.query(roadByDistance, [page, latitude, longitude]);
 
-  res.status(200).send({});
+  const result = await pool.query(roadByDistance, [page, latitude, longitude]);
+  const resultData = result.rows;
+  res.status(200).send({
+    resultData
+  });
 });
 
 export const searchEnter = wrap(async (req, res) => {
   const { search, page, longitude, latitude } = req.body;
-  // sql로 짜보자.
 
-  // 1. search LIKE 기준으로 select 한다.
-  const centerList = await pool.query(searchCenter, [`%${search}%`]);
-  const roadList = await pool.query(searchRoad, [`%${search}%`]);
-  let sortedtData = [];
-  let resultObject;
-  let placeLocation;
-  // 현재 위치
-  const currentLocation = {
-    longitude: longitude,
-    latitude: latitude
-  };
-  // 2. 현재위치기준 인증센터와 자전거길 거리 구해서 push
-  for (let list of centerList.rows) {
-    placeLocation = {
-      longitude: list.longitude,
-      latitude: list.latitude
-    };
-    let distance = calcDistance(currentLocation, placeLocation);
-    resultObject = {
-      center_idx: list.center_idx,
-      center_name: list.center_name,
-      center_address: list.center_address,
-      distance: distance
-    };
-    sortedtData.push(resultObject);
-  }
-
-  for (let list of roadList.rows) {
-    placeLocation = {
-      longitude: list.longitude,
-      latitude: list.latitude
-    };
-    let distance = calcDistance(currentLocation, placeLocation);
-    resultObject = {
-      road_idx: list.road_idx,
-      road_name: list.road_name,
-      road_type: list.road_type,
-      road_address: list.road_address,
-      distance: distance
-    };
-    sortedtData.push(resultObject);
-  }
-  // 3. 최종적으로 Push 한거 거리순으로 분류
-  sortedtData.sort(sortCompare);
-
-  // 4. 20개씩 나눠서 전달
-  const resultData = push20(page, sortedtData);
-
-  if (resultData.every(isNull)) {
-    res.status(200).send({
-      message: '더 이상 페이지가 존재하지 않습니다.'
-    });
-    return;
-  }
-
+  const result = await pool.query(searchData, [`%${search}%`, page, latitude, longitude]);
+  const resultData = result.rows;
   res.status(200).send({
     resultData
   });
@@ -121,13 +63,9 @@ export const roadLike = wrap(async (req, res) => {
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
   const userIdx = req.accountIdx;
   const roadName = req.params['roadName'];
-  // roadName param값 안오면 안되고
-  if (!roadName) {
-    throw new BadRequestError('올바른 req값이 아님.');
-  }
   const testRoadName = await pool.query(selectRoadName, [roadName]);
   if (testRoadName.rows.length == 0) {
-    throw new NotFoundError('알맞은 param값이 아님');
+    throw new NotFoundError('알맞은 roadName이 아님');
   }
   // 해당 유저가 해당 길을 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountRoadLike, [userIdx, roadName]);
@@ -153,12 +91,9 @@ export const centerLike = async (req, res) => {
   // 한번 누르면 좋아요 , 다시한 누르면 좋아요 취소
   const userIdx = req.accountIdx;
   const centerIdx = req.params['centerIdx'];
-  if (!centerIdx) {
-    throw new BadRequestError('올바른 req값이 아님.');
-  }
   const testCenterIdx = await pool.query(selectCenterIdx, [centerIdx]);
   if (testCenterIdx.rows.length == 0) {
-    throw new NotFoundError('알맞은 param값이 아님');
+    throw new NotFoundError('알맞은 centerIdx값이 아님');
   }
   // 해당 유저가 해당 센터를 좋아요 했는지 여부
   const likeStatus = await pool.query(selectAccountCenterLike, [userIdx, centerIdx]);
@@ -179,41 +114,12 @@ export const centerLike = async (req, res) => {
 };
 
 export const getPin = wrap(async (req, res) => {
-  //1. 지도 좌표경계 좌표를 받는다.
   const { sw, ne } = req.body;
-  // 이거 정규표현식 추가
-  console.log(
-    calcDistance({ longitude: 126.548544, latitude: 37.1686903 }, { longitude: 127.1047839, latitude: 37.634975 })
-  );
-  let centerList = await pool.query(selectCenters);
-  let roadList = await pool.query(selectRoads);
-  centerList = centerList.rows;
-  roadList = roadList.rows;
-  //2. 지도좌표 범위에 맞는 center와 road선별해서 push
-  let result = [];
-  for (let elem of centerList) {
-    if (
-      sw.latitude < elem.latitude &&
-      ne.latitude > elem.latitude &&
-      sw.longitude < elem.longitude &&
-      ne.longitude > elem.longitude
-    ) {
-      result.push(elem);
-    }
-  }
-  for (let elem of roadList) {
-    if (
-      sw.latitude < elem.latitude &&
-      ne.latitude > elem.latitude &&
-      sw.longitude < elem.longitude &&
-      ne.longitude > elem.longitude
-    ) {
-      result.push(elem);
-    }
-  }
+  const result = await pool.query(selectPin, [sw.latitude, ne.latitude, sw.longitude, ne.longitude]);
+  const resultData = result.rows;
 
   res.status(200).send({
-    result
+    resultData
   });
 });
 

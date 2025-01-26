@@ -13,7 +13,8 @@ import {
   naverLogin,
   naverCreateToken,
   findId,
-  changePw
+  changePw,
+  changePwInMypages
 } from './service.js';
 
 import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
@@ -33,7 +34,7 @@ router.get('/google/callback', googleCreateToken); //완료
 router.get('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
 // prettier-ignore
 router.put('/change-pw',validateRegx([['id', idRegx],['pw', pwRegx]]),checkMailStatus,changePw);
-router.put('/change-pw/mypages', verifyLoginToken, validateRegx([['pw', pwRegx]]), changePw);
+router.put('/change-pw/mypages', verifyLoginToken, validateRegx([['pw', pwRegx]]), changePwInMypages);
 router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId); //완료
 router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail); //완료
 // prettier-ignore
