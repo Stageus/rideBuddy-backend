@@ -1,5 +1,5 @@
 import smtpTransport from '#config/email.js';
-import pool from '#config/postgresql.js';
+import { pool, client } from '#config/postgresql.js';
 import { genMailToken } from '#utility/generateToken.js';
 import { insertMailToken } from '../repository.js';
 

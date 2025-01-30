@@ -1,4 +1,4 @@
-import pool from '#config/postgresql.js';
+import { pool, client } from '#config/postgresql.js';
 import 'dotenv/config';
 import { checkMailToken, checkMailToken_True } from '../repository.js';
 import { UnauthorizedError, ForbiddenError } from '#utility/customError.js';

@@ -1,5 +1,5 @@
 import wrap from '#utility/wrapper.js';
-import pool from '#config/postgresql.js';
+import { pool, client } from '#config/postgresql.js';
 import {
   selectLoginType,
   selectInfo,

@@ -1,4 +1,4 @@
-import logs from '#config/mongodb.js';
+import { logs } from '#config/mongodb.js';
 
 export function logging(req, res, next) {
   const oldSend = res.send;
