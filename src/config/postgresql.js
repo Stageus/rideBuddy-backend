@@ -3,13 +3,13 @@ import 'dotenv/config';
 
 const { Pool } = pg;
 
-const pool = new Pool({
+export const pool = new Pool({
   host: process.env.PG_HOST,
   database: process.env.PG_DATABASE,
   user: process.env.PG_USER,
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
-  max: 10,
+  max: 10
 });
 
-export default pool;
+export const client = await pool.connect();

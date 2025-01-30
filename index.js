@@ -1,15 +1,17 @@
 import express from 'express';
 import path from 'path';
 import 'dotenv/config';
-
+import { logging } from '#middleware/logger.js';
+import { releaseDb } from '#middleware/releaseDb.js';
 const app = express();
 
 app.use(express.json());
+app.use(logging);
 
-const __dirname = path.resolve();
-app.get('/', (req, res) => {
-  res.sendFile(`${__dirname}/src/test/index.html`);
-});
+// const __dirname = path.resolve();
+// app.get('/', (req, res) => {
+//   res.sendFile(`${__dirname}/src/test/index.html`);
+// });
 
 //==============================================================================================================================================================================================
 import userRoute from './src/api/users/route.js';
@@ -21,6 +23,8 @@ app.use('/mypages', mypagesRoute);
 import weatherRoute from './src/api/weather/route.js';
 app.use('/weather', weatherRoute);
 //==============================================================================================================================================================================================
+
+app.use(releaseDb);
 
 app.use((err, req, res, next) => {
   console.log('에러핸들러 실행중', err);

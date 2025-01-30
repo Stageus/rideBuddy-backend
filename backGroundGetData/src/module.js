@@ -104,10 +104,13 @@ export const getAirData = async () => {
       dataTerm: 'DAILY',
       ver: 1.3
     };
-    const airDataQuery = new URLSearchParams(airDataParams).toString();
-    const airDataFetch = await fetch(`${airDataUrl}?${airDataQuery}`);
-    const airDataResult = await airDataFetch.json();
-    const airData = airDataResult.response.body.items[0];
+
+    const airDataAxios = await axios({
+      method: 'get',
+      url: airDataUrl,
+      params: airDataParams
+    });
+    const airData = airDataAxios.data.response.body.items[0];
 
     const pm10value = airData.pm10Value;
     const pm25value = airData.pm25Value;

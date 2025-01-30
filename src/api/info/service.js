@@ -1,4 +1,4 @@
-import pool from '#config/postgresql.js';
+import { pool } from '#config/postgresql.js';
 import wrap from '#utility/wrapper.js';
 
 import {
@@ -33,6 +33,7 @@ export const getCentersList = wrap(async (req, res) => {
 
   const result = await pool.query(CenterByDistance, [page, latitude, longitude]);
   const resultData = result.rows;
+
   res.status(200).send({
     resultData
   });
@@ -43,6 +44,7 @@ export const getRoadsList = wrap(async (req, res) => {
 
   const result = await pool.query(roadByDistance, [page, latitude, longitude]);
   const resultData = result.rows;
+
   res.status(200).send({
     resultData
   });
@@ -53,6 +55,7 @@ export const searchEnter = wrap(async (req, res) => {
 
   const result = await pool.query(searchData, [`%${search}%`, page, latitude, longitude]);
   const resultData = result.rows;
+
   res.status(200).send({
     resultData
   });
@@ -81,6 +84,7 @@ export const roadLike = wrap(async (req, res) => {
   }
 
   const likeCount = await pool.query(selectRoadLikeNum, [roadName]);
+
   res.status(200).send({
     'road likeCount': likeCount.rows[0].road_like
   });
@@ -108,6 +112,7 @@ export const centerLike = async (req, res) => {
   }
 
   const likeCount = await pool.query(selectCenterLikeNum, [centerIdx]);
+
   res.status(200).send({
     'center likeCount': likeCount.rows[0].center_like
   });
