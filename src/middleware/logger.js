@@ -14,7 +14,7 @@ export function logging(req, res, next) {
 
   res.send = async function (data) {
     let resTime = Date.now();
-    const reqResTime = resTime - reqTime;
+    let reqResTime = resTime - reqTime;
     logData.resStatus = res.statusCode;
     logData.reqResTime = reqResTime;
     await logs.insertOne({
