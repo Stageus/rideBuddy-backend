@@ -1,18 +1,21 @@
+import pool from '#config/postgresql.js';
 import 'dotenv/config';
 import { MongoClient } from 'mongodb';
-import wrap from '#utility/wrapper.js';
 const url = `mongodb://localhost:27017`;
 const client = new MongoClient(url);
-const db = client.db(process.env.MONGO_DB_NAME);
-const logs = db.collection(process.env.MONGO_DB_COLLECTION);
+const logs = client.db(process.env.MONGO_DB_NAME).collection(process.env.MONGO_DB_COLLECTION);
 
-const connectDb = wrap(async function () {
-  await client.connect();
-});
+const mongoConnect = async function () {
+  try {
+    await client.connect();
+  } catch (err) {
+    console.log('err');
+  }
+};
 
-connectDb();
+mongoConnect();
 
-export function insertLog(req, res, next) {
+export function logging(req, res, next) {
   const oldSend = res.send;
 
   let reqTime = Date.now();

@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import 'dotenv/config';
-import { insertLog } from '#middleware/logger.js';
+import { logging } from '#middleware/logger.js';
 const app = express();
 
 app.use(express.json());
@@ -11,7 +11,7 @@ app.use(express.json());
 // app.get('/', (req, res) => {
 //   res.sendFile(`${__dirname}/src/test/index.html`);
 // });
-app.use(insertLog);
+app.use(logging);
 //==============================================================================================================================================================================================
 import userRoute from './src/api/users/route.js';
 app.use('/users', userRoute);
