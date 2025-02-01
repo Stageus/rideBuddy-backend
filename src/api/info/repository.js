@@ -14,11 +14,25 @@ export const roadByDistance = `
 `;
 
 export const searchData = `
-    (select center_idx as idx, center_name as name, latitude, longitude, center_address as address , 'center_point' as type , calcDistance($3, $4, latitude, longitude) AS distance 
+    (select 
+        center_idx as idx, 
+        center_name as name, 
+        latitude, 
+        longitude, 
+        center_address as address , 
+        'center_point' as type , 
+        calcDistance($3, $4, latitude, longitude) AS distance 
     from project.center 
     where center_name like $1)
     union all
-    (select road_idx as idx, road_name as name, latitude, longitude, road_address as address , road_type as type ,calcDistance($3, $4, latitude, longitude) AS distance
+    (select 
+        road_idx as idx, 
+        road_name as name, 
+        latitude, 
+        longitude, 
+        road_address as address , 
+        road_type as type ,
+        calcDistance($3, $4, latitude, longitude) AS distance
     from project.road 
     where road_name like $1) 
     order by cal ASC
@@ -27,11 +41,25 @@ export const searchData = `
 
 export const selectPin = `
     select *
-    from ((select center_idx as idx, center_name as name, latitude, longitude, center_address as address , 'center_point' as type 
-    from project.center )
+    from (
+        (select     
+            center_idx as idx, 
+            center_name as name, 
+            latitude, 
+            longitude, 
+            center_address as address , 
+            'center_point' as type 
+        from project.center )
     union all
-    (select road_idx as idx, road_name as name, latitude, longitude, road_address as address , road_type as type 
-    from project.road )) as foo
+        (select 
+            road_idx as idx, 
+            road_name as name, 
+            latitude, 
+            longitude, 
+            road_address as address , 
+            road_type as type 
+        from project.road )
+    ) as foo
     where $1 < latitude AND $2 >latitude AND $3<longitude AND $4 >longitude
 `;
 

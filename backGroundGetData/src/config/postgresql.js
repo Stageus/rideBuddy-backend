@@ -12,4 +12,4 @@ const pool = new Pool({
   max: 10
 });
 
-export default pool;
+export const client = await pool.connect();

@@ -37,6 +37,5 @@ export const userNaverDBCheck = async (naverName, naverId) => {
   // 네이버 식별자 아이디에 해당하는 account_idx 가져오기
   const idxResults = await pool.query(selectNaverAccountIdx, [userAuthId]);
   const DbAccountIdx = idxResults.rows[0].account_idx;
-  console.log('dbAccountIdx', DbAccountIdx);
   return DbAccountIdx;
 };

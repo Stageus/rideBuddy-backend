@@ -294,7 +294,6 @@ export const changePwInMypages = wrap(async (req, res) => {
 
 export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
-  // ** 그림그려놓고 구조에 맞게 돌아가는지 좀 보고
 
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];
