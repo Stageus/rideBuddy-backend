@@ -7,7 +7,7 @@ import randomNumber from '#utility/randomNumber.js';
 import wrap from '#utility/wrapper.js';
 import { genAccessToken } from '#utility/generateToken.js';
 import { NotFoundError, ConflictError, ForbiddenError } from '#utility/customError.js';
-import { pool, client } from '#config/postgresql.js';
+import { pool } from '#config/postgresql.js';
 import {
   checkGoogleId,
   selectGoogleAccountIdx,
@@ -86,7 +86,7 @@ export const googleCreateToken = wrap(async (req, res) => {
   const accessToken = genAccessToken(DbAccountIdx);
 
   // 프론트 전달
-  res.status(200).json({
+  res.status(200).send({
     access_token: accessToken,
     OAuth: true
   });
@@ -232,7 +232,7 @@ export const naverCreateToken = wrap(async (req, res) => {
 
   const accessToken = genAccessToken(DbAccountIdx);
   // 프론트 전달
-  res.status(200).json({
+  res.status(200).send({
     access_token: accessToken,
     OAuth: true
   });
@@ -259,7 +259,7 @@ export const localCreateToken = wrap(async (req, res) => {
   const accessToken = genAccessToken(account_idx);
 
   // 프론트 전달
-  res.status(200).json({
+  res.status(200).send({
     access_token: accessToken
   });
 });
@@ -294,7 +294,6 @@ export const changePwInMypages = wrap(async (req, res) => {
 
 export const findId = wrap(async (req, res) => {
   const { name, mail } = req.body;
-  // ** 그림그려놓고 구조에 맞게 돌아가는지 좀 보고
 
   const result = await pool.query(findAccountId, [name, mail]);
   const accountId = result.rows[0];

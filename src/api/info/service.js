@@ -134,7 +134,7 @@ export const giveInformationRoad = wrap(async (req, res, next) => {
   if (roadResults.rows.length == 0) {
     return next(new NotFoundError('roadIdx가 유효하지 않음.'));
   }
-  res.status(200).json({
+  res.status(200).send({
     roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
     roads_idx: roadIdx,
     roads_name: roadResults.rows[0].road_name,
@@ -149,7 +149,7 @@ export const giveInformationCenter = wrap(async (req, res, next) => {
   if (centerResults.rows.length == 0) {
     return next(new NotFoundError('centerIdx가 유효하지 않음.'));
   }
-  res.status(200).json({
+  res.status(200).send({
     centers_lat_lng: [centerResults.rows[0].longitude, centerResults.rows[0].latitude],
     centers_idx: centerIdx,
     centers_name: centerResults.rows[0].center_name,
@@ -184,7 +184,7 @@ export const search = wrap(async (req, res, next) => {
     }
   }
 
-  res.status(200).json({ Data: Data });
+  res.status(200).send({ Data: Data });
 });
 
 export const position = wrap(async (req, res, next) => {
@@ -195,7 +195,7 @@ export const position = wrap(async (req, res, next) => {
     if (checkResults.rows.length == 0) {
       return next(new NotFoundError('roadIdx가 유효하지 않음.'));
     }
-    res.status(200).json({
+    res.status(200).send({
       location: {
         longitude: checkResults.rows[0].longitude,
         latitude: checkResults.rows[0].latitude
@@ -206,7 +206,7 @@ export const position = wrap(async (req, res, next) => {
     if (checkResults.rows.length == 0) {
       return next(new NotFoundError('centerIdx가 유효하지 않음.'));
     }
-    res.status(200).json({
+    res.status(200).send({
       location: {
         longitude: checkResults.rows[0].longitude,
         latitude: checkResults.rows[0].latitude

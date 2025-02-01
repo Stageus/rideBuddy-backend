@@ -18,9 +18,13 @@ export function logging(req, res, next) {
 
     logData.resStatus = res.statusCode;
     logData.reqResTime = reqResTime;
-    await logs.insertOne({
-      logData
-    });
+    try {
+      await logs.insertOne({
+        logData
+      });
+    } catch (err) {
+      next(err);
+    }
     oldSend.call(this, data);
   };
 
