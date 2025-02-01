@@ -20,7 +20,7 @@ export function logging(req, res, next) {
     logData.reqResTime = reqResTime;
     try {
       await logs.insertOne({
-        logDatas
+        logData
       });
     } catch (err) {
       next(err);

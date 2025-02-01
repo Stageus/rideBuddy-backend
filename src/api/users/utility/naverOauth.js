@@ -1,10 +1,10 @@
 import { checkNaverId, insertNaverId, selectNaverAccountIdx } from '../repository.js';
-
+import wrap from '#utility/wrapper.js';
 import axios from 'axios';
-import { pool, client } from '#config/postgresql.js';
+import { pool } from '#config/postgresql.js';
 
 // 네이버 액세스토큰으로 식별자 얻기
-export const userNaverProfile = async (naverAccessToken) => {
+export const userNaverProfile = wrap(async (naverAccessToken) => {
   const identifierURL = `https://openapi.naver.com/v1/nid/me?`;
 
   const personalInfo = await axios({
@@ -19,10 +19,10 @@ export const userNaverProfile = async (naverAccessToken) => {
 
   const DbAccountIdx = await userNaverDBCheck(naverName, naverId);
   return DbAccountIdx;
-};
+});
 
 // 네이버 식별자 데이터 베이스에 저장 or 확인
-export const userNaverDBCheck = async (naverName, naverId) => {
+export const userNaverDBCheck = wrap(async (naverName, naverId) => {
   const userName = naverName;
   const userAuthId = naverId;
 
@@ -38,4 +38,4 @@ export const userNaverDBCheck = async (naverName, naverId) => {
   const idxResults = await pool.query(selectNaverAccountIdx, [userAuthId]);
   const DbAccountIdx = idxResults.rows[0].account_idx;
   return DbAccountIdx;
-};
+});

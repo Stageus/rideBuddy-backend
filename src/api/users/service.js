@@ -7,7 +7,7 @@ import randomNumber from '#utility/randomNumber.js';
 import wrap from '#utility/wrapper.js';
 import { genAccessToken } from '#utility/generateToken.js';
 import { NotFoundError, ConflictError, ForbiddenError } from '#utility/customError.js';
-import { pool, client } from '#config/postgresql.js';
+import { pool } from '#config/postgresql.js';
 import {
   checkGoogleId,
   selectGoogleAccountIdx,
