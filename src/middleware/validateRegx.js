@@ -5,18 +5,24 @@ export const validateRegx = (params) => {
     for (let param of params) {
       let key = param[0];
       let regx = param[1];
-      let value = req.body[key] || req.query[key] || req.params[key];
-      // getPin일 경우만 해당됨
-      if (!value) {
-        value = req.body.sw[key];
-        if (!value) {
-          value = req.body.ne[key];
+      let value = [];
+      let regxResult;
+
+      if (req.body.sw) {
+        // /info/pin 일때만 동작
+        value.push(req.body.sw[key]);
+        value.push(req.body.ne[key]);
+      } else {
+        // 그외 api 일때 동작
+        value.push(req.body[key] || req.query[key] || req.params[key]);
+      }
+
+      value.forEach((elem) => {
+        regxResult = elem === undefined ? regxResult === false : regx.test(elem);
+        if (!regxResult) {
+          throw new BadRequestError(`${key}에서 정규표현식 에러`);
         }
-      }
-      const result = regx.test(value);
-      if (!result) {
-        throw new BadRequestError(`${key}에서 정규표현식 에러`);
-      }
+      });
     }
     next();
   });
