@@ -1,7 +1,7 @@
 export const CenterByDistance = `
    SELECT center_idx, center_name, center_address, centerlist.cal 
    FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
-   FROM project.center) AS centerlists
+   FROM project.center) AS centerlist
    ORDER BY centerlist.cal ASC
    LIMIT 20 offset $1 * 20;
 `;
@@ -35,7 +35,7 @@ export const searchData = `
         calcDistance($3, $4, latitude, longitude) AS distance
     from project.road 
     where road_name like $1) 
-    order by cal ASC
+    order by distance ASC
     limit 20 offset $2*20;
 `;
 
