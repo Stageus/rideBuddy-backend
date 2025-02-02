@@ -1,7 +1,15 @@
 import wrap from '#utility/wrapper.js';
-import pool from '#config/postgresql.js';
-import { selectLoginType, selectInfo, selectProfile, insertProfile, selectHistory, deleteImg } from './repository.js';
-// 예외처리 아직 안함.
+import { pool, client } from '#config/postgresql.js';
+import {
+  selectLoginType,
+  selectInfo,
+  selectProfile,
+  insertProfile,
+  selectHistory,
+  deleteImg,
+  selectUserRoad,
+  selectUserCenter
+} from './repository.js';
 
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
@@ -50,6 +58,29 @@ export const getMyProfile = wrap(async (req, res) => {
 
 export const deleteProfile = wrap(async (req, res) => {
   const imgIdx = req.body.img_idx;
+
   const deleteResult = await pool.query(deleteImg, [imgIdx]);
   res.status(200).send({});
+});
+
+export const getRoadsLikeList = wrap(async (req, res) => {
+  // 회원이 좋아요 한 리스트 출력
+  const userIdx = req.accountIdx;
+  const page = req.body.page;
+  const roadLike = await pool.query(selectUserRoad, [userIdx, page]);
+  const result = roadLike.rows;
+  res.status(200).send({
+    result
+  });
+});
+export const getCentersLikeList = wrap(async (req, res) => {
+  //회원이 좋아요 한 리스트 출력
+  const userIdx = req.accountIdx;
+  const page = req.body.page;
+  const centerLike = await pool.query(selectUserCenter, [userIdx, page]);
+  const result = centerLike.rows;
+
+  res.status(200).send({
+    result
+  });
 });

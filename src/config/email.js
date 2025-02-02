@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 const smtpTransport = nodemailer.createTransport({
   pool: true,
-  maxConnections: 1,
+  maxConnections: 3,
   service: 'naver',
   host: 'smpt.naver.com',
   port: 587,
@@ -10,11 +10,11 @@ const smtpTransport = nodemailer.createTransport({
   requireTLS: true,
   auth: {
     user: process.env.MAIL_ID,
-    pass: process.env.MAIL_PW,
+    pass: process.env.MAIL_PW
   },
   tls: {
-    rejectUnauthorized: false,
-  },
+    rejectUnauthorized: false
+  }
 });
 
 export default smtpTransport;

@@ -1,15 +1,21 @@
 import axios from 'axios';
-import { getWeather, getData } from './repository.js';
-import pool from '#config/postgresql.js';
+import wrap from '#utility/wrapper.js';
+import { pool } from '#config/postgresql.js';
+import { getWeather, getData, selectAirData } from './repository.js';
 
-const weather = async (req, res) => {
-  const nx = req.body.nx;
-  const ny = req.body.ny;
-  console.log('weather 실행중');
-  console.log('nx : ', nx);
-  console.log('ny : ', ny);
+const weather = wrap(async (req, res) => {
+  const latitude = req.body.latitude; // 37~
+  const longitude = req.body.longitude; // 126~
 
-  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${nx},${ny}&output=JSON`;
+  console.log('latitude', latitude);
+  console.log('longitude', longitude);
+
+  var data = {};
+  const currentTime = new Date();
+  var hours = currentTime.getHours();
+
+  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${latitude},${longitude}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
+
   const response = await axios({
     url: url,
     method: 'GET',
@@ -19,56 +25,44 @@ const weather = async (req, res) => {
     }
   });
 
-  // 미세먼지용 법정동
+  // ============================여기까지가 시간 설정 + reversegeocode ==========================================================
+
+  // reversegeocode 로부터 한글 위치 추출
   const legalSido = response.data.results[1].region.area1.name;
   const legalDong = response.data.results[1].region.area3.name;
+  const legalSigungu = response.data.results[1].region.area2.name;
 
-  // results[0]은 행정동이고 results[1]은 법정동이라서 내거는 법정동으로 했어
-  // 태준이 너도 고민해보고 맞는걸로 해
+  //해당 하는 idx 값 추출 (웨더)
 
-  const results = response.data.results;
+  const weatherResult = await pool.query(getWeather, [legalSido, legalSigungu.replace(/ /g, '')]);
+  const region_idx = weatherResult.rows[0]['region_idx'];
 
-  const area1 = results[0].region.area1.name;
-  const area2 = results[0].region.area2.name;
-
-  const weatherResult = await pool.query(getWeather, [area1, area2.replace(/ /g, '')]);
-  console.log(area1, area2);
-  const getResult = await pool.query(getData, [weatherResult.rows[0]['region_idx']]);
-
-  console.log(getResult.rows[0]['time']);
-  console.log(getResult.rows[0]['weather']);
-  console.log(getResult.rows[0]['temperature']);
-  console.log(getResult.rows[0]['rain']);
-
-  const data = {
-    weather: getResult.rows[0]['weather'],
-    temperature: getResult.rows[0]['temperature'],
-    nowrain: getResult.rows[0]['rain']
-  };
-
-  // 미세먼지 부분
+  // ===================================미세먼지 부분==========================================================
   const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
   const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
 
-  //1. fetch로 사용자 위치(법정동)에 대한 TM 기준좌표 조회
+  //1. 사용자 위치(법정동)에 대한 TM 기준좌표 조회
   const TMurl = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt';
   const TMParams = {
     serviceKey: decodingServiceKey,
     umdName: legalDong,
     returnType: 'json'
   };
-  const TMQuery = new URLSearchParams(TMParams).toString();
+
   let tmX, tmY;
-  const TMFetch = await fetch(`${TMurl}?${TMQuery}`);
-  const TMResult = await TMFetch.json();
+  const TMaxios = await axios({
+    method: 'get',
+    url: TMurl,
+    params: TMParams
+  });
+
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
-  for (let array of TMResult.response.body.items) {
+  for (let array of TMaxios.data.response.body.items) {
     if (array.sidoName == legalSido) {
       tmX = array.tmX;
       tmY = array.tmY;
     }
   }
-
   //2. TM좌표 기준 가장 근접한 측정소 조회
   const nearStaionUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList`;
   const nearStationParams = {
@@ -77,18 +71,41 @@ const weather = async (req, res) => {
     tmX: tmX,
     tmY: tmY
   };
-  const nearStationQuery = new URLSearchParams(nearStationParams).toString();
-  const nearStationFetch = await fetch(`${nearStaionUrl}?${nearStationQuery}`);
-  const nearStationResult = await nearStationFetch.json();
-  const stationName = nearStationResult.response.body.items[0].stationName;
+  const nearStationAxios = await axios({
+    method: 'get',
+    url: nearStaionUrl,
+    params: nearStationParams
+  });
 
-  //3. 측정소에 해당하는 값 불러오기
+  const stationName = nearStationAxios.data.response.body.items[0].stationName;
 
-  // 여기서부터는 Pm2 필요
+  // 3. 측정소에 해당하는 값 불러오기
+  const airData = await pool.query(selectAirData, [stationName]);
+  data = {
+    stationName: airData.rows[0].station_name,
+    pm10Value: airData.rows[0].pm10value,
+    pm25Value: airData.rows[0].pm25value,
+    pm10Grade1h: airData.rows[0].pm10grade1h,
+    pm25Grade1h: airData.rows[0].pm25grade1h,
+    dateTime: airData.rows[0].survey_date_time.toString()
+  };
+  // ===================================웨더 부분==========================================================
 
-  // 일단 pm2 사용법은 안다.
-  //
-  res.status(200).send({});
-};
+  for (let i = 0; i <= 4; i++) {
+    if (hours + i >= 24) {
+      formHours = hours + i - 24 + '00';
+    } else {
+      var formHours = hours + i + '00';
+    }
+
+    const getResult = await pool.query(getData, [region_idx, formHours]);
+    console.log('getResult', getResult.rows);
+    data[`${i}_rain`] = getResult.rows[0]['rain'];
+    data[`${i}_weather`] = getResult.rows[0]['weather'];
+    data[`${i}_temperature`] = getResult.rows[0]['temperature'];
+  }
+
+  res.status(200).send(data);
+});
 
 export default weather;
