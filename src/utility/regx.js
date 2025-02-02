@@ -5,3 +5,4 @@ export const mailRegx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,30}$/; //
 export const codeRegx = /^[0-9]{6}$/; //필수값, 6글자 고정, 숫자제한
 export const longitudeRegx = /^(12[4-9]|13[0-2])(\.\d+)?$/; // 경도
 export const latitudeRegx = /^(3[3-9]|4[0-3])(\.\d+)?$/; // 위도
+export const pageRegx = /^\d+$/; // 페이지

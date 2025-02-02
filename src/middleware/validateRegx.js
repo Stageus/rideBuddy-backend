@@ -14,7 +14,7 @@ export const validateRegx = (params) => {
         value.push(req.body.ne[key]);
       } else {
         // 그외 api 일때 동작
-        value.push(req.body[key] || req.query[key] || req.params[key]);
+        value.push(req.body[key] ?? req.query[key] ?? req.params[key]);
       }
 
       value.forEach((elem) => {

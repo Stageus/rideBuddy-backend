@@ -129,6 +129,7 @@ export const getAirData = async () => {
     }
   } catch (err) {
     console.error('getAirData에서 에러발생');
+    console.log(err);
   }
 };
 

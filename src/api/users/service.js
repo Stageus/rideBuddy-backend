@@ -122,18 +122,20 @@ export const register = wrap(async (req, res, next) => {
 
   const checkResultsId = await pool.query(checkDuplicateId, [id]);
   if (checkResultsId.rows.length > 0) {
-    throw new ConflictError('이미 사용중인 id');
+    throw new NotFoundError('이미 사용중인 id');
   }
 
   const checkResultsMail = await pool.query(checkDuplicateMail, [mail]);
   if (checkResultsMail.rows.length > 0) {
     throw new ConflictError('이미 사용중인 mail');
   }
+  //해쉬 암호화 하기
+  const hashPw = await bcrypt.hash(pw, 10);
 
   // token 여부 확인 후
 
   //db에 값 넣기기
-  await pool.query(registerdb, [id, account_name, pw, mail]);
+  await pool.query(registerdb, [id, account_name, hashPw, mail, 'local']);
   res.status(200).send({});
 });
 
@@ -228,8 +230,9 @@ export const naverCreateToken = wrap(async (req, res) => {
 
   const response = await axios.get(tokenUrl);
   const naverAccessToken = response.data.access_token;
+  console.log('naverAccess', naverAccessToken);
   const DbAccountIdx = await userNaverProfile(naverAccessToken);
-
+  console.log('dbaccountIdx', DbAccountIdx);
   const accessToken = genAccessToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).send({
@@ -243,6 +246,9 @@ export const localCreateToken = wrap(async (req, res) => {
   const saltRounds = 10;
 
   const pwResults = await pool.query(selectUserPw, [id]);
+  if (!pwResults.rows[0]) {
+    throw new NotFoundError('해당하는 id가 없습니다.');
+  }
   const pwHash = pwResults.rows[0].pw;
 
   //db의 pw와 userPw가 같은지 검증한다.
@@ -300,8 +306,6 @@ export const findId = wrap(async (req, res) => {
   if (result.rows.length == 0) {
     throw new NotFoundError('해당하는 id를 찾을 수 없음.');
   } else {
-    res.status(200).send({
-      account_id: accountId
-    });
+    res.status(200).send(accountId);
   }
 });

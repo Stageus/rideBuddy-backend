@@ -7,9 +7,11 @@ import {
   insertProfile,
   selectHistory,
   deleteImg,
+  beforeDeleteImg,
   selectUserRoad,
   selectUserCenter
 } from './repository.js';
+import { BadRequestError, ForbiddenError } from '#utility/customError.js';
 
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
@@ -40,6 +42,9 @@ export const getMyInfo = wrap(async (req, res) => {
 // 프로필 사진 업로드
 export const uploadProfile = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
+  if (!req.file) {
+    throw new BadRequestError('첨부된 파일이 없음');
+  }
   const fileURL = req.file.location;
   await pool.query(insertProfile, [userIdx, fileURL]);
 
@@ -58,8 +63,14 @@ export const getMyProfile = wrap(async (req, res) => {
 
 export const deleteProfile = wrap(async (req, res) => {
   const imgIdx = req.body.img_idx;
+  const userIdx = req.accountIdx;
 
-  const deleteResult = await pool.query(deleteImg, [imgIdx]);
+  const results = await pool.query(beforeDeleteImg, [imgIdx, userIdx]);
+  if (results.rows.length == 0) {
+    throw new ForbiddenError('지울권한이 없음.');
+  }
+
+  const deleteResult = await pool.query(deleteImg, [imgIdx, userIdx]);
   res.status(200).send({});
 });
 

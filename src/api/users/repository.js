@@ -21,8 +21,8 @@ export const checkDuplicateId = `
 `;
 
 export const registerdb = `
-    INSERT INTO project.account (id,account_name,pw,mail) 
-    VALUES ($1,$2,$3,$4);
+    INSERT INTO project.account (id,account_name,pw,mail,token_type) 
+    VALUES ($1,$2,$3,$4,$5);
 `;
 
 export const checkDuplicateMail = `

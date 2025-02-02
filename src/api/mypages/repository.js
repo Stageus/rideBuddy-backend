@@ -39,9 +39,14 @@ export const selectHistory = `
     ORDER BY created_at DESC
 `;
 
+export const beforeDeleteImg = `
+    SELECT * FROM project.profile_img
+    WHERE img_idx = $1 AND account_idx = $2;
+`;
+
 export const deleteImg = `
     DELETE FROM project.profile_img
-    WHERE img_idx = $1
+    WHERE img_idx = $1 AND account_idx = $2;
 `;
 export const selectUserRoad = `
     SELECT road_name, latitude, longitude 
