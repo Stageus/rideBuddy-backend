@@ -8,6 +8,7 @@ import wrap from '#utility/wrapper.js';
 import { genAccessToken } from '#utility/generateToken.js';
 import { NotFoundError, ConflictError, ForbiddenError } from '#utility/customError.js';
 import { pool } from '#config/postgresql.js';
+import { verifyJWT } from '#utility/verifyJWT.js';
 import {
   checkGoogleId,
   selectGoogleAccountIdx,
@@ -97,7 +98,7 @@ export const duplicateId = wrap(async (req, res, next) => {
   const id = req.body.id;
   const checkResults = await pool.query(checkDuplicateId, [id]);
   if (checkResults.rows.length > 0) {
-    return next(new ConflictError('이미 사용중인 id'));
+    throw new ConflictError('이미 사용중인 id');
   }
   res.status(200).send({});
 });
@@ -107,7 +108,7 @@ export const duplicateMail = wrap(async (req, res, next) => {
   const mail = req.body.mail;
   const checkResults = await pool.query(checkDuplicateMail, [mail]);
   if (checkResults.rows.length > 0) {
-    return next(new ConflictError('이미 사용중인 mail'));
+    throw new ConflictError('이미 사용중인 mail');
   }
   res.status(200).send({});
 });
@@ -136,13 +137,14 @@ export const register = wrap(async (req, res, next) => {
 
   //db에 값 넣기기
   await pool.query(registerdb, [id, account_name, hashPw, mail, 'local']);
+
   res.status(200).send({});
 });
 
 export const mailSendRegister = wrap(async (req, res, next) => {
-  var number = randomNumber();
+  const number = randomNumber();
   const mail = req.body.mail;
-  sendMailUtil(number, mail, res);
+  await sendMailUtil(number, mail, res);
 });
 
 export const mailSendChangePw = wrap(async (req, res, next) => {
@@ -152,10 +154,10 @@ export const mailSendChangePw = wrap(async (req, res, next) => {
   //id 와 email 일치 여부 확인
   const correctResult = await pool.query(correctaccount, [id, mail]);
   if (correctResult.rows.length == 0) {
-    return next(new NotFoundError('해당하는 계정이 없음.'));
+    throw new NotFoundError('해당하는 계정이 없음.');
   }
 
-  sendMailUtil(number, mail, res);
+  await sendMailUtil(number, mail, res);
 });
 
 export const mailCheck = wrap(async (req, res, next) => {
@@ -166,7 +168,7 @@ export const mailCheck = wrap(async (req, res, next) => {
 
   const correctResult = await pool.query(mailVerifyDB, [mail_token, code]);
   if (correctResult.rows.length == 0) {
-    return next(new NotFoundError('메일, 인증코드와 일치하는 데이터 없음.')); // 제한시간이 넘어갔다는건 verifymailToken에서 해주는 것임.
+    throw new NotFoundError('메일, 인증코드와 일치하는 데이터 없음.'); // 제한시간이 넘어갔다는건 verifymailToken에서 해주는 것임.
   }
   //true 로 바꾸기
   console.log('mailCheck 통과중2');
@@ -186,16 +188,15 @@ export const verifyToken = (token, secret) => {
 // verifyJWT로 코드 고치기
 
 export const deleteuser = wrap(async (req, res, next) => {
-  //올바른 jwt 토큰인지 확인
+  //access token 추출하기
   const accessToken = req.headers.authorization.split(' ')[1];
-  try {
-    // try-catch 필요없음. wrap으로 감싸져 있으니까
-    const decoded = jwt.verify(accessToken, process.env.JWT_ACCESSTOKEN_SECRET);
-    const idx = decoded.accountIdx;
-    await pool.query(deleteaccount, [idx]);
-  } catch (error) {
-    throw new Error(error);
-  }
+
+  //verifyJWT 를 통해서 idx 추출하기
+  const result = verifyJWT('access', accessToken);
+  const idx = result.accountIdx;
+  //해당 idx 삭제하기
+  await pool.query(deleteaccount, [idx]);
+
   return res.status(200).send({});
 });
 

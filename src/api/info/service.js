@@ -23,7 +23,10 @@ import {
   givePositionRoad,
   givePositionCenter,
   giveInformationRoadDB,
-  giveInformationCenterDB
+  giveInformationCenterDB,
+  road_like,
+  searchRoad,
+  searchCenter
 } from './repository.js';
 
 import { BadRequestError, NotFoundError } from '#utility/customError.js';
@@ -84,7 +87,6 @@ export const roadLike = wrap(async (req, res) => {
   }
 
   const likeCount = await pool.query(selectRoadLikeNum, [roadName]);
-
   res.status(200).send({
     'road likeCount': likeCount.rows[0].road_like
   });
@@ -112,7 +114,6 @@ export const centerLike = async (req, res) => {
   }
 
   const likeCount = await pool.query(selectCenterLikeNum, [centerIdx]);
-
   res.status(200).send({
     'center likeCount': likeCount.rows[0].center_like
   });
@@ -134,12 +135,14 @@ export const giveInformationRoad = wrap(async (req, res, next) => {
   if (roadResults.rows.length == 0) {
     return next(new NotFoundError('roadIdx가 유효하지 않음.'));
   }
+  const roadLikeResults = await pool.query(road_like, [roadResults.rows[0].road_name]);
+
   res.status(200).send({
     roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
     roads_idx: roadIdx,
     roads_name: roadResults.rows[0].road_name,
     roads_address: roadResults.rows[0].road_address,
-    road_likeCount: roadResults.rows[0].road_like
+    road_likeCount: roadLikeResults.rows[0].road_like
   });
 });
 
@@ -170,7 +173,7 @@ export const search = wrap(async (req, res, next) => {
 
   var centerCount = centerResults.rows.length;
   var roadCount = RoadResults.rows.length;
-
+  2;
   if (centerCount <= 20) {
     for (let i = 0; i < centerCount; i++) {
       Data[i + 1] = centerResults.rows[i].center_name;

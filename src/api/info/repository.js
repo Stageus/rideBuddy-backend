@@ -135,7 +135,7 @@ export const selectCenterLikeNum = `
 `;
 
 export const giveInformationRoadDB = `
-    SELECT road_name, latitude, longitude, road_address, road_like FROM project.road
+    SELECT road_name, latitude, longitude, road_address FROM project.road
     WHERE road_idx = $1;
 `;
 
@@ -152,4 +152,18 @@ export const givePositionRoad = `
 export const givePositionCenter = `
     SELECT latitude, longitude FROM project.center
     WHERE center_idx = $1;
+`;
+
+export const road_like = `
+    SELECT rl.road_like
+FROM project.road r
+INNER JOIN project.road_like_count rl ON r.road_name = rl.road_name
+WHERE r.road_name = $1;
+`;
+
+export const searchRoad = `
+SELECT road_name FROM project.road WHERE road_name LIKE $1 LIMIT 20;
+`;
+export const searchCenter = `
+SELECT center_name FROM project.center WHERE center_name LIKE $1 LIMIT 20;
 `;

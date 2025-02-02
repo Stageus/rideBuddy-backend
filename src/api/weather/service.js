@@ -7,11 +7,14 @@ const weather = wrap(async (req, res) => {
   const latitude = req.body.latitude; // 37~
   const longitude = req.body.longitude; // 126~
 
+  console.log('latitude', latitude);
+  console.log('longitude', longitude);
+
   var data = {};
   const currentTime = new Date();
   var hours = currentTime.getHours();
 
-  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${longitude},${latitude}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
+  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${latitude},${longitude}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
 
   const response = await axios({
     url: url,
