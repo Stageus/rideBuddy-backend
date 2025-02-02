@@ -1,19 +1,20 @@
 import axios from 'axios';
-
 import wrap from '#utility/wrapper.js';
-import pool from '#config/postgresql.js';
-
+import { pool } from '#config/postgresql.js';
 import { getWeather, getData, selectAirData } from './repository.js';
 
 const weather = wrap(async (req, res) => {
-  const nx = req.body.nx; // 37~
-  const ny = req.body.ny; // 126~
+  const latitude = req.body.latitude; // 37~
+  const longitude = req.body.longitude; // 126~
+
+  console.log('latitude', latitude);
+  console.log('longitude', longitude);
 
   var data = {};
   const currentTime = new Date();
   var hours = currentTime.getHours();
 
-  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${nx},${ny}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
+  const url = `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?request=coordsToaddr&coords=${latitude},${longitude}&sourcecrs=epsg:4326&orders=admcode,legalcode,addr,roadaddr&output=JSON`;
 
   const response = await axios({
     url: url,
@@ -40,25 +41,28 @@ const weather = wrap(async (req, res) => {
   const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
   const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
 
-  //1. fetch로 사용자 위치(법정동)에 대한 TM 기준좌표 조회
+  //1. 사용자 위치(법정동)에 대한 TM 기준좌표 조회
   const TMurl = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt';
   const TMParams = {
     serviceKey: decodingServiceKey,
     umdName: legalDong,
     returnType: 'json'
   };
-  const TMQuery = new URLSearchParams(TMParams).toString();
+
   let tmX, tmY;
-  const TMFetch = await fetch(`${TMurl}?${TMQuery}`);
-  const TMResult = await TMFetch.json();
+  const TMaxios = await axios({
+    method: 'get',
+    url: TMurl,
+    params: TMParams
+  });
+
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
-  for (let array of TMResult.response.body.items) {
+  for (let array of TMaxios.data.response.body.items) {
     if (array.sidoName == legalSido) {
       tmX = array.tmX;
       tmY = array.tmY;
     }
   }
-
   //2. TM좌표 기준 가장 근접한 측정소 조회
   const nearStaionUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList`;
   const nearStationParams = {
@@ -67,10 +71,13 @@ const weather = wrap(async (req, res) => {
     tmX: tmX,
     tmY: tmY
   };
-  const nearStationQuery = new URLSearchParams(nearStationParams).toString();
-  const nearStationFetch = await fetch(`${nearStaionUrl}?${nearStationQuery}`);
-  const nearStationResult = await nearStationFetch.json();
-  const stationName = nearStationResult.response.body.items[0].stationName;
+  const nearStationAxios = await axios({
+    method: 'get',
+    url: nearStaionUrl,
+    params: nearStationParams
+  });
+
+  const stationName = nearStationAxios.data.response.body.items[0].stationName;
 
   // 3. 측정소에 해당하는 값 불러오기
   const airData = await pool.query(selectAirData, [stationName]);
@@ -92,7 +99,7 @@ const weather = wrap(async (req, res) => {
     }
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
-
+    console.log('getResult', getResult.rows);
     data[`${i}_rain`] = getResult.rows[0]['rain'];
     data[`${i}_weather`] = getResult.rows[0]['weather'];
     data[`${i}_temperature`] = getResult.rows[0]['temperature'];

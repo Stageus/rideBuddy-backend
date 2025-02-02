@@ -1,35 +1,72 @@
-export const selectXp = `
-    SELECT line_xp FROM project.center
-    WHERE center_idx = $1
+export const CenterByDistance = `
+   SELECT center_idx, center_name, center_address, centerlist.cal 
+   FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
+   FROM project.center) AS centerlists
+   ORDER BY centerlist.cal ASC
+   LIMIT 20 offset $1 * 20;
+`;
+export const roadByDistance = `
+   SELECT road_idx,road_name,road_type,road_address,roadlist.cal 
+   FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
+   FROM project.road) AS roadlist
+   ORDER BY roadlist.cal ASC
+   LIMIT 20 offset $1 * 20;
 `;
 
-export const selectYp = `
-    SELECT line_yp FROM project.center
-    WHERE center_idx = $1
+export const searchData = `
+    (select 
+        center_idx as idx, 
+        center_name as name, 
+        latitude, 
+        longitude, 
+        center_address as address , 
+        'center_point' as type , 
+        calcDistance($3, $4, latitude, longitude) AS distance 
+    from project.center 
+    where center_name like $1)
+    union all
+    (select 
+        road_idx as idx, 
+        road_name as name, 
+        latitude, 
+        longitude, 
+        road_address as address , 
+        road_type as type ,
+        calcDistance($3, $4, latitude, longitude) AS distance
+    from project.road 
+    where road_name like $1) 
+    order by cal ASC
+    limit 20 offset $2*20;
+`;
+
+export const selectPin = `
+    select *
+    from (
+        (select     
+            center_idx as idx, 
+            center_name as name, 
+            latitude, 
+            longitude, 
+            center_address as address , 
+            'center_point' as type 
+        from project.center )
+    union all
+        (select 
+            road_idx as idx, 
+            road_name as name, 
+            latitude, 
+            longitude, 
+            road_address as address , 
+            road_type as type 
+        from project.road )
+    ) as foo
+    where $1 < latitude AND $2 >latitude AND $3<longitude AND $4 >longitude
 `;
 
 export const insertAddress = `
     UPDATE project.center
     SET center_address = $1
     WHERE center_idx = $2
-`;
-
-export const selectCenters = `
-    SELECT * FROM project.center
-`;
-
-export const selectRoads = `
-    SELECT * FROM project.road
-`;
-
-export const searchCenter = `
-    SELECT * FROM project.center
-    WHERE center_name LIKE $1
-`;
-
-export const searchRoad = `
-    SELECT * FROM project.road
-    WHERE road_name LIKE $1
 `;
 
 export const insertAccountRoadLike = `
@@ -98,21 +135,35 @@ export const selectCenterLikeNum = `
 `;
 
 export const giveInformationRoadDB = `
-    SELECT road_name, road_line_xp, road_line_yp, road_address, road_like FROM project.road
+    SELECT road_name, latitude, longitude, road_address FROM project.road
     WHERE road_idx = $1;
 `;
 
 export const giveInformationCenterDB = `
-    SELECT center_name, center_line_xp, center_line_yp, center_address, center_like FROM project.center
+    SELECT center_name, latitude, longitude, center_address, center_like FROM project.center
     WHERE center_idx = $1;
 `;
 
 export const givePositionRoad = `
-    SELECT road_line_xp, road_line_yp FROM project.road
+    SELECT latitude, longitude FROM project.road
     WHERE road_idx = $1;
 `;
 
 export const givePositionCenter = `
-    SELECT center_line_xp, center_line_yp FROM project.center
+    SELECT latitude, longitude FROM project.center
     WHERE center_idx = $1;
+`;
+
+export const road_like = `
+    SELECT rl.road_like
+FROM project.road r
+INNER JOIN project.road_like_count rl ON r.road_name = rl.road_name
+WHERE r.road_name = $1;
+`;
+
+export const searchRoad = `
+SELECT road_name FROM project.road WHERE road_name LIKE $1 LIMIT 20;
+`;
+export const searchCenter = `
+SELECT center_name FROM project.center WHERE center_name LIKE $1 LIMIT 20;
 `;

@@ -1,11 +1,5 @@
-import moment from 'moment';
-import { getAirData } from './utility/getData.js';
-import wrap from './utility/wrapper.js';
 import axios from 'axios';
 import { fileURLToPath } from 'url';
-import { promises as fs } from 'fs';
-import path from 'path';
-import csv from 'csv-parser';
 import {
   insertWeatherData,
   selectAirStation,
@@ -14,7 +8,7 @@ import {
   deleteWeatherDatadb,
   selectWeatherData
 } from './repository.js';
-import pool from './config/postgresql.js';
+import { pool } from './config/postgresql.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
@@ -90,62 +84,53 @@ export const getWeatherData = async (date, time, next) => {
   }
 };
 
-// 일단 서울만 기능하도록 함. 2시간에 한번씩 호출로 함.
-export const airTimeCheck = async (req, res) => {
-  const currentTime = new Date(); //.toString();
-  const currentHours = currentTime.getHours();
-  const currentMinutes = currentTime.getMinutes();
-  const loadTime = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
-  let leftHours;
-  let leftMinutes;
+// export const getAirData = async () => {
+//   try {
+//     // db에 저장된 서울 측정소 리스트
+//     const stationResults = await pool.query(selectAirStation);
+//     const stationList = stationResults.rows;
+//     // 데이터 저장전 db내용 삭제
+//     await pool.query(deleteAirData);
 
-  // 정각일때 남은시간 계산
-  if (currentMinutes == 0) {
-    leftHours = 2; // 2시간 남음
-    leftMinutes = 0;
-    await getAirData();
-  } else {
-    // 정각이 아닐때 남은시간 계산
-    for (let time of loadTime) {
-      if (currentHours > time) {
-        continue;
-      } else if (currentHours == time) {
-        leftHours = 1;
-        leftMinutes = 60 - currentMinutes;
-        break;
-      } else if (currentHours < time) {
-        leftHours = 0;
-        leftMinutes = 60 - currentMinutes;
-        break;
-      }
-    }
-    // 남은시간이 지나면 getAirData 호출 하고, 그 이후 2시간 마다 한번씩 호출
-    try {
-      setTimeout(
-        async () => {
-          const time = new Date().toString();
-          console.log('주기적으로 함수실행중, 현재시간 :', time);
-          await getAirData();
-          try {
-            setInterval(
-              async () => {
-                const time = new Date().toString();
-                console.log('주기적으로 함수실행중, 현재시간: ', time);
-                await getAirData();
-              },
-              1000 * 60 * 60 * 2
-            );
-          } catch (err) {
-            console.log('error 발생');
-          }
-        },
-        1000 * 60 * (leftMinutes + 60 * leftHours)
-      );
-    } catch (err) {
-      console.log('error 발생');
-    }
-  }
-};
+//     const encodingServiceKey = process.env.AIR_SERVICE_KEY;
+//     const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
+//     // 40번 통신
+//     for (let station of stationList) {
+//       const airDataUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`;
+//       const airDataParams = {
+//         serviceKey: decodingServiceKey,
+//         returnType: 'json',
+//         stationName: station.station_name,
+//         dataTerm: 'DAILY',
+//         ver: 1.3
+//       };
+
+//       const airDataAxios = await axios({
+//         method: 'get',
+//         url: airDataUrl,
+//         params: airDataParams
+//       });
+//       const airData = airDataAxios.data.response.body.items[0];
+
+//       const pm10value = airData.pm10Value;
+//       const pm25value = airData.pm25Value;
+//       const pm10grade1h = airData.pm10Grade1h;
+//       const pm25grade1h = airData.pm25Grade1h;
+//       const surveyDateTime = airData.dataTime;
+
+//       await pool.query(insertAirData, [
+//         station.station_name,
+//         pm10value,
+//         pm25value,
+//         pm10grade1h,
+//         pm25grade1h,
+//         surveyDateTime
+//       ]);
+//     }
+//   } catch (err) {
+//     console.error('getAirData에서 에러발생');
+//   }
+// };
 
 export const deleteWeatherData = async (time, req, res) => {
   const hour = time + '00';
