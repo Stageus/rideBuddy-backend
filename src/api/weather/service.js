@@ -7,9 +7,6 @@ const weather = wrap(async (req, res) => {
   const latitude = req.body.latitude; // 37~
   const longitude = req.body.longitude; // 126~
 
-  console.log('latitude', latitude);
-  console.log('longitude', longitude);
-
   var data = {};
   const currentTime = new Date();
   var hours = currentTime.getHours();
@@ -98,7 +95,7 @@ const weather = wrap(async (req, res) => {
     }
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
-    console.log('getResult', getResult.rows);
+
     data[`${i}_rain`] = getResult.rows[0]['rain'];
     data[`${i}_weather`] = getResult.rows[0]['weather'];
     data[`${i}_temperature`] = getResult.rows[0]['temperature'];
