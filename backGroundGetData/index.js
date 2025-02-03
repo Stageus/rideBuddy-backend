@@ -35,4 +35,4 @@ cron.schedule('0 20 */2 * * *', async () => {
   }
 });
 
-getWeatherData(20250202, 20);
+getWeatherData(20250203, 11);
