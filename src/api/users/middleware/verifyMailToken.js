@@ -8,6 +8,5 @@ export const verifyMailToken = wrap(async (req, res, next) => {
   const mailToken = req.body['mail_token'];
 
   const mailResult = verifyJWT('mail', mailToken);
-
   next();
 });

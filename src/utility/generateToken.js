@@ -17,15 +17,11 @@ export const genAccessToken = (account_idx) => {
   return accessToken;
 };
 
-export const genMailToken = (mail) => {
-  const mailToken = jwt.sign(
-    {
-      mail: mail
-    },
-    mailSecretKey,
-    {
-      expiresIn: '3m'
-    }
-  );
+export const genMailToken = (userInfo) => {
+  const mailToken = jwt.sign(userInfo, mailSecretKey, {
+    expiresIn: '3m'
+  });
   return mailToken;
 };
+
+// 객체 넘기는걸로 생각해보기 현재는 스트링 넘겨줌.

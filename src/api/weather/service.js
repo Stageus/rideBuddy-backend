@@ -3,7 +3,6 @@ import wrap from '#utility/wrapper.js';
 import { pool } from '#config/postgresql.js';
 import { getWeather, getData, selectAirData } from './repository.js';
 import { NotFoundError } from '#utility/customError.js';
-
 const weather = wrap(async (req, res) => {
   const latitude = req.body.latitude; // 37~
   const longitude = req.body.longitude; // 126~
@@ -24,8 +23,9 @@ const weather = wrap(async (req, res) => {
 
   // ============================여기까지가 시간 설정 + reversegeocode ==========================================================
 
-  const isError = response.data.status['code'];
-  if (isError != 0) {
+  const geocodeStatus = response.data.status['code'];
+  if (geocodeStatus != 0) {
+    // 코드값이 0이 아니면 응답에 오류가 있거나 결과 없음.
     throw new NotFoundError('위치가 한국이 아닙니다.');
   }
 
