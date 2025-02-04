@@ -2,7 +2,8 @@ import express from 'express';
 import { verifyLoginToken } from '#middleware/verifyLoginToken.js';
 import { validateRegx } from '#middleware/validateRegx.js';
 import {
-  position,
+  centerPosition,
+  roadPosition,
   search,
   giveInformationRoad,
   giveInformationCenter,
@@ -27,7 +28,8 @@ router.put('/centers/:centerIdx/like', verifyLoginToken, centerLike);
 router.get('/roads/:roadIdx', verifyLoginToken, giveInformationRoad);
 router.get('/centers/:centerIdx', verifyLoginToken, giveInformationCenter);
 router.get('/search', verifyLoginToken, search);
-router.get('/position', verifyLoginToken, position);
+router.get('/center/position', verifyLoginToken, centerPosition);
+router.get('/road/position', verifyLoginToken, roadPosition);
 // prettier-ignore
 router.get('/pin',verifyLoginToken,validateRegx([['longitude', longitudeRegx],['latitude', latitudeRegx]]),getPin);
 export default router;
