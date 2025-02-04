@@ -29,3 +29,5 @@ export const genMailToken = (mail) => {
   );
   return mailToken;
 };
+
+// 객체 넘기는걸로 생각해보기 현재는 스트링 넘겨줌.
