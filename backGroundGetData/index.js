@@ -25,11 +25,13 @@ for (let i = 0; i < 24; i++) {
 }
 
 // 2시간에 한번씩 getAirData 호출
-cron.schedule('0 20 */2 * * *', async () => {
+cron.schedule('0 39 * * * *', async () => {
   try {
     const currentTime = new Date().toString();
     console.log(`주기적으로 함수 실행중, 현재시각 ${currentTime}`);
     await getAirData();
+    const endTime = new Date().toString();
+    console.log(`데이터로드 끝난시각${endTime}`);
   } catch (err) {
     console.error('cron.schedule에러발생');
   }
