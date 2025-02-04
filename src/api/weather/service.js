@@ -2,6 +2,7 @@ import axios from 'axios';
 import wrap from '#utility/wrapper.js';
 import { pool } from '#config/postgresql.js';
 import { getWeather, getData, selectAirData } from './repository.js';
+import { NotFoundError } from '#utility/customError.js';
 
 const weather = wrap(async (req, res) => {
   const latitude = req.body.latitude; // 37~
@@ -22,6 +23,13 @@ const weather = wrap(async (req, res) => {
   });
 
   // ============================여기까지가 시간 설정 + reversegeocode ==========================================================
+
+  const isError = response.data.status['code'];
+  if (isError != 0) {
+    throw new NotFoundError('위치가 한국이 아닙니다.');
+  }
+
+  // ============================여기까지가 404 잡기  ==========================================================
 
   // reversegeocode 로부터 한글 위치 추출
   const legalSido = response.data.results[1].region.area1.name;

@@ -190,30 +190,32 @@ export const search = wrap(async (req, res, next) => {
   res.status(200).send({ Data: Data });
 });
 
-export const position = wrap(async (req, res, next) => {
+export const roadPosition = wrap(async (req, res, next) => {
   const roadIdx = req.body.roadIdx;
-  const centerIdx = req.body.centerIdx;
-  if (roadIdx) {
-    const checkResults = await pool.query(givePositionRoad, [roadIdx]);
-    if (checkResults.rows.length == 0) {
-      return next(new NotFoundError('roadIdx가 유효하지 않음.'));
-    }
-    res.status(200).send({
-      location: {
-        longitude: checkResults.rows[0].longitude,
-        latitude: checkResults.rows[0].latitude
-      }
-    });
-  } else if (centerIdx) {
-    const checkResults = await pool.query(givePositionCenter, [centerIdx]);
-    if (checkResults.rows.length == 0) {
-      return next(new NotFoundError('centerIdx가 유효하지 않음.'));
-    }
-    res.status(200).send({
-      location: {
-        longitude: checkResults.rows[0].longitude,
-        latitude: checkResults.rows[0].latitude
-      }
-    });
+
+  const checkResults = await pool.query(givePositionRoad, [roadIdx]);
+  if (checkResults.rows.length == 0) {
+    return next(new NotFoundError('roadIdx가 유효하지 않음.'));
   }
+  res.status(200).send({
+    location: {
+      longitude: checkResults.rows[0].longitude,
+      latitude: checkResults.rows[0].latitude
+    }
+  });
+});
+
+export const centerPosition = wrap(async (req, res, next) => {
+  const centerIdx = req.body.centerIdx;
+
+  const checkResults = await pool.query(givePositionCenter, [centerIdx]);
+  if (checkResults.rows.length == 0) {
+    return next(new NotFoundError('centerIdx가 유효하지 않음.'));
+  }
+  res.status(200).send({
+    location: {
+      longitude: checkResults.rows[0].longitude,
+      latitude: checkResults.rows[0].latitude
+    }
+  });
 });
