@@ -118,8 +118,7 @@ export const getAirData = async () => {
       });
 
       const airData = airDataAxios.data.response.body.items[0];
-      console.log('airData', airData);
-      console.log('airDataType', typeof airData);
+
       if (airData === undefined) {
         pm10value = '-';
         pm25value = '-';
