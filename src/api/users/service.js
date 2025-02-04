@@ -173,7 +173,7 @@ export const mailCheck = wrap(async (req, res, next) => {
   //true 로 바꾸기
   console.log('mailCheck 통과중2');
   await pool.query(transMailToken_True, ['TRUE', mail_token, code]);
-  return res.status(200).send({ message: 'finish' });
+  return res.status(200).send({});
 });
 //지우기
 // verify 동기로 그냥 쓰기
