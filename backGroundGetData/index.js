@@ -43,3 +43,5 @@ cron.schedule('0 20 */2 * * *', async () => {
     console.error('cron.schedule에러발생');
   }
 });
+
+getWeatherData(20250205, 17);
