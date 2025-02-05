@@ -18,11 +18,14 @@ getWeatherDay.forEach((hour) => {
 });
 
 // 하나씩 함수를 만들어라.
-for (let i = 0; i < 24; i++) {
+for (let i = 1; i < 24; i++) {
   cron.schedule(`5 ${i} * * *`, async () => {
-    deleteWeatherData(i);
+    deleteWeatherData(i - 1);
   });
 }
+cron.schedule(`5 0 * * *`, async () => {
+  deleteWeatherData(23);
+});
 
 // 2시간에 한번씩 getAirData 호출
 cron.schedule('0 20 */2 * * *', async () => {
