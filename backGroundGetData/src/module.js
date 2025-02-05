@@ -54,9 +54,10 @@ export const getWeatherData = async (date, time, next) => {
       response = await axios.get(url);
       console.log('데이터 삽입 idx : ', i, '/252)완료');
       var weatherData = response.data.response.body.items;
-
+      console.log('weatherData', weatherData);
       weatherData = Object.values(weatherData);
       const flattenedWeatherData = weatherData.flat();
+      console.log('flattendWeatherData', flattenedWeatherData);
       const filteredTMP = flattenedWeatherData.filter((item) => item.category === 'TMP');
       const filteredPCP = flattenedWeatherData.filter((item) => item.category === 'PCP');
       const filteredPTY = flattenedWeatherData.filter((item) => item.category === 'PTY');

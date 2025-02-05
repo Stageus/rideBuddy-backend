@@ -7,21 +7,24 @@ import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
 
 const getWeatherDay = [2, 5, 8, 11, 14, 17, 20, 23];
 getWeatherDay.forEach((hour) => {
-  console.log(hour);
-  cron.schedule(`33 ${hour} * * *`, async () => {
-    const currentTime = new Date();
-    var year = currentTime.getFullYear();
-    var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
-    var day = currentTime.getDate().toString().padStart(2, '0');
-    var date = `${year}${month}${day}`;
-    console.log('딜리트 함수 실행중 겟 웨더');
-    await getWeatherData(date, hour);
+  cron.schedule(`58 ${hour} * * *`, async () => {
+    try {
+      const currentTime = new Date();
+      var year = currentTime.getFullYear();
+      var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
+      var day = currentTime.getDate().toString().padStart(2, '0');
+      var date = `${year}${month}${day}`;
+      console.log('date', date);
+      await getWeatherData(date, hour);
+    } catch (err) {
+      console.error('cron내부오류');
+    }
   });
 });
 
 // 하나씩 함수를 만들어라.
 for (let i = 1; i < 24; i++) {
-  cron.schedule(`25 ${i} * * *`, async () => {
+  cron.schedule(`5 ${i} * * *`, async () => {
     console.log('딜리트 함수 실행중');
 
     deleteWeatherData(i - 1);
