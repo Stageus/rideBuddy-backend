@@ -9,6 +9,7 @@ import {
   selectWeatherData
 } from './repository.js';
 import { pool } from './config/postgresql.js';
+import { nowTime } from './utility/nowTime.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
@@ -94,6 +95,11 @@ export const getAirData = async () => {
 
     const encodingServiceKey = process.env.AIR_SERVICE_KEY;
     const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
+    let pm10value;
+    let pm25value;
+    let pm10grade1h;
+    let pm25grade1h;
+    let surveyDateTime;
     // 40번 통신
     for (let station of stationList) {
       const airDataUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`;
@@ -110,14 +116,22 @@ export const getAirData = async () => {
         url: airDataUrl,
         params: airDataParams
       });
+
       const airData = airDataAxios.data.response.body.items[0];
 
-      const pm10value = airData.pm10Value;
-      const pm25value = airData.pm25Value;
-      const pm10grade1h = airData.pm10Grade1h;
-      const pm25grade1h = airData.pm25Grade1h;
-      const surveyDateTime = airData.dataTime;
-
+      if (airData === undefined) {
+        pm10value = '-';
+        pm25value = '-';
+        pm10grade1h = '-';
+        pm25grade1h = '-';
+        surveyDateTime = nowTime();
+      } else {
+        pm10value = airData.pm10Value;
+        pm25value = airData.pm25Value;
+        pm10grade1h = airData.pm10Grade1h;
+        pm25grade1h = airData.pm25Grade1h;
+        surveyDateTime = airData.dataTime;
+      }
       await pool.query(insertAirData, [
         station.station_name,
         pm10value,

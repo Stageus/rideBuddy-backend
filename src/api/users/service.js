@@ -144,20 +144,27 @@ export const register = wrap(async (req, res, next) => {
 export const mailSendRegister = wrap(async (req, res, next) => {
   const number = randomNumber();
   const mail = req.body.mail;
-  await sendMailUtil(number, mail, res);
+  const userInfo = {
+    mail: mail
+  };
+  await sendMailUtil(number, userInfo, res);
 });
 
 export const mailSendChangePw = wrap(async (req, res, next) => {
   const number = randomNumber();
   const mail = req.body.mail;
   const id = req.body.id;
+  const userInfo = {
+    id: id,
+    mail: mail
+  };
   //id 와 email 일치 여부 확인
   const correctResult = await pool.query(correctaccount, [id, mail]);
   if (correctResult.rows.length == 0) {
     throw new NotFoundError('해당하는 계정이 없음.');
   }
 
-  await sendMailUtil(number, mail, res);
+  await sendMailUtil(number, userInfo, res);
 });
 
 export const mailCheck = wrap(async (req, res, next) => {
@@ -171,7 +178,6 @@ export const mailCheck = wrap(async (req, res, next) => {
     throw new NotFoundError('메일, 인증코드와 일치하는 데이터 없음.'); // 제한시간이 넘어갔다는건 verifymailToken에서 해주는 것임.
   }
   //true 로 바꾸기
-  console.log('mailCheck 통과중2');
   await pool.query(transMailToken_True, ['TRUE', mail_token, code]);
   return res.status(200).send({});
 });
@@ -273,8 +279,11 @@ export const localCreateToken = wrap(async (req, res) => {
 
 // 비밀번호 변경모달창에서 비밀번호 변경시
 export const changePw = wrap(async (req, res, next) => {
-  let userId = req.body.id;
+  const mailToken = req.body.mail_token;
   const newPw = req.body.pw;
+
+  const mailTokenResult = verifyJWT('mail', mailToken);
+  const userId = mailTokenResult.id;
   const hashPw = await bcrypt.hash(newPw, 10);
 
   await pool.query(updatePwFromId, [hashPw, userId]);
