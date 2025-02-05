@@ -8,14 +8,18 @@ import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
 const getWeatherDay = [2, 5, 8, 11, 14, 17, 20, 23];
 getWeatherDay.forEach((hour) => {
   console.log('hour', hour);
-  cron.schedule(`16 ${hour} * * *`, async () => {
-    const currentTime = new Date();
-    var year = currentTime.getFullYear();
-    var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
-    var day = currentTime.getDate().toString().padStart(2, '0');
-    date = `${year}${month}${day}`;
-    console.log('date', date);
-    getWeatherData(date, hour);
+  cron.schedule(`30 ${hour} * * *`, async () => {
+    try {
+      const currentTime = new Date();
+      var year = currentTime.getFullYear();
+      var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
+      var day = currentTime.getDate().toString().padStart(2, '0');
+      date = `${year}${month}${day}`;
+      console.log('date', date);
+      getWeatherData(date, hour);
+    } catch (err) {
+      console.error('콘솔내부오류');
+    }
   });
 });
 
