@@ -87,17 +87,12 @@ export const insertNaverId = `
 `;
 
 export const selectUserPw = `
-    SELECT pw FROM project.account 
+    SELECT account_idx ,pw FROM project.account 
     WHERE id = $1;`;
 
 export const selectNaverAccountIdx = `
     SELECT account_idx FROM project.account
     WHERE naver_id = $1;
-`;
-
-export const selectLocalAccountIdx = `
-    SELECT account_idx FROM project.account
-    WHERE id = $1;
 `;
 
 export const insertPw = `

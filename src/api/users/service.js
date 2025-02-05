@@ -21,7 +21,6 @@ import {
   transMailToken_True,
   deleteaccount,
   selectUserPw,
-  selectLocalAccountIdx,
   updatePwFromId,
   updatePwFromIdx,
   findAccountId,
@@ -266,8 +265,7 @@ export const localCreateToken = wrap(async (req, res) => {
     throw new NotFoundError('db의 pw와 일치하지 않음');
   }
   // 로컬 아이디에 해당하는 account_idx 가져오기
-  const idxResults = await pool.query(selectLocalAccountIdx, [id]);
-  const account_idx = idxResults.rows[0].account_idx;
+  const account_idx = pwResults.rows[0].account_idx;
   // access 토큰 생성
   const accessToken = genAccessToken(account_idx);
 
