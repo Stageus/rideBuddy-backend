@@ -1,13 +1,12 @@
 import 'dotenv/config';
 import cron from 'node-cron';
 import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
-// src안에 module폴더 만들고 repo는 그냥 두구
-// 여기는 프로그램 시작파일.
-// 배포 해오기 백엔드 배포를 해와라라라라랄
 
-const getWeatherDay = [2, 5, 8, 11, 14, 17, 20, 23];
+const getWeatherDay = [2, 5, 7, 11, 14, 17, 20, 23];
 getWeatherDay.forEach((hour) => {
-  cron.schedule(`58 ${hour} * * *`, async () => {
+  // cron.schedule(`33 ${hour} * * *`, async () => {
+  cron.schedule(`37 * * * *`, async () => {
+    console.log('실행중');
     try {
       const currentTime = new Date();
       var year = currentTime.getFullYear();
@@ -16,6 +15,7 @@ getWeatherDay.forEach((hour) => {
       var date = `${year}${month}${day}`;
       console.log('date', date);
       await getWeatherData(date, hour);
+      console.log('완료');
     } catch (err) {
       console.error('cron내부오류');
     }
