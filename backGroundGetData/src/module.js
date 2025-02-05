@@ -67,17 +67,25 @@ export const getWeatherData = async (date, time, next) => {
           await pool.query(insertWeatherData, [
             i,
             filteredTMP[j]['fcstTime'],
-            0,
+            filteredPTY[j]['fcstValue'],
             filteredTMP[j]['fcstValue'],
-            filteredPTY[j]['fcstValue']
+            0
           ]);
         } else if (filteredPCP[j]['fcstValue'] === '50.0mm 이상') {
           await pool.query(insertWeatherData, [
             i,
             filteredTMP[j]['fcstTime'],
-            '50',
+            filteredPTY[j]['fcstValue'],
             filteredTMP[j]['fcstValue'],
-            filteredPTY[j]['fcstValue']
+            '50'
+          ]);
+        } else {
+          await pool.query(insertWeatherData, [
+            i,
+            filteredTMP[j]['fcstTime'],
+            filteredPTY[j]['fcstValue'],
+            filteredTMP[j]['fcstValue'],
+            filteredPCP[j]['fcstValue']
           ]);
         }
       }
