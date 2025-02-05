@@ -130,17 +130,17 @@ export const getPin = wrap(async (req, res) => {
 });
 
 export const giveInformationRoad = wrap(async (req, res, next) => {
-  const roadIdx = req.params['roadIdx'];
+  const roadIdx = req.params['roadPointIdx'];
   const roadResults = await pool.query(giveInformationRoadDB, [roadIdx]);
   if (roadResults.rows.length == 0) {
     return next(new NotFoundError('roadIdx가 유효하지 않음.'));
   }
-  const roadLikeResults = await pool.query(road_like, [roadResults.rows[0].road_name]);
+  const roadLikeResults = await pool.query(road_like, [roadIdx]);
 
   res.status(200).send({
     roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
     roads_idx: roadIdx,
-    roads_name: roadResults.rows[0].road_name,
+    roads_name: roadLikeResults.rows[0].road_name,
     roads_address: roadResults.rows[0].road_address,
     road_likeCount: roadLikeResults.rows[0].road_like
   });
@@ -191,7 +191,7 @@ export const search = wrap(async (req, res, next) => {
 });
 
 export const roadPosition = wrap(async (req, res, next) => {
-  const roadIdx = req.body.roadIdx;
+  const roadIdx = req.params['roadIdx'];
 
   const checkResults = await pool.query(givePositionRoad, [roadIdx]);
   if (checkResults.rows.length == 0) {
@@ -206,7 +206,7 @@ export const roadPosition = wrap(async (req, res, next) => {
 });
 
 export const centerPosition = wrap(async (req, res, next) => {
-  const centerIdx = req.body.centerIdx;
+  const centerIdx = req.params['centerIdx'];
 
   const checkResults = await pool.query(givePositionCenter, [centerIdx]);
   if (checkResults.rows.length == 0) {
