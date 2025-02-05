@@ -64,7 +64,6 @@ export const getWeatherData = async (date, time, next) => {
       response = await retryAsyncFunction(() => axios.get(url));
 
       console.log('데이터 삽입 idx : ', i, '/252)완료');
-      console.log(response.data);
       var weatherData = response.data.response.body.items;
 
       weatherData = Object.values(weatherData);
@@ -181,8 +180,5 @@ export const getAirData = async () => {
 
 export const deleteWeatherData = async (time, req, res) => {
   const hour = time + '00';
-  console.log('타입', typeof hour);
-  console.log('hour', hour);
   await pool.query(deleteWeatherDatadb, [hour]);
-  console.log('데이터 삭제', hour, '완료');
 };
