@@ -30,6 +30,7 @@ export const getWeatherData = async (date, time, next) => {
       xp: row.region_line_xp,
       yp: row.region_line_yp
     }));
+    console.log('results', results);
 
     if (time == 0) {
       time = '0000';
@@ -149,6 +150,8 @@ export const getAirData = async () => {
 
 export const deleteWeatherData = async (time, req, res) => {
   const hour = time + '00';
+  console.log('타입', typeof hour);
+  console.log('hour', hour);
   await pool.query(deleteWeatherDatadb, [hour]);
   console.log('데이터 삭제', hour, '완료');
 };

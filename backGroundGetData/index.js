@@ -7,12 +7,14 @@ import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
 
 const getWeatherDay = [2, 5, 8, 11, 14, 17, 20, 23];
 getWeatherDay.forEach((hour) => {
-  cron.schedule(`2 ${hour} * * *`, async () => {
+  console.log('hour', hour);
+  cron.schedule(`16 ${hour} * * *`, async () => {
     const currentTime = new Date();
     var year = currentTime.getFullYear();
     var month = (currentTime.getMonth() + 1).toString().padStart(2, '0'); // getMonth()는 0부터 시작하므로 1을 더해야 함
     var day = currentTime.getDate().toString().padStart(2, '0');
     date = `${year}${month}${day}`;
+    console.log('date', date);
     getWeatherData(date, hour);
   });
 });
@@ -28,10 +30,10 @@ for (let i = 0; i < 24; i++) {
 cron.schedule('0 20 */2 * * *', async () => {
   try {
     const currentTime = new Date().toString();
-    console.log(`주기적으로 함수 실행중, 현재시각 ${currentTime}`);
+    console.log(`주기적으로 미세먼지 함수 실행중, 현재시각 ${currentTime}`);
     await getAirData();
     const endTime = new Date().toString();
-    console.log(`데이터로드 끝난시각${endTime}`);
+    console.log(`미세먼지 데이터로드 끝난시각${endTime}`);
   } catch (err) {
     console.error('cron.schedule에러발생');
   }
