@@ -140,6 +140,7 @@ export const giveInformationRoad = wrap(async (req, res, next) => {
   res.status(200).send({
     roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
     roads_idx: roadIdx,
+    roads_type: roadResults.rows[0].road_type,
     roads_name: roadLikeResults.rows[0].road_name,
     roads_address: roadResults.rows[0].road_address,
     road_likeCount: roadLikeResults.rows[0].road_like
@@ -173,7 +174,7 @@ export const search = wrap(async (req, res, next) => {
 
   var centerCount = centerResults.rows.length;
   var roadCount = RoadResults.rows.length;
-  2;
+
   if (centerCount <= 20) {
     for (let i = 0; i < centerCount; i++) {
       Data[i + 1] = centerResults.rows[i].center_name;
@@ -191,7 +192,7 @@ export const search = wrap(async (req, res, next) => {
 });
 
 export const roadPosition = wrap(async (req, res, next) => {
-  const roadIdx = req.params['roadIdx'];
+  const roadIdx = req.params['roadPointIdx'];
 
   const checkResults = await pool.query(givePositionRoad, [roadIdx]);
   if (checkResults.rows.length == 0) {

@@ -142,7 +142,7 @@ export const selectCenterLikeNum = `
 `;
 
 export const giveInformationRoadDB = `
-    SELECT latitude, longitude, road_address FROM project.road_point
+    SELECT road_type, latitude, longitude, road_address FROM project.road_point
     WHERE road_idx = $1;
 `;
 
@@ -153,7 +153,7 @@ export const giveInformationCenterDB = `
 
 export const givePositionRoad = `
     SELECT latitude, longitude FROM project.road_point
-    WHERE road_idx = $1;
+    WHERE road_point_idx = $1;
 `;
 
 export const givePositionCenter = `
