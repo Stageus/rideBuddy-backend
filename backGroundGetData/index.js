@@ -23,6 +23,7 @@ getWeatherDay.forEach((hour) => {
 for (let i = 1; i < 24; i++) {
   cron.schedule(`25 ${i} * * *`, async () => {
     console.log('딜리트 함수 실행중');
+
     deleteWeatherData(i - 1);
   });
 }
