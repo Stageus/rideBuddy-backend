@@ -14,6 +14,17 @@ import { nowTime } from './utility/nowTime.js';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 
+async function retryAsyncFunction(fn, retries = 3, delay = 2000) {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries <= 0) throw new Error(`재시도 횟수 초과: ${error.message}`);
+    console.log(` 에러 발생! ${retries}번 남음... ${delay}ms 후 재시도합니다.`);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return retryAsyncFunction(fn, retries - 1, delay);
+  }
+}
+
 export const getWeatherData = async (date, time, next) => {
   //252번 통신해야함
   //정해진 시간에 통신해야함 (02,05,08,11,14,17,20,23) 8번 통신해야함.
@@ -50,7 +61,8 @@ export const getWeatherData = async (date, time, next) => {
       // console.log(nx, ny, process.env.DATA_API_KEY, date, time);
 
       url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${process.env.DATA_API_KEY}&numOfRows=100&pageNo=1&base_date=${date}&base_time=${time}&nx=${nx}&ny=${ny}&dataType=JSON`;
-      response = await axios.get(url);
+      response = await retryAsyncFunction(() => axios.get(url));
+
       console.log('데이터 삽입 idx : ', i, '/252)완료');
       console.log(response.data);
       var weatherData = response.data.response.body.items;
@@ -71,6 +83,14 @@ export const getWeatherData = async (date, time, next) => {
             filteredTMP[j]['fcstValue'],
             0
           ]);
+        } else if (filteredPCP[j]['fcstValue'] === '1mm 미만') {
+          await pool.query(insertWeatherData, [
+            i,
+            filteredTMP[j]['fcstTime'],
+            filteredPTY[j]['fcstValue'],
+            filteredTMP[j]['fcstValue'],
+            '1'
+          ]);
         } else if (filteredPCP[j]['fcstValue'] === '50.0mm 이상') {
           await pool.query(insertWeatherData, [
             i,
@@ -80,12 +100,14 @@ export const getWeatherData = async (date, time, next) => {
             '50'
           ]);
         } else {
+          const fcstValue = filteredPCP[j]['fcstValue'];
+          const numericValue = parseFloat(fcstValue.replace('mm', ''));
           await pool.query(insertWeatherData, [
             i,
             filteredTMP[j]['fcstTime'],
             filteredPTY[j]['fcstValue'],
             filteredTMP[j]['fcstValue'],
-            filteredPCP[j]['fcstValue']
+            numericValue
           ]);
         }
       }
