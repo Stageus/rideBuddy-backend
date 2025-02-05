@@ -52,6 +52,7 @@ export const getWeatherData = async (date, time, next) => {
       url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${process.env.DATA_API_KEY}&numOfRows=100&pageNo=1&base_date=${date}&base_time=${time}&nx=${nx}&ny=${ny}&dataType=JSON`;
       response = await axios.get(url);
       console.log('데이터 삽입 idx : ', i, '/252)완료');
+      console.log(response.data);
       var weatherData = response.data.response.body.items;
 
       weatherData = Object.values(weatherData);

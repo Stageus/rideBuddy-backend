@@ -2,10 +2,11 @@ import 'dotenv/config';
 import cron from 'node-cron';
 import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
 
-const getWeatherDay = [2, 5, 7, 11, 14, 17, 20, 23];
-getWeatherDay.forEach((hour) => {
-  // cron.schedule(`33 ${hour} * * *`, async () => {
-  cron.schedule(`37 * * * *`, async () => {
+// const getWeatherDay = [2, 5, 8, 11, 14, 17, 20, 23];
+// getWeatherDay.forEach((hour) => {
+// cron.schedule(`3 ${hour} * * *`, async () => {
+try {
+  cron.schedule(`13 * * * *`, async () => {
     console.log('실행중');
     try {
       const currentTime = new Date();
@@ -14,13 +15,16 @@ getWeatherDay.forEach((hour) => {
       var day = currentTime.getDate().toString().padStart(2, '0');
       var date = `${year}${month}${day}`;
       console.log('date', date);
-      await getWeatherData(date, hour);
+      await getWeatherData(date, 8);
       console.log('완료');
     } catch (err) {
-      console.error('cron내부오류');
+      console.error('cron내부오류', err);
     }
   });
-});
+} catch (err) {
+  console.error(err);
+}
+// });
 
 // 하나씩 함수를 만들어라.
 for (let i = 1; i < 24; i++) {
