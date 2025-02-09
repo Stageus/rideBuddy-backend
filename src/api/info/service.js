@@ -139,7 +139,7 @@ export const giveInformationRoad = wrap(async (req, res, next) => {
 
   res.status(200).send({
     roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
-    roads_idx: roadIdx,
+    roads_point_idx: roadIdx,
     roads_type: roadResults.rows[0].road_type,
     roads_name: roadLikeResults.rows[0].road_name,
     roads_address: roadResults.rows[0].road_address,

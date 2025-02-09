@@ -49,11 +49,13 @@ export const deleteImg = `
     WHERE img_idx = $1 AND account_idx = $2;
 `;
 export const selectUserRoad = `
-    SELECT road_name, latitude, longitude 
-    FROM project.road
-    WHERE road_type = 'start' AND 
-    road_name IN (
-    SELECT road_name FROM project.account_road_like
+    SELECT r.road_name, rp.latitude, rp.longitude 
+    FROM project.road_point rp
+    FULL OUTER JOIN project.road r ON
+    rp.road_idx = r.road_idx
+    WHERE rp.road_type = 'start' AND 
+    rp.road_idx IN (
+    SELECT road_idx FROM project.account_road_like
     WHERE account_idx = $1) 
     limit 20 offset $2 * 20;
 `;

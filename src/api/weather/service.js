@@ -103,7 +103,9 @@ const weather = wrap(async (req, res) => {
     }
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
-
+    console.log('region', region_idx);
+    console.log('form', formHours);
+    console.log('결과', getResult.rows[0]);
     data[`${i}_rain`] = getResult.rows[0]['rain'];
     data[`${i}_weather`] = getResult.rows[0]['weather'];
     data[`${i}_temperature`] = getResult.rows[0]['temperature'];

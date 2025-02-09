@@ -14,14 +14,25 @@ import { nowTime } from './utility/nowTime.js';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 
-async function retryAsyncFunction(fn, retries = 3, delay = 2000) {
+async function fetchWithRetry(url, retries = 3, delay = 2000, timeout = 5000) {
   try {
-    return await fn();
+    // axios 요청에 타임아웃 설정
+    const response = await axios.get(url, { timeout });
+
+    // 응답이 없거나 유효하지 않은 경우
+    if (!response || !response.data) {
+      throw new Error('응답이 없거나 유효하지 않습니다.');
+    }
+
+    return response.data; // 유효한 응답 반환
   } catch (error) {
-    if (retries <= 0) throw new Error(`재시도 횟수 초과: ${error.message}`);
-    console.log(` 에러 발생! ${retries}번 남음... ${delay}ms 후 재시도합니다.`);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return retryAsyncFunction(fn, retries - 1, delay);
+    if (retries <= 0) {
+      throw new Error(`재시도 횟수 초과: ${error.message}`);
+    }
+
+    console.log(`응답 없음! ${retries}번 남음... ${delay}ms 후 재시도합니다.`);
+    await new Promise((resolve) => setTimeout(resolve, delay)); // 지연
+    return fetchWithRetry(url, retries - 1, delay, timeout); // 재시도
   }
 }
 
@@ -61,7 +72,7 @@ export const getWeatherData = async (date, time, next) => {
       // console.log(nx, ny, process.env.DATA_API_KEY, date, time);
 
       url = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${process.env.DATA_API_KEY}&numOfRows=100&pageNo=1&base_date=${date}&base_time=${time}&nx=${nx}&ny=${ny}&dataType=JSON`;
-      response = await retryAsyncFunction(() => axios.get(url));
+      response = await fetchWithRetry(url);
 
       console.log('데이터 삽입 idx : ', i, '/252)완료');
       var weatherData = response.data.response.body.items;

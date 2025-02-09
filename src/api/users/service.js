@@ -169,8 +169,6 @@ export const mailSendChangePw = wrap(async (req, res, next) => {
 export const mailCheck = wrap(async (req, res, next) => {
   const mail_token = req.body.mail_token;
   const code = req.body.code;
-  console.log('mail 토큰 : ', mail_token);
-  console.log('code : ', code);
 
   const correctResult = await pool.query(mailVerifyDB, [mail_token, code]);
   if (correctResult.rows.length == 0) {
@@ -236,9 +234,7 @@ export const naverCreateToken = wrap(async (req, res) => {
 
   const response = await axios.get(tokenUrl);
   const naverAccessToken = response.data.access_token;
-  console.log('naverAccess', naverAccessToken);
   const DbAccountIdx = await userNaverProfile(naverAccessToken);
-  console.log('dbaccountIdx', DbAccountIdx);
   const accessToken = genAccessToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).send({

@@ -56,6 +56,7 @@ export const getMyProfile = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
   const historyResult = await pool.query(selectHistory, [userIdx]);
   const result = historyResult.rows;
+  console.log(result);
   res.status(200).send({
     result
   });
@@ -67,7 +68,7 @@ export const deleteProfile = wrap(async (req, res) => {
 
   const results = await pool.query(beforeDeleteImg, [imgIdx, userIdx]);
   if (results.rows.length == 0) {
-    throw new ForbiddenError('지울권한이 없음.');
+    throw new ForbiddenError('해당 프로필 이미지의 소유자가 아님.');
   }
 
   const deleteResult = await pool.query(deleteImg, [imgIdx, userIdx]);
