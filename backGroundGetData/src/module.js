@@ -24,7 +24,7 @@ async function fetchWithRetry(url, retries = 3, delay = 2000, timeout = 5000) {
       throw new Error('응답이 없거나 유효하지 않습니다.');
     }
 
-    return response.data; // 유효한 응답 반환
+    return response; // 유효한 응답 반환
   } catch (error) {
     if (retries <= 0) {
       throw new Error(`재시도 횟수 초과: ${error.message}`);
