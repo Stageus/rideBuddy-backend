@@ -18,6 +18,6 @@ router.post('/profile', verifyLoginToken, upload.single('profile'), uploadProfil
 router.get('/profile/list', verifyLoginToken, getMyProfile); // 프로필 히스토리 불러오기
 router.delete('/profile', verifyLoginToken, validateRegx([['img_idx', numRegx]]), deleteProfile); // 프로필 사진 삭제
 router.get('/roads/like-list', verifyLoginToken, validateRegx([['page', numRegx]]), getRoadsLikeList);
-router.get('/center/like-list', verifyLoginToken, validateRegx([['page', numRegx]]), getCentersLikeList);
+router.get('/centers/like-list', verifyLoginToken, validateRegx([['page', numRegx]]), getCentersLikeList);
 
 export default router;
