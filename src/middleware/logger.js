@@ -18,12 +18,14 @@ export function logging(req, res, next) {
 
     logData.resStatus = res.statusCode;
     logData.reqResTime = reqResTime;
-    try {
-      await logs.insertOne({
-        logData
-      });
-    } catch (err) {
-      next(err);
+    if (res.statusCode >= 400) {
+      try {
+        await logs.insertOne({
+          logData
+        });
+      } catch (err) {
+        next(err);
+      }
     }
     oldSend.call(this, data);
   };
