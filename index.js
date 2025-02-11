@@ -1,16 +1,11 @@
 import express from 'express';
 import path from 'path';
 import 'dotenv/config';
-// import { logging } from '#middleware/logger.js';
+import { logging } from '#middleware/logger.js';
 const app = express();
 
 app.use(express.json());
-// app.use(logging);
-
-const __dirname = path.resolve();
-app.get('/', (req, res) => {
-  res.sendFile(`${__dirname}/src/test/index.html`);
-});
+app.use(logging);
 
 //==============================================================================================================================================================================================
 import userRoute from './src/api/users/route.js';
