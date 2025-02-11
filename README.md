@@ -7,7 +7,7 @@ rideBuddy는 지도상의 위치를 기반으로 라이딩에 관련된 정보�
   * 등록된 자전거길과 인증센터에 좋아요를 표시하고 관리할수 있습니다.
   * 개인 계정에 사진을 올리고 관리할 수 있습니다.
 ## 📌 개발환경
-  * 프론트엔드 :
+  * 프론트엔드 : React, Recoil
   * 백엔드 : Express.js
   * 언어 : javascript
   * 데이터베이스 : postgresql, mongoDB
@@ -20,7 +20,7 @@ rideBuddy는 지도상의 위치를 기반으로 라이딩에 관련된 정보�
 정이령|현기윤|이태준
 ---|---|---|
 PM/백엔드 개발|프론트엔드 개발|백엔드 개발
-[@JungYiryung](https://github.com/JungYiryung)||[@jonny0323](https://github.com/jonny0323)
+[@JungYiryung](https://github.com/JungYiryung)|[@plzcoboo](https://github.com/plzcoboo)|[@jonny0323](https://github.com/jonny0323)
 ## 📌 프로젝트 구조
 * 메인프로젝트 : rideBuddy 기능을 위한 프로젝트
 ```
