@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import cron from 'node-cron';
 import { getWeatherData, deleteWeatherData, getAirData } from './src/module.js';
+const time = new Date().toString();
+console.log(`${time}현재 backgroud 실행중`);
 
 const getWeatherDay = [2, 5, 8, 11, 14, 17, 20, 23];
 getWeatherDay.forEach((hour) => {

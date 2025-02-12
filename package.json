@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "pm2 start index.js",
-    "startBack": "pm2 start ./backGroundGetData/index.js"
+    "start": "pm2 start index.js --watch",
+    "startBack": "pm2 start ./backGroundGetData/index.js --watch"
   },
   "repository": {
     "type": "git",
