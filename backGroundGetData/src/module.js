@@ -10,6 +10,7 @@ import {
 } from './repository.js';
 import { pool } from './config/postgresql.js';
 import { nowTime } from './utility/nowTime.js';
+import 'dotenv/config';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
@@ -135,14 +136,17 @@ export const getAirData = async () => {
     // 데이터 저장전 db내용 삭제
     await pool.query(deleteAirData);
 
-    const encodingServiceKey = process.env.AIR_SERVICE_KEY;
+    const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
     const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
-    let pm10value;
-    let pm25value;
-    let pm10grade1h;
-    let pm25grade1h;
-    let surveyDateTime;
-    // 40번 통신
+
+    let airData = {
+      pm10value: '-',
+      pm25value: '-',
+      pm10grade1h: '-',
+      pm25grade1h: '-'
+    };
+    let airAxiosResult;
+
     for (let station of stationList) {
       const airDataUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`;
       const airDataParams = {
@@ -159,28 +163,30 @@ export const getAirData = async () => {
         params: airDataParams
       });
 
-      const airData = airDataAxios.data.response.body.items[0];
-
-      if (airData === undefined) {
-        pm10value = '-';
-        pm25value = '-';
-        pm10grade1h = '-';
-        pm25grade1h = '-';
-        surveyDateTime = nowTime();
+      if (airDataAxios.data.response === undefined) {
+        console.log('현재동', station.station_name);
+        console.log('airDataAxios 결과', airDataAxios.data);
+        airData.surveyDateTime = nowTime();
       } else {
-        pm10value = airData.pm10Value;
-        pm25value = airData.pm25Value;
-        pm10grade1h = airData.pm10Grade1h;
-        pm25grade1h = airData.pm25Grade1h;
-        surveyDateTime = airData.dataTime;
+        airAxiosResult = airDataAxios.data.response.body.items[0];
+      }
+
+      if (airAxiosResult === undefined) {
+        airData.surveyDateTime = nowTime();
+      } else {
+        airData.pm10value = airAxiosResult.pm10Value;
+        airData.pm25value = airAxiosResult.pm25Value;
+        airData.pm10grade1h = airAxiosResult.pm10Grade1h;
+        airData.pm25grade1h = airAxiosResult.pm25Grade1h;
+        airData.surveyDateTime = airAxiosResult.dataTime;
       }
       await pool.query(insertAirData, [
         station.station_name,
-        pm10value,
-        pm25value,
-        pm10grade1h,
-        pm25grade1h,
-        surveyDateTime
+        airData.pm10Value,
+        airData.pm25Value,
+        airData.pm10Grade1h,
+        airData.pm25Grade1h,
+        airData.surveyDateTime
       ]);
     }
   } catch (err) {
