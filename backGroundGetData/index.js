@@ -32,7 +32,6 @@ for (let i = 1; i < 24; i++) {
 cron.schedule(`5 0 * * *`, async () => {
   deleteWeatherData(23);
 });
-
 // 2시간에 한번씩 getAirData 호출
 cron.schedule('0 20 */2 * * *', async () => {
   try {
