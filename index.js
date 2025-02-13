@@ -2,10 +2,12 @@ import express from 'express';
 import path from 'path';
 import 'dotenv/config';
 import { logging } from '#middleware/logger.js';
+import cors from 'cors';
 const app = express();
 
 app.use(express.json());
 app.use(logging);
+app.use(cors());
 
 //==============================================================================================================================================================================================
 import userRoute from './src/api/users/route.js';
