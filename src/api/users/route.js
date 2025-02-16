@@ -31,12 +31,12 @@ router.get('/login/naver/callback', naverCreateToken);
 router.get('/login/google', userGoogleLogin); //완료
 router.get('/google/callback', googleCreateToken); //완료
 // prettier-ignore
-router.get('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
+router.post('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
 // prettier-ignore
 router.put('/change-pw',validateRegx([['pw', pwRegx]]),checkMailStatus,changePw);
 router.put('/change-pw/mypages', verifyLoginToken, validateRegx([['pw', pwRegx]]), changePwInMypages);
-router.get('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId); //완료
-router.get('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail); //완료
+router.post('/duplicate-id', validateRegx([['id', idRegx]]), duplicateId); //완료
+router.post('/duplicate-mail', validateRegx([['mail', mailRegx]]), duplicateMail); //완료
 // prettier-ignore
 router.post('/register',validateRegx([['id', idRegx],['pw', pwRegx],['name', nameRegx],['mail', mailRegx]]),
   checkMailStatus,
@@ -45,7 +45,7 @@ router.post('/register',validateRegx([['id', idRegx],['pw', pwRegx],['name', nam
 router.post('/mail', validateRegx([['mail', mailRegx]]), mailSendRegister);
 // prettier-ignore
 router.post('/mail/withId',validateRegx([['mail', mailRegx],['id', idRegx]]),mailSendChangePw);
-router.get('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck);
+router.post('/mail/check', verifyMailToken, validateRegx([['code', codeRegx]]), mailCheck);
 router.delete('/my', verifyLoginToken, deleteuser);
 
 export default router;
