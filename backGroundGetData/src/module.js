@@ -172,6 +172,8 @@ export const getAirData = async () => {
       }
 
       if (airAxiosResult === undefined) {
+        console.log('airAxiosResult가 undefined');
+        console.log('data.response', airDataAxios.data.response);
         airData.surveyDateTime = nowTime();
       } else {
         airData.pm10value = airAxiosResult.pm10Value;
@@ -182,10 +184,10 @@ export const getAirData = async () => {
       }
       await pool.query(insertAirData, [
         station.station_name,
-        airData.pm10Value,
-        airData.pm25Value,
-        airData.pm10Grade1h,
-        airData.pm25Grade1h,
+        airData.pm10value,
+        airData.pm25value,
+        airData.pm10grade1h,
+        airData.pm25grade1h,
         airData.surveyDateTime
       ]);
     }
