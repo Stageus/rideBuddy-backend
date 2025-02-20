@@ -1,12 +1,12 @@
 export const CenterByDistance = `
-   SELECT center_idx, center_name, center_address, centerlist.cal 
+   SELECT center_idx, latitude, longitude,center_name, center_address, centerlist.cal 
    FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
    FROM project.center) AS centerlist
    ORDER BY centerlist.cal ASC
    LIMIT 20 offset $1 * 20;
 `;
 export const roadByDistance = `
-   SELECT road_point_idx, road_name,road_type,road_address,roadlist.cal 
+   SELECT road_point_idx, latitude ,longitude,road_name,road_type,road_address,roadlist.cal 
    FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
    FROM project.road_point) AS roadlist
    FULL OUTER JOIN project.road 
