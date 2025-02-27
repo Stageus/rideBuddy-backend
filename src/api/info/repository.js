@@ -61,22 +61,28 @@ export const searchData = `
 export const selectPin = `
     select *
     from (
-        (select     
+        (select
+            'center' as result,     
             center_idx as idx, 
+            0 as pointidx,
             center_name as name, 
             latitude, 
             longitude, 
             center_address as address , 
-            'center_point' as type 
+            'center_point' as type,
+            center_like as like
         from project.center )
     union all
         (select 
-            road_point_idx as idx, 
+            'road' as result,  
+            road.road_idx as idx,
+            road_point_idx as pointidx, 
             road_name as name, 
             latitude, 
             longitude, 
             road_address as address , 
-            road_type as type 
+            road_type as type,
+            road.road_like as like
         from project.road_point 
         FULL OUTER JOIN project.road 
         ON road.road_idx = road_point.road_idx
