@@ -40,7 +40,7 @@ const weather = wrap(async (req, res) => {
 
   const weatherResult = await pool.query(getWeather, [legalSido, legalSigungu.replace(/ /g, '')]);
   const region_idx = weatherResult.rows[0]['region_idx'];
-
+  console.log('region_idx', region_idx);
   // ===================================미세먼지 부분==========================================================
   const encodingServiceKey = process.env.PUBLIC_SERVICE_KEY;
   const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
