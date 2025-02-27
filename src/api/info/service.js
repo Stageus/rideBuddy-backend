@@ -131,6 +131,7 @@ export const getPin = wrap(async (req, res) => {
 
 export const giveInformationRoad = wrap(async (req, res, next) => {
   const roadIdx = req.params['roadPointIdx'];
+  console.log(roadIdx);
   const roadResults = await pool.query(giveInformationRoadDB, [roadIdx]);
   if (roadResults.rows.length == 0) {
     return next(new NotFoundError('roadIdx가 유효하지 않음.'));
@@ -139,8 +140,8 @@ export const giveInformationRoad = wrap(async (req, res, next) => {
 
   res.status(200).send({
     roads_lat_lng: [roadResults.rows[0].latitude, roadResults.rows[0].longitude],
-    roads_point_idx: roadIdx,
-    roads_type: roadResults.rows[0].road_type,
+    roads_point_idx: roadResults.rows[0].road_point_idx,
+    roads_idx: roadIdx,
     roads_name: roadLikeResults.rows[0].road_name,
     roads_address: roadResults.rows[0].road_address,
     road_likeCount: roadLikeResults.rows[0].road_like
