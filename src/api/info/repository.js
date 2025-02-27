@@ -1,44 +1,59 @@
 export const CenterByDistance = `
-   SELECT center_idx, latitude, longitude,center_name, center_address, centerlist.cal 
-   FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
+   SELECT center_idx, latitude, longitude, center_name, center_address, centerlist.distance , center_like
+   FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS distance
    FROM project.center) AS centerlist
-   ORDER BY centerlist.cal ASC
+   ORDER BY centerlist.distance ASC
    LIMIT 20 offset $1 * 20;
 `;
 export const roadByDistance = `
-   SELECT road_point_idx, latitude ,longitude,road_name,road_type,road_address,roadlist.cal 
-   FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS cal 
-   FROM project.road_point) AS roadlist
-   FULL OUTER JOIN project.road 
-   ON road.road_idx = roadlist.road_idx
-   ORDER BY roadlist.cal ASC
+   SELECT 
+        roadlist.road_point_idx, 
+        r.road_idx, 
+        roadlist.latitude,
+        roadlist.longitude, 
+        r.road_name, 
+        roadlist.road_type, 
+        roadlist.road_address, 
+        roadlist.distance,
+        r.road_like 
+   FROM (SELECT * , calcDistance($2, $3, latitude, longitude) AS distance
+   FROM project.road_point) AS roadlist 
+   FULL OUTER JOIN project.road r
+   ON r.road_idx = roadlist.road_idx
+   ORDER BY roadlist.distance ASC
    LIMIT 20 offset $1 * 20;
 `;
 
 export const searchData = `
     (select 
-        center_idx as idx, 
+        'center' as result,
+        center_idx as idx,
+        0 as pointidx,
         center_name as name, 
         latitude, 
         longitude, 
         center_address as address , 
         'center_point' as type , 
-        calcDistance($3, $4, latitude, longitude) AS distance 
+        calcDistance($3, $4, latitude, longitude) AS distance,
+        center_like as like
     from project.center 
     where center_name like $1)
     union all
     (select 
-        road_point_idx as idx, 
-        road_name as name, 
-        latitude, 
-        longitude, 
-        road_address as address , 
-        road_type as type ,
-        calcDistance($3, $4, latitude, longitude) AS distance
-    from project.road_point
-    FULL OUTER JOIN project.road 
-    ON road.road_idx = road_point.road_idx
-    where road_name like $1) 
+        'road' as result,
+        rp.road_idx as idx,
+        rp.road_point_idx as pointidx, 
+        r.road_name as name, 
+        rp.latitude, 
+        rp.longitude, 
+        rp.road_address as address , 
+        rp.road_type as type ,
+        calcDistance($3, $4, rp.latitude, rp.longitude) AS distance,
+        r.road_like as like
+    from project.road_point rp
+    FULL OUTER JOIN project.road r
+    ON r.road_idx = rp.road_idx
+    where r.road_name like $1) 
     order by distance ASC
     limit 20 offset $2*20;
 `;
