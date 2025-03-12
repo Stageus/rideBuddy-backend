@@ -221,9 +221,8 @@ export const naverLogin = wrap((req, res) => {
 
 // 네이버 토큰발급 요청후 로직거쳐 localToken 발급
 export const naverCreateToken = wrap(async (req, res) => {
-  const code = req.query.code;
-  const state = req.query.state;
-  const encodedState = encodeURI(state);
+  const { code, state } = req.body;
+  // const encodedState = encodeURI(state);
 
   const tokenUrl =
     `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code` +
