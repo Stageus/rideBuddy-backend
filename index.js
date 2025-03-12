@@ -9,6 +9,11 @@ app.use(express.json());
 app.use(logging);
 app.use(cors());
 
+const __dirname = path.resolve();
+app.get('/', (req, res) => {
+  res.sendFile(`${__dirname}/static/index.html`);
+});
+
 //==============================================================================================================================================================================================
 import userRoute from './src/api/users/route.js';
 app.use('/users', userRoute);
