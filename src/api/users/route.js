@@ -29,7 +29,7 @@ router.post('/login/local',validateRegx([['id', idRegx],['pw', pwRegx]]),localCr
 router.post('/login/naver', naverLogin);
 router.post('/login/naver/callback', naverCreateToken);
 router.get('/login/google', userGoogleLogin); //완료
-router.get('/google/callback', googleCreateToken); //완료
+router.post('/login/google/callback', googleCreateToken); //완료
 // prettier-ignore
 router.post('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
 // prettier-ignore

@@ -87,7 +87,7 @@ export const googleCreateToken = wrap(async (req, res) => {
 
   // 프론트 전달
   res.status(200).send({
-    access_token: accessToken,
+    token: accessToken,
     OAuth: true
   });
 });
@@ -232,15 +232,12 @@ export const naverCreateToken = wrap(async (req, res) => {
     `&state=${encodedState}`;
 
   const response = await axios.get(tokenUrl);
-  console.log('response', response);
   const naverAccessToken = response.data.access_token;
-  console.log('response.data', response.data);
-  console.log('naverAccessToken', naverAccessToken);
   const DbAccountIdx = await userNaverProfile(naverAccessToken);
   const accessToken = genAccessToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).send({
-    access_token: accessToken,
+    token: accessToken,
     OAuth: true
   });
 });
