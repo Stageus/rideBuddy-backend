@@ -222,14 +222,14 @@ export const naverLogin = wrap((req, res) => {
 // 네이버 토큰발급 요청후 로직거쳐 localToken 발급
 export const naverCreateToken = wrap(async (req, res) => {
   const { code, state } = req.body;
-  // const encodedState = encodeURI(state);
+  const encodedState = encodeURI(state);
 
   const tokenUrl =
     `https://nid.naver.com/oauth2.0/token?grant_type=authorization_code` +
     `&client_id=${process.env.NAVER_CLIENT_ID}` +
     `&client_secret=${process.env.NAVER_CLIENT_SECRET}` +
     `&code=${code}` +
-    `&state=${state}`;
+    `&state=${encodedState}`;
 
   const response = await axios.get(tokenUrl);
   console.log('response', response);
