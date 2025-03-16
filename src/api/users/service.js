@@ -232,7 +232,10 @@ export const naverCreateToken = wrap(async (req, res) => {
     `&state=${state}`;
 
   const response = await axios.get(tokenUrl);
+  console.log('response', response);
   const naverAccessToken = response.data.access_token;
+  console.log('response.data', response.data);
+  console.log('naverAccessToken', naverAccessToken);
   const DbAccountIdx = await userNaverProfile(naverAccessToken);
   const accessToken = genAccessToken(DbAccountIdx);
   // 프론트 전달
