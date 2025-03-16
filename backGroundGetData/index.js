@@ -35,7 +35,7 @@ cron.schedule(`5 0 * * *`, async () => {
 // 2시간에 한번씩 getAirData 호출
 // cron.schedule('0 20 */2 * * *', async () => {
 
-cron.schedule('0 15 * * * *', async () => {
+cron.schedule('0 24 * * * *', async () => {
   try {
     const currentTime = new Date().toString();
     console.log(`주기적으로 미세먼지 함수 실행중, 현재시각 ${currentTime}`);
