@@ -35,6 +35,7 @@ cron.schedule(`5 0 * * *`, async () => {
 // 2시간에 한번씩 getAirData 호출
 // cron.schedule('0 20 */2 * * *', async () => {
 
+
 cron.schedule('0 24 * * * *', async () => {
   try {
     const currentTime = new Date().toString();
