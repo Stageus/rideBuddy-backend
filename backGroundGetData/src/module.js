@@ -129,10 +129,12 @@ export const getWeatherData = async (date, time, next) => {
 };
 
 export const getAirData = async () => {
+  let consoleStationName;
   try {
     // db에 저장된 서울 측정소 리스트
     const stationResults = await pool.query(selectAirStation);
     const stationList = stationResults.rows;
+
     // 데이터 저장전 db내용 삭제
     await pool.query(deleteAirData);
 
@@ -148,6 +150,7 @@ export const getAirData = async () => {
     let airAxiosResult;
 
     for (let station of stationList) {
+      consoleStationName = station;
       const airDataUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`;
       const airDataParams = {
         serviceKey: decodingServiceKey,
@@ -194,6 +197,7 @@ export const getAirData = async () => {
     }
   } catch (err) {
     console.error('getAirData에서 에러발생');
+    console.log('에러난 consoleStationName', consoleStationName);
     console.log(err);
   }
 };
