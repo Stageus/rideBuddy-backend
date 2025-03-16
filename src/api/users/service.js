@@ -87,7 +87,7 @@ export const googleCreateToken = wrap(async (req, res) => {
 
   // 프론트 전달
   res.status(200).send({
-    access_token: accessToken,
+    token: accessToken,
     OAuth: true
   });
 });
@@ -240,7 +240,7 @@ export const naverCreateToken = wrap(async (req, res) => {
   const accessToken = genAccessToken(DbAccountIdx);
   // 프론트 전달
   res.status(200).send({
-    access_token: accessToken,
+    token: accessToken,
     OAuth: true
   });
 });
