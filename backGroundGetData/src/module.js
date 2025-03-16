@@ -190,6 +190,7 @@ export const getAirData = async () => {
         airData.pm25grade1h,
         airData.surveyDateTime
       ]);
+      console.log('완료 station', station);
     }
   } catch (err) {
     console.error('getAirData에서 에러발생');
