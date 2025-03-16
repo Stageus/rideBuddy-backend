@@ -229,7 +229,7 @@ export const naverCreateToken = wrap(async (req, res) => {
     `&client_id=${process.env.NAVER_CLIENT_ID}` +
     `&client_secret=${process.env.NAVER_CLIENT_SECRET}` +
     `&code=${code}` +
-    `&state=${encodedState}`;
+    `&state=${state}`;
 
   const response = await axios.get(tokenUrl);
   const naverAccessToken = response.data.access_token;
