@@ -82,9 +82,10 @@ const weather = wrap(async (req, res) => {
   });
 
   const stationName = nearStationAxios.data.response.body.items[0].stationName;
-
+  console.log('현재 측정소 이름', stationName);
   // 3. 측정소에 해당하는 값 불러오기
   const airData = await pool.query(selectAirData, [stationName]);
+  console.log('airdata', airData.rows[0]);
   data = {
     stationName: airData.rows[0].station_name,
     pm10Value: airData.rows[0].pm10value,
