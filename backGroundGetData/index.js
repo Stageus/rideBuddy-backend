@@ -33,7 +33,8 @@ cron.schedule(`5 0 * * *`, async () => {
   deleteWeatherData(23);
 });
 // 2시간에 한번씩 getAirData 호출
-cron.schedule('0 20 */2 * * *', async () => {
+// cron.schedule('0 20 */2 * * *', async () => {
+cron.schedule('0 3 * * * *', async () => {
   try {
     const currentTime = new Date().toString();
     console.log(`주기적으로 미세먼지 함수 실행중, 현재시각 ${currentTime}`);
