@@ -30,7 +30,7 @@ export const userNaverDBCheck = async (naverName, naverId) => {
 
   // 네이버 식별자 아이디가 없으면 db에 추가
   if (checkResults.rows.length == 0) {
-    await pool.query(insertNaverId, [userName, userAuthId]);
+    await pool.query(insertNaverId, [userName, userAuthId, 'naver']);
   }
 
   // 네이버 식별자 아이디에 해당하는 account_idx 가져오기
