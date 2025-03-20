@@ -7,7 +7,7 @@ export const checkGoogleId = `
 export const insertGoogleId = `
     INSERT INTO project.account
     (account_name, google_id,token_type)
-    VALUES($1,$2);
+    VALUES($1,$2,$3);
 `;
 
 export const selectGoogleAccountIdx = `
@@ -83,7 +83,7 @@ export const checkNaverId = `
 export const insertNaverId = `
     INSERT INTO project.account
     (account_name, naver_id,token_type)
-    VALUES($1,$2);
+    VALUES($1,$2,$3);
 `;
 
 export const selectUserPw = `
