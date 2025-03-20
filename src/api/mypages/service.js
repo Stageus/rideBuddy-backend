@@ -16,6 +16,7 @@ import { BadRequestError, ForbiddenError } from '#utility/customError.js';
 export const getMyInfo = wrap(async (req, res) => {
   const userIdx = req.accountIdx;
   const result = await pool.query(selectLoginType, [userIdx]);
+  console.log('mypage getMyInfo 결과', result.rows[0]);
   const userLoginType = result.rows[0].token_type;
   let img_url;
 
