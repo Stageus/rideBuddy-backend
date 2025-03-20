@@ -196,6 +196,7 @@ export const deleteuser = wrap(async (req, res, next) => {
 
   //verifyJWT 를 통해서 idx 추출하기
   const result = verifyJWT('access', accessToken);
+  console.log('delete result', result);
   const idx = result.accountIdx;
   //해당 idx 삭제하기
   await pool.query(deleteaccount, [idx]);
