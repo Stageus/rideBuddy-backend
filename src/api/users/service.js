@@ -41,7 +41,8 @@ export const userGoogleLogin = wrap((req, res) => {
 
 export const googleCreateToken = wrap(async (req, res) => {
   //google로부터 코드 발급
-  const code = req.query.code;
+  const { code } = req.body;
+  // const code = req.query.code;
   //google로 발급받은 코드 전송
   const resp = await axios.post(
     process.env.GOOGLE_TOKEN_URL,
