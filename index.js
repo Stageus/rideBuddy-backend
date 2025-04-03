@@ -9,7 +9,9 @@ app.use(express.json());
 app.use(logging);
 app.use(
   cors({
-    origin: [' https://ride-plzcoboos-projects.vercel.app/ ']
+    credentials: true,
+    methods: ['GET', 'POST'],
+    origin: ['https://ride-plzcoboos-projects.vercel.app/']
   })
 );
 
