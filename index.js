@@ -7,6 +7,9 @@ const app = express();
 
 app.use(express.json());
 app.use(logging);
+
+app.use('/.well-known', express.static('/home/ubuntu/ridebuddy/public/.well-known'));
+
 app.use(
   cors({
     credentials: true,
