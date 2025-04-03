@@ -11,7 +11,7 @@ app.use(
   cors({
     credentials: true,
     methods: ['GET', 'POST'],
-    origin: ['https://ride-plzcoboos-projects.vercel.app/']
+    origin: '*'
   })
 );
 
