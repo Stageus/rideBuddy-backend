@@ -6,8 +6,8 @@ import { logging } from '#middleware/logger.js';
 import cors from 'cors';
 const app = express();
 const option = {
-  key: readFileSync('/etc/letsencrypt/live/ridebuddy.life/privkey.pem'),
-  cert: readFileSync('/etc/letsencrypt/live/ridebuddy.life/fullchain.pem')
+  key: readFileSync('/home/ubuntu/rideBuddy-backend/privkey.pem'),
+  cert: readFileSync('/home/ubuntu/rideBuddy-backend/fullchain.pem')
 };
 const httpsServer = https.createServer(option, app);
 
