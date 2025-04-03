@@ -7,14 +7,16 @@ const app = express();
 
 app.use(express.json());
 app.use(logging);
-app.use(cors());
-
+app.use(
+  cors({
+    origin: [' https://ride-plzcoboos-projects.vercel.app/ ']
+  })
+);
 
 // const __dirname = path.resolve();
 // app.get('/', (req, res) => {
 //   res.sendFile(`${__dirname}/static/index.html`);
 // });
-
 
 //==============================================================================================================================================================================================
 import userRoute from './src/api/users/route.js';
