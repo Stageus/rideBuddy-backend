@@ -1,14 +1,18 @@
 import express from 'express';
-import path from 'path';
+import https from 'node:https';
+import { readFileSync } from 'node:fs';
 import 'dotenv/config';
 import { logging } from '#middleware/logger.js';
 import cors from 'cors';
 const app = express();
+const option = {
+  key: readFileSync('/etc/letsencrypt/live/ridebuddy.life/privkey.pem'),
+  cert: readFileSync('/etc/letsencrypt/live/ridebuddy.life/fullchain.pem')
+};
+const httpsServer = https.createServer(option, app);
 
 app.use(express.json());
 app.use(logging);
-
-app.use('/.well-known', express.static('/home/ubuntu/ridebuddy/public/.well-known'));
 
 app.use(
   cors({
@@ -40,6 +44,6 @@ app.use((err, req, res, next) => {
 });
 
 const currentTime = new Date().toString();
-app.listen(process.env.PORT, () => {
+httpsServer.listen(process.env.PORT, () => {
   console.log(`${process.env.PORT}포트에서 ${currentTime}현재 웹서버 실행중`);
 });
