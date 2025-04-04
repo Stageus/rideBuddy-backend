@@ -17,7 +17,7 @@ app.use(logging);
 app.use(
   cors({
     credentials: true,
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PUT'],
     origin: '*'
   })
 );
