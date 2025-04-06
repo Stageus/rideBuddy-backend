@@ -36,6 +36,9 @@ const weather = wrap(async (req, res) => {
   const legalDong = response.data.results[1].region.area3.name;
   const legalSigungu = response.data.results[1].region.area2.name;
 
+  console.log('reversegeocode', response.data);
+  console.log('legalsigungu', legalSigungu);
+  console.log('legalDong', legalDong);
   //해당 하는 idx 값 추출 (웨더)
 
   const weatherResult = await pool.query(getWeather, [legalSido, legalSigungu.replace(/ /g, '')]);
@@ -81,12 +84,14 @@ const weather = wrap(async (req, res) => {
     params: nearStationParams
   });
 
-  console.log(nearStationAxios.data.response);
+
+  console.log('station axios', nearStationAxios.data.response);
+
   const stationName = nearStationAxios.data.response.body.items[0].stationName;
   console.log('현재 측정소 이름', stationName);
   // 3. 측정소에 해당하는 값 불러오기
   const airData = await pool.query(selectAirData, [stationName]);
-  console.log('airdata', airData.rows[0]);
+
   data = {
     stationName: airData.rows[0].station_name,
     pm10Value: airData.rows[0].pm10value,
@@ -105,10 +110,7 @@ const weather = wrap(async (req, res) => {
     }
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
-    console.log('getResult', getResult);
-    console.log('region', region_idx);
-    console.log('form', formHours);
-    console.log('결과', getResult.rows[0]);
+
     data[`${i}_rain`] = getResult.rows[0]['rain'];
     data[`${i}_weather`] = getResult.rows[0]['weather'];
     data[`${i}_temperature`] = getResult.rows[0]['temperature'];
