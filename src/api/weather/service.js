@@ -36,7 +36,9 @@ const weather = wrap(async (req, res) => {
   const legalDong = response.data.results[1].region.area3.name;
   const legalSigungu = response.data.results[1].region.area2.name;
 
-  console.log('reversegeocode', response.data);
+
+  console.log('reversegeocode', response.data.results[1].region);
+
   console.log('legalsigungu', legalSigungu);
   console.log('legalDong', legalDong);
   //해당 하는 idx 값 추출 (웨더)
