@@ -78,6 +78,13 @@ export const getWeatherData = async (date, time, next) => {
       console.log('데이터 삽입 idx : ', i, '/252)완료');
       var weatherData = response.data.response.body.items;
 
+      if (!response?.data?.response?.body?.items) {
+        console.error("API 응답 이상 또는 데이터 없음 다시 시도합니다 (3초후 다시 시작)");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        i--;
+        continue;
+      }
+
       weatherData = Object.values(weatherData);
       const flattenedWeatherData = weatherData.flat();
 

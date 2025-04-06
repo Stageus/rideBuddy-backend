@@ -84,7 +84,9 @@ const weather = wrap(async (req, res) => {
     params: nearStationParams
   });
 
+
   console.log('station axios', nearStationAxios.data.response);
+
   const stationName = nearStationAxios.data.response.body.items[0].stationName;
   console.log('현재 측정소 이름', stationName);
   // 3. 측정소에 해당하는 값 불러오기
