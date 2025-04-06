@@ -36,7 +36,6 @@ const weather = wrap(async (req, res) => {
   const legalDong = response.data.results[1].region.area3.name;
   const legalSigungu = response.data.results[1].region.area2.name;
 
-
   console.log('reversegeocode', response.data.results[1].region);
 
   console.log('legalsigungu', legalSigungu);
@@ -51,21 +50,20 @@ const weather = wrap(async (req, res) => {
   const decodingServiceKey = decodeURIComponent(`${encodingServiceKey}`);
 
   //1. 사용자 위치(법정동)에 대한 TM 기준좌표 조회
-  const TMurl = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt';
-  const TMParams = {
+  let TMurl = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt';
+  let TMParams = {
     serviceKey: decodingServiceKey,
     umdName: legalDong,
     returnType: 'json'
   };
 
   let tmX, tmY;
-  const TMaxios = await axios({
+  let TMaxios = await axios({
     method: 'get',
     url: TMurl,
     params: TMParams
   });
 
-  console.log('TMaxios 콘솔', TMaxios.data.response.body);
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
   for (let array of TMaxios.data.response.body.items) {
     if (array.sidoName == legalSido) {
@@ -73,6 +71,35 @@ const weather = wrap(async (req, res) => {
       tmY = array.tmY;
     }
   }
+
+  console.log('TMaxios 콘솔1', TMaxios.data.response.body);
+  // 동이름이 아예 잘못된 시도의 동이름으로 잘못 찾아진 경우
+  if (TMaxios.data.response.body.items[0].sidoName !== legalSido) {
+    TMurl = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt';
+    TMParams = {
+      serviceKey: decodingServiceKey,
+      umdName: legalSigungu,
+      returnType: 'json'
+    };
+
+    TMaxios = await axios({
+      method: 'get',
+      url: TMurl,
+      params: TMParams
+    });
+
+    // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
+    for (let array of TMaxios.data.response.body.items) {
+      if (array.sidoName == legalSido) {
+        tmX = array.tmX;
+        tmY = array.tmY;
+        break;
+      }
+    }
+  }
+
+  console.log('TMaxios 콘솔2', TMaxios.data.response.body);
+
   console.log('tmx', tmX);
   console.log('tmy', tmY);
   //2. TM좌표 기준 가장 근접한 측정소 조회
