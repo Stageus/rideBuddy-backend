@@ -143,9 +143,24 @@ const weather = wrap(async (req, res) => {
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
 
-    data[`${i}_rain`] = getResult.rows[0]['rain'];
-    data[`${i}_weather`] = getResult.rows[0]['weather'];
-    data[`${i}_temperature`] = getResult.rows[0]['temperature'];
+    
+    if (getResult?.rows[0]['rain'] == null) {
+      data[`${i}_rain`] = 0;
+    } else {
+      data[`${i}_rain`] = getResult.rows[0]['rain'];
+    }
+    
+    if (getResult?.rows[0]['weather'] == null) {
+      data[`${i}_weather`] = 0;
+    } else {
+      data[`${i}_weather`] = getResult.rows[0]['weather'];
+    }
+    
+    if (getResult?.rows[0]['temperature'] == null) {
+      data[`${i}_temperature`] = 20;
+    } else {
+      data[`${i}_temperature`] = getResult.rows[0]['temperature'];
+    }
   }
 
   res.status(200).send(data);
