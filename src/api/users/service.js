@@ -38,6 +38,7 @@ export const userGoogleLogin = wrap((req, res) => {
   const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.GOOGLE_REDIRECT_URL)}&response_type=code&scope=email profile`;
   console.log("redirect_uri: ", process.env.GOOGLE_REDIRECT_URL);
   console.log("client_id: ", process.env.GOOGLE_CLIENT_ID);
+  console.log("code: ", code);
   res.redirect(url);
 });
 
