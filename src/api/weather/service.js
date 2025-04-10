@@ -64,7 +64,10 @@ const weather = wrap(async (req, res) => {
     params: TMParams
   });
 
+  console.log('TMaxios 콘솔1', TMaxios.data.response.body);
+
   if (TMaxios.data.response.body.totalCount == 0) {
+    console.log('여기 실행중');
     TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
