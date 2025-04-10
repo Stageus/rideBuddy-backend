@@ -47,6 +47,9 @@ export const googleCreateToken = wrap(async (req, res) => {
   const { code } = req.body;
 
   console.log ("code : ",code)
+  console.log ("client_id : ",process.env.GOOGLE_CLIENT_ID)
+  console.log ("client_secret : ",process.env.GOOGLE_CLIENT_SECRET)
+  console.log ("redirect_uri : ",process.env.GOOGLE_REDIRECT_URL)
   console.log("################################################################################################")
   // const code = req.query.code;
   //google로 발급받은 코드 전송
