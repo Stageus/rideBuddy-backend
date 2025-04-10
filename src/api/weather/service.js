@@ -66,13 +66,25 @@ const weather = wrap(async (req, res) => {
 
   console.log('TMaxios 콘솔1', TMaxios.data.response.body);
 
+  if (!TMaxios.data.response.body) {
+    for (let i = 0; i < 10; i++) {
+      TMaxios = await axios({
+        method: 'get',
+        url: TMurl,
+        params: TMParams
+      });
+      if (TMaxios.data.response.body.totalCount) break;
+      console.log(`현재 TMaxios ${i}번째 실행중`);
+    }
+  }
+
   if (TMaxios.data.response.body.totalCount == 0) {
     console.log('여기 실행중');
     TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
       returnType: 'json',
-      numOfRows: 300
+      numOfRows: 500
     };
     TMaxios = await axios({
       method: 'get',
@@ -96,7 +108,7 @@ const weather = wrap(async (req, res) => {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
       returnType: 'json',
-      numOfRows: 300
+      numOfRows: 500
     };
 
     TMaxios = await axios({
