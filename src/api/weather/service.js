@@ -64,16 +64,22 @@ const weather = wrap(async (req, res) => {
     params: TMParams
   });
 
-  console.log('TMaxios 콘솔', TMaxios.data.response.body);
+  if (TMaxios.data.response.body.totalCount == 0) {
+    TMaxiosMParams = {
+      serviceKey: decodingServiceKey,
+      umdName: legalSigungu,
+      returnType: 'json'
+    };
+  }
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
   for (let array of TMaxios.data.response.body.items) {
     if (array.sidoName == legalSido) {
       tmX = array.tmX;
       tmY = array.tmY;
     }
+    break;
   }
 
-  console.log('TMaxios 콘솔1', TMaxios.data.response.body);
   // 동이름이 아예 잘못된 시도의 동이름으로 잘못 찾아진 경우
   if (TMaxios.data.response.body.items[0].sidoName !== legalSido) {
     TMurl = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt';
@@ -143,7 +149,6 @@ const weather = wrap(async (req, res) => {
 
     const getResult = await pool.query(getData, [region_idx, formHours]);
 
-    
     if (!getResult?.rows || getResult.rows.length === 0 || !getResult.rows[0]) {
       data[`${i}_rain`] = 0;
       data[`${i}_weather`] = 0;
