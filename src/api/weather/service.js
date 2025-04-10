@@ -64,9 +64,6 @@ const weather = wrap(async (req, res) => {
     params: TMParams
   });
 
-  console.log('TMaxios 콘솔1', TMaxios.data.response.body);
-
-
   if (!TMaxios.data.response.body) {
     for (let i = 0; i < 10; i++) {
       TMaxios = await axios({
@@ -130,7 +127,7 @@ const weather = wrap(async (req, res) => {
     }
   }
 
-  console.log('TMaxios 콘솔2', TMaxios.data.response.body);
+  // console.log('TMaxios 콘솔2', TMaxios.data.response.body);
 
   console.log('tmx', tmX);
   console.log('tmy', tmY);
