@@ -94,7 +94,7 @@ export const googleCreateToken = wrap(async (req, res) => {
 
   // 구글 식별자 아이디가 없으면 db에 추가
   if (checkResults.rows.length == 0) {
-    await pool.query(insertGoogleId, [googleName, googleId, 'googld']);
+    await pool.query(insertGoogleId, [googleName, googleId, 'google']);
   }
   //idx 얻어오기
   const idxResults = await pool.query(selectGoogleAccountIdx, [googleId]);
