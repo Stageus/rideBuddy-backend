@@ -56,7 +56,7 @@ export const googleCreateToken = wrap(async (req, res) => {
   const resp = await axios.post(
     process.env.GOOGLE_TOKEN_URL,
     qs.stringify({
-      code,
+      code: code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
       redirect_uri: process.env.GOOGLE_REDIRECT_URL,
