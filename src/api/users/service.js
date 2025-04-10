@@ -35,22 +35,16 @@ import sendMailUtil from './utility/mail.js';
 
 //구글 oauth
 export const userGoogleLogin = wrap((req, res) => {
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URL}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid`;
-  console.log("redirect_uri: ", process.env.GOOGLE_REDIRECT_URL);
-  console.log("client_id: ", process.env.GOOGLE_CLIENT_ID);
-  console.log("code: ", code);
+  // const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URL}&response_type=code&scope=email profile`;
+  // res.redirect(url);
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URL}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile`;
+
   res.redirect(url);
 });
 
 export const googleCreateToken = wrap(async (req, res) => {
   //google로부터 코드 발급
   const { code } = req.body;
-
-  console.log ("code : ",code)
-  console.log ("client_id : ",process.env.GOOGLE_CLIENT_ID)
-  console.log ("client_secret : ",process.env.GOOGLE_CLIENT_SECRET)
-  console.log ("redirect_uri : ",process.env.GOOGLE_REDIRECT_URL)
-  console.log("################################################################################################")
   // const code = req.query.code;
   //google로 발급받은 코드 전송
 
@@ -83,10 +77,21 @@ export const googleCreateToken = wrap(async (req, res) => {
     }
   });
 
+  // const resp = await axios.post(process.env.GOOGLE_TOKEN_URL, {
+  //   headers: {
+  //     'Content-Type': 'application/x-www-form-urlencoded'
+  //   },
+  //   params: {
+  //     code: code,
+  //     client_id: process.env.GOOGLE_CLIENT_ID,
+  //     client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  //     redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+  //     grant_type: 'authorization_code'
+  //   }
+  // });
+
   //access_token 받음.
   const googleaccessToken = resp.data.access_token;
-
-
 
   //access_token 통해서 정보 접근
   const userInfo = await axios.get(process.env.GOOGLE_INFORMATION_URL, {
