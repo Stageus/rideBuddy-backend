@@ -28,7 +28,7 @@ const router = express.Router();
 router.post('/login/local',validateRegx([['id', idRegx],['pw', pwRegx]]),localCreateToken);
 router.post('/login/naver', naverLogin);
 router.post('/login/naver/callback', naverCreateToken);
-router.get('/login/google', userGoogleLogin); //완료
+router.get('  ', userGoogleLogin); //완료
 router.post('/login/google/callback', googleCreateToken); //완료
 // prettier-ignore
 router.post('/find-id',validateRegx([['name', nameRegx],['mail', mailRegx]]),findId);
