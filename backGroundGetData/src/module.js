@@ -76,7 +76,7 @@ export const getWeatherData = async (date, time, next) => {
       response = await fetchWithRetry(url);
 
       console.log('데이터 삽입 idx : ', i, '/252)완료');
-      var weatherData = response.data.response.body.items;
+      
 
       if (!response?.data?.response?.body?.items) {
         console.error("API 응답 이상 또는 데이터 없음 다시 시도합니다 (3초후 다시 시작)");
@@ -84,7 +84,7 @@ export const getWeatherData = async (date, time, next) => {
         i--;
         continue;
       }
-
+      var weatherData = response.data.response.body.items;
       weatherData = Object.values(weatherData);
       const flattenedWeatherData = weatherData.flat();
 
