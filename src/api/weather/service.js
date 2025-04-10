@@ -66,6 +66,7 @@ const weather = wrap(async (req, res) => {
 
   console.log('TMaxios 콘솔1', TMaxios.data.response.body);
 
+
   if (!TMaxios.data.response.body) {
     for (let i = 0; i < 10; i++) {
       TMaxios = await axios({
@@ -77,7 +78,6 @@ const weather = wrap(async (req, res) => {
       console.log(`현재 TMaxios ${i}번째 실행중`);
     }
   }
-
   if (TMaxios.data.response.body.totalCount == 0) {
     console.log('여기 실행중');
     TMParams = {
@@ -85,11 +85,13 @@ const weather = wrap(async (req, res) => {
       umdName: legalSigungu,
       returnType: 'json',
       numOfRows: 500
+
     };
     TMaxios = await axios({
       method: 'get',
       url: TMurl,
-      params: TMParams
+      params: TMParams,
+      numOfRows: 300
     });
   }
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
@@ -114,7 +116,8 @@ const weather = wrap(async (req, res) => {
     TMaxios = await axios({
       method: 'get',
       url: TMurl,
-      params: TMParams
+      params: TMParams,
+      numOfRows: 300
     });
 
     // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
