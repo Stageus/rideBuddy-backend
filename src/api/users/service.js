@@ -48,6 +48,19 @@ export const googleCreateToken = wrap(async (req, res) => {
   // const code = req.query.code;
   //google로 발급받은 코드 전송
 
+  console.log('id', process.env.GOOGLE_CLIENT_ID);
+  console.log('secret', process.env.GOOGLE_CLIENT_SECRET);
+  console.log('redirect', process.env.GOOGLE_REDIRECT_URL);
+  console.log(
+    'qs결과',
+    qs.stringify({
+      code: code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+      grant_type: 'authorization_code'
+    })
+  );
   const resp = await axios.post(
     process.env.GOOGLE_TOKEN_URL,
     qs.stringify({
