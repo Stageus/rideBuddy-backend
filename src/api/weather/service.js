@@ -71,7 +71,8 @@ const weather = wrap(async (req, res) => {
     TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
-      returnType: 'json'
+      returnType: 'json',
+      numOfRows: 300
     };
     TMaxios = await axios({
       method: 'get',
@@ -95,7 +96,8 @@ const weather = wrap(async (req, res) => {
     TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
-      returnType: 'json'
+      returnType: 'json',
+      numOfRows: 300
     };
 
     TMaxios = await axios({
