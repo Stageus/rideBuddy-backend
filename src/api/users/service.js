@@ -47,21 +47,61 @@ export const googleCreateToken = wrap(async (req, res) => {
   const { code } = req.body;
   // const code = req.query.code;
   //google로 발급받은 코드 전송
-  const resp = await axios.post(
-    process.env.GOOGLE_TOKEN_URL,
-    qs.stringify({
+
+  // const resp = await axios.post(
+  //   process.env.GOOGLE_TOKEN_URL,
+  //   qs.stringify({
+  //     code: code,
+  //     client_id: process.env.GOOGLE_CLIENT_ID,
+  //     client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  //     redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+  //     grant_type: 'authorization_code'
+  //   }),
+  //   {
+  //     headers: {
+  //       'Content-Type': 'application/x-www-form-urlencoded'
+  //     }
+  //   }
+  // );
+
+  const resp = await axios.post(process.env.GOOGLE_TOKEN_URL, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    params: {
       code: code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
       redirect_uri: process.env.GOOGLE_REDIRECT_URL,
       grant_type: 'authorization_code'
-    }),
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
     }
-  );
+  });
+
+  // const resp = await axios.post(process.env.GOOGLE_TOKEN_URL, {
+  //   headers: {
+  //     'Content-Type': 'application/x-www-form-urlencoded'
+  //   },
+  //   params: {
+  //     code: code,
+  //     client_id: process.env.GOOGLE_CLIENT_ID,
+  //     client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  //     redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+  //     grant_type: 'authorization_code'
+  //   }
+  // });
+
+  // const resp = await axios.post(process.env.GOOGLE_TOKEN_URL, {
+  //   headers: {
+  //     'Content-Type': 'application/x-www-form-urlencoded'
+  //   },
+  //   params: {
+  //     code: code,
+  //     client_id: process.env.GOOGLE_CLIENT_ID,
+  //     client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  //     redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+  //     grant_type: 'authorization_code'
+  //   }
+  // });
 
   // const resp = await axios.post(process.env.GOOGLE_TOKEN_URL, {
   //   headers: {
