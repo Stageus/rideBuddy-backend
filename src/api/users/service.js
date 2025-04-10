@@ -61,28 +61,21 @@ export const googleCreateToken = wrap(async (req, res) => {
       grant_type: 'authorization_code'
     })
   );
-  // const resp = await axios.post(
-  //   process.env.GOOGLE_TOKEN_URL,
-  //   qs.stringify({
-  //     code: code,
-  //     client_id: process.env.GOOGLE_CLIENT_ID,
-  //     client_secret: process.env.GOOGLE_CLIENT_SECRET,
-  //     redirect_uri: process.env.GOOGLE_REDIRECT_URL,
-  //     grant_type: 'authorization_code'
-  //   }),
-  //   {
-  //     headers: {
-  //       'Content-Type': 'application/x-www-form-urlencoded'
-  //     }
-  //   }
-  // );
-  const postUrl =
-    `https://oauth2.googleapis.com/token` +
-    `&client_id=${process.env.NAVER_CLIENT_ID}` +
-    `&client_secret=${process.env.NAVER_CLIENT_SECRET}` +
-    `&code=${code}` +
-    `&grant_type=authorization_code`;
-  const resp = await axios.post(postUrl);
+  const resp = await axios.post(
+    process.env.GOOGLE_TOKEN_URL,
+    qs.stringify({
+      code: code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+      grant_type: 'authorization_code'
+    }),
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    }
+  );
 
   //access_token 받음.
   const googleaccessToken = resp.data.access_token;
