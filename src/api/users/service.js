@@ -51,7 +51,7 @@ export const googleCreateToken = wrap(async (req, res) => {
   const resp = await axios.post(
     process.env.GOOGLE_TOKEN_URL,
     qs.stringify({
-      code: code,
+      code: '1',
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
       redirect_uri: process.env.GOOGLE_REDIRECT_URL,
@@ -66,7 +66,7 @@ export const googleCreateToken = wrap(async (req, res) => {
 
   //access_token 받음.
   const googleaccessToken = resp.data.access_token;
-
+  console.log('액세스 토큰이 와>?', resp.data.access_token);
   //access_token 통해서 정보 접근
   const userInfo = await axios.get(process.env.GOOGLE_INFORMATION_URL, {
     headers: {
