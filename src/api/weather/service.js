@@ -82,6 +82,7 @@ const weather = wrap(async (req, res) => {
       umdName: legalSigungu,
       returnType: 'json',
       numOfRows: 500
+
     };
     TMaxios = await axios({
       method: 'get',
