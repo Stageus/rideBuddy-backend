@@ -56,7 +56,7 @@ export const googleCreateToken = wrap(async (req, res) => {
       code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: encodeURIComponent(process.env.GOOGLE_REDIRECT_URL),
+      redirect_uri: process.env.GOOGLE_REDIRECT_URL,
       grant_type: 'authorization_code'
     }),
     {
