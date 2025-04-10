@@ -65,11 +65,16 @@ const weather = wrap(async (req, res) => {
   });
 
   if (TMaxios.data.response.body.totalCount == 0) {
-    TMaxiosMParams = {
+    TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
       returnType: 'json'
     };
+    TMaxios = await axios({
+      method: 'get',
+      url: TMurl,
+      params: TMParams
+    });
   }
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
   for (let array of TMaxios.data.response.body.items) {
