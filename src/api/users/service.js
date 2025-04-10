@@ -44,7 +44,7 @@ export const userGoogleLogin = wrap((req, res) => {
 
 export const googleCreateToken = wrap(async (req, res) => {
   //google로부터 코드 발급
-  const { code } = req.body.code;
+  const { code } = req.body;
 
   console.log ("code : ",code)
   console.log("################################################################################################")
