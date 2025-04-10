@@ -71,13 +71,13 @@ const weather = wrap(async (req, res) => {
     TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
-      returnType: 'json'
+      returnType: 'json',
+      numOfRows: 300
     };
     TMaxios = await axios({
       method: 'get',
       url: TMurl,
-      params: TMParams,
-      numOfRows: 300
+      params: TMParams
     });
   }
   // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
@@ -95,14 +95,14 @@ const weather = wrap(async (req, res) => {
     TMParams = {
       serviceKey: decodingServiceKey,
       umdName: legalSigungu,
-      returnType: 'json'
+      returnType: 'json',
+      numOfRows: 300
     };
 
     TMaxios = await axios({
       method: 'get',
       url: TMurl,
-      params: TMParams,
-      numOfRows: 300
+      params: TMParams
     });
 
     // 동이름이 같은 지역이 있는경우 배열로 나오기때문에 '시도'이름으로 필터링하여 TM좌표 추출
